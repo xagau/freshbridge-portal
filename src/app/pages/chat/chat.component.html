@@ -1,0 +1,48 @@
+<!-- chat.component.html -->
+<div class="chat-container flex flex-col">
+    <div class="flex justify-end mb-4">
+        <p-button icon="pi pi-history" class="p-button-rounded p-button-text w-30 h-30" label="Chat History"
+            (click)="sidebarVisible = true"></p-button>
+    </div>
+    <p-sidebar [(visible)]="sidebarVisible" position="right" [style]="{width: '300px'}">
+        <div class="sidebar-header">
+            <h3>Chat History</h3>
+            <button pButton icon="pi pi-plus" class="p-button-rounded p-button-text" (click)="startNewChat()"></button>
+        </div>
+        <div class="conversation-list">
+            <div *ngFor="let conv of conversations" class="conversation-item"
+                [class.active]="activeConversation?.conversationId === conv.conversationId"
+                (click)="loadConversation(conv.conversationId)">
+                {{ conv.title }}
+            </div>
+        </div>
+    </p-sidebar>
+
+    <div class="chat-wrapper" [ngClass]="{ 'centered': !activeConversation }">
+        <div class="chat-header">
+            <h1 class="chat-title">{{ activeConversation?.title || 'Talk to your data!' }}</h1>
+        </div>
+
+        <p-scrollPanel *ngIf="activeConversation" class="chat-window">
+            <div *ngFor="let msg of messages" class="chat-message" [ngClass]="msg.role">
+                <p-card [ngClass]="msg.role === 'user' ? 'user-bubble' : 'bot-bubble'">
+                    <div class="message-content" [innerHTML]="msg.content | formatText"></div>
+                    <div *ngIf="msg.role === 'assistant'" class="message-meta">
+                        <!-- <small *ngIf="msg.contextData.contextUsed !== undefined">
+                            {{ msg.contextData?.contextUsed ? 'Used context' : 'No context used' }}
+                        </small> -->
+                    </div>
+                </p-card>
+            </div>
+        </p-scrollPanel>
+
+        <div *ngIf="loading" class="loading-indicator">
+            <i class="pi pi-spinner pi-spin"></i>
+        </div>
+
+        <div class="chat-input">
+            <input pInputText [(ngModel)]="input" placeholder="Send a message..." (keyup.enter)="sendMessage()" />
+            <button pButton icon="pi pi-send" (click)="sendMessage()"></button>
+        </div>
+    </div>
+</div>

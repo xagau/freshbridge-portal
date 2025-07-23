@@ -1,0 +1,33 @@
+<div class="calendar-container">
+    <div class="calendar-header">
+        <div class="calendar-title">
+            <button pButton icon="pi pi-chevron-left" class="p-button-text" (click)="prevMonth()"></button>
+            <h2>{{ getMonthYearString() }}</h2>
+            <button pButton icon="pi pi-chevron-right" class="p-button-text" (click)="nextMonth()"></button>
+            <button pButton label="Today" class="p-button-text today-button" (click)="today()"></button>
+        </div>
+
+        <div class="weekdays-header">
+            <div class="weekday" *ngFor="let day of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']">{{ day }}</div>
+        </div>
+    </div>
+
+    <div class="calendar-grid">
+        <div class="calendar-week" *ngFor="let week of weeks">
+            <div class="calendar-day" *ngFor="let day of week" [class.current-month]="isCurrentMonth(day)" [class.today]="isToday(day)" [class.other-month]="!isCurrentMonth(day)">
+                <div class="day-number">{{ day.getDate() }}</div>
+                <div class="events-container">
+                    <div *ngFor="let event of getEventsForDay(day)" class="calendar-event" [style.backgroundColor]="event.color" (click)="onEventClick(event)">
+                        {{ event.title }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-order-details-modal
+  *ngIf="selectedOrder"
+  [order]="selectedOrder"
+  (closed)="closeOrderModal()">
+</app-order-details-modal>

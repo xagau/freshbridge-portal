@@ -1,0 +1,149 @@
+// chat.component.scss
+.chat-container {
+    display: flex;
+    height: calc(100dvh - 200px);
+    position: relative;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.conversation-list {
+    padding: 0.5rem;
+}
+
+.conversation-item {
+    padding: 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 0.25rem;
+
+    &:hover {
+        background-color: #f5f5f5;
+    }
+
+    &.active {
+        background-color: #e0e0e0;
+        font-weight: 500;
+    }
+}
+
+.chat-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    height: 100%;
+
+    &.centered {
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+
+        .chat-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .chat-input {
+            width: 100%;
+            max-width: 600px;
+        }
+    }
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.chat-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 0;
+    color: #444;
+}
+
+.chat-window {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.chat-message {
+    display: flex;
+    margin-bottom: 1rem;
+
+    &.user {
+        justify-content: flex-end;
+
+        p-card {
+            color: white;
+            max-width: 60%;
+            border: 1px solid #1acc23;
+            border-radius: var(--p-card-border-radius);
+        }
+    }
+
+    &.assistant {
+        justify-content: flex-start;
+
+        p-card {
+            color: #333;
+            max-width: 60%;
+            border-radius: var(--p-card-border-radius);
+            border: 1px solid #ccc01a;
+        }
+    }
+}
+
+.chat-input {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+
+    input {
+        flex: 1;
+    }
+}
+
+.loading-indicator {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.message-content {
+    white-space: pre-wrap; // Preserve line breaks and wrap text
+    word-wrap: break-word;
+
+    br {
+        display: block;
+        content: '';
+        margin-bottom: 0.5rem;
+    }
+
+    strong {
+        font-weight: 600;
+        color: inherit;
+    }
+}
+
+/* For better list formatting */
+.message-content {
+    line-height: 1.6;
+
+    br+strong {
+        display: inline-block;
+        margin-top: 0.5rem;
+    }
+}

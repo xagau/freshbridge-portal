@@ -1,0 +1,96 @@
+<p-toast></p-toast>
+
+<div class="card p-4">
+    <h1 class="text-2xl font-bold mb-6">Create New Product</h1>
+
+    <form (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left Column -->
+        <div class="space-y-4">
+            <!-- Product Name -->
+            <div class="field">
+                <label for="name" class="block font-medium mb-2">Product Name</label>
+                <input pInputText id="name" [(ngModel)]="product.name" name="name" required class="w-full"
+                    placeholder="Enter product name">
+            </div>
+
+            <!-- Description -->
+            <div class="field">
+                <label for="description" class="block font-medium mb-2">Description</label>
+                <textarea pTextarea [(ngModel)]="product.description" class="w-full" name="description"
+                    autoResize="false" [style]="{ 'min-height': '200px' }"
+                    placeholder="Enter product description"></textarea>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="field">
+                <label class="block font-medium mb-2">Product Images (Max {{maxImages}})</label>
+                <p-fileUpload name="images" [customUpload]="true" accept="image/*" (onSelect)="onImageSelect($event)"
+                    (onClear)="onClearAllImages()" [multiple]="true" [maxFileSize]="2000000" [showUploadButton]="false"
+                    [showCancelButton]="false" [chooseLabel]="'Add Images'">
+                    <ng-template pTemplate="content">
+                        <div *ngIf="previewUrls.length === 0"
+                            class="p-4 border-round border-2 border-dashed border-gray-300 text-center">
+                            <i class="pi pi-image text-4xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-500">Drag and drop images here or click to browse</p>
+                            <p class="text-xs text-gray-400 mt-2">Max {{maxImages}} images, 2MB each</p>
+                        </div>
+                    </ng-template>
+                </p-fileUpload>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="space-y-4">
+            <!-- Price -->
+            <div class="field">
+                <label for="price" class="block font-medium mb-2">Price</label>
+                <div class="p-inputgroup">
+                    <span class="p-inputgroup-addon">$</span>
+                    <input pInputText id="price" type="number" [(ngModel)]="product.price" name="price" required min="0"
+                        step="0.01" class="w-full" placeholder="0.00">
+                </div>
+            </div>
+
+            <!-- Unit and Quantity -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="field">
+                    <label for="unit" class="block font-medium mb-2">Unit</label>
+                    <p-select [options]="unitOptions" [(ngModel)]="product.unit" name="unit" placeholder="Select unit"
+                        [style]="{ width: '100%' }">
+                    </p-select>
+                </div>
+
+                <div class="field">
+                    <label for="quantity" class="block font-medium mb-2">Quantity</label>
+                    <input pInputText id="quantity" type="number" [(ngModel)]="product.quantityAvailable"
+                        name="quantity" required min="0" class="w-full" placeholder="0">
+                </div>
+            </div>
+
+            <!-- Harvest Date -->
+            <div class="field">
+                <label for="harvestDate" class="block font-medium mb-2">Harvest Date</label>
+                <input pInputText id="harvestDate" type="date" [(ngModel)]="product.harvestDate" name="harvestDate"
+                    class="w-full">
+            </div>
+
+            <!-- In Stock Toggle -->
+            <div class="field flex items-center justify-between p-4 border-round border-1 surface-border">
+                <label for="inStock" class="block font-medium">Available for Sale</label>
+                <p-toggleButton [(ngModel)]="product.quantityAvailable" name="inStock" onLabel="Yes" offLabel="No"
+                    [style]="{ width: '6rem' }">
+                </p-toggleButton>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-4 mt-6">
+                <button pButton pRipple type="button" label="Cancel" severity="secondary" (click)="onCancel()"
+                    [disabled]="loading">
+                </button>
+
+                <button pButton pRipple type="submit" label="Create Product" [loading]="loading" [disabled]="loading">
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

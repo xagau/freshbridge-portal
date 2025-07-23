@@ -1,0 +1,47 @@
+<p-dialog [(visible)]="order" [modal]="true" [closable]="true" [dismissableMask]="true" (onHide)="close()"
+    header="Delivery Details">
+    <ng-container *ngIf="order">
+        <div *ngIf="order" class="flex flex-col gap-1 p-4 text-lg">
+            <div class="flex justify-between mb-3 gap-3">
+                <h3 class="text-xl font-bold">Order #{{ order.id }}</h3>
+
+                <div class="mb-3">
+                    <p-tag [value]="order.status" [severity]="order.status | statusColor"></p-tag>
+                </div>
+            </div>
+
+            <h4 class="text-xl font-bold">Items</h4>
+            <ul class="ml-3">
+                <li *ngFor="let item of order.items" class="mb-2 flex items-center justify-start gap-2">
+                    <span class="w-2 h-2 rounded-full" [style]="{ background: bgColors }"></span>
+                    {{ item.productName }} × {{ item.quantity }} &#64; {{ item.unitPrice | currency: 'CAD' }}/{{
+                    item.productUnit }}
+                </li>
+            </ul>
+
+            <h4 class="text-xl font-bold">Totals</h4>
+            <div class="ml-3 mb-2 flex flex-col gap-1">
+                <p>Subtotal: {{ getSubtotal(order) | currency: 'CAD' }}</p>
+                <p>Tax: {{ getTax(order) | currency: 'CAD' }}</p>
+                <p>Total: {{ order.totalAmount | currency: 'CAD' }}</p>
+            </div>
+
+            <h4 class="text-xl font-bold">Delivery</h4>
+            <div class="ml-3 mb-2 flex items-center justify-start gap-2">
+                <span class="w-2 h-2 rounded-full" [style]="{ background: bgColors }"></span>
+                <p>{{ order.deliveryAddress }} / ETA: {{ order.expectedDeliveryDate | date: 'medium' }}</p>
+            </div>
+
+            <h4 class="text-xl font-bold">Recipient</h4>
+            <div class="ml-3 mb-2">
+                <p>To: {{ order.restaurant.name }}</p>
+                <p>From: {{ order.farmer.name }}</p>
+            </div>
+
+            <div class="flex gap-2 flex-wrap justify-center">
+                <p-button label="View Full Order" severity="info" />
+                <p-button label="Contact Support" severity="primary" />
+            </div>
+        </div>
+    </ng-container>
+</p-dialog>

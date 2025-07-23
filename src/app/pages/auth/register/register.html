@@ -1,0 +1,126 @@
+<p-toast></p-toast>
+<section
+    class="min-h-screen flex items-center lg:items-start lg:py-20 justify-center animate-fadein animate-duration-300 animate-ease-in max-w-[100rem] mx-auto">
+    <div class="flex w-full h-full justify-center gap-12">
+        <div class="flex flex-col py-20 lg:min-w-[30rem]">
+            <a routerLink="/" class="flex items-center justify-center lg:justify-start mb-8">
+                <logo-widget></logo-widget>
+            </a>
+            <div class="flex flex-col justify-center flex-grow">
+                <div class="max-w-md mx-auto w-full">
+                    <h5 class="title-h5 text-center lg:text-left">Register</h5>
+                    <p class="body-small mt-3.5 text-center lg:text-left">Let's get started</p>
+                    <button class="button-button mt-8" (click)="onGoogleLogin()"><app-google-widget></app-google-widget>
+                        Register with
+                        Google</button>
+                    <!-- <button class="button-button mt-4" (click)="onAppleLogin()"><app-apple-widget></app-apple-widget>
+                        Register with
+                        Apple</button> -->
+                    <div class="flex items-center gap-3.5 my-7">
+                        <span class="flex-1 h-[1px] bg-surface-200 dark:bg-surface-800"></span>
+                        <span class="body-small text-surface-400 dark:text-surface-600">or</span>
+                        <span class="flex-1 h-[1px] bg-surface-200 dark:bg-surface-800"></span>
+                    </div>
+                    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+                        <input type="text" pInputText formControlName="username" class="w-full"
+                            placeholder="Username" />
+                        <input type="text" pInputText formControlName="email" class="w-full mt-4" placeholder="Email" />
+                        <input type="password" pInputText formControlName="password" class="w-full mt-4"
+                            placeholder="Password" />
+                        <input type="text" pInputText formControlName="fullName" class="w-full mt-4"
+                            placeholder="Full Name" />
+                        <input type="text" pInputText formControlName="phoneNumber" class="w-full mt-4"
+                            placeholder="Phone Number" />
+                        <input type="text" pInputText formControlName="address" class="w-full mt-4"
+                            placeholder="Address" />
+
+                        <p-dropdown formControlName="userType" [options]="userTypes" optionLabel="label"
+                            optionValue="value" placeholder="Select User Type" class="w-full mt-4">
+                        </p-dropdown>
+
+                        <!-- Farmer specific fields -->
+                        <div *ngIf="registerForm.get('userType')?.value === 'FARMER'">
+                            <input type="date" pInputText formControlName="farmEstablishedDate" class="w-full mt-4"
+                                placeholder="Farm Established Date" />
+                            <p-dropdown formControlName="farmType" [options]="farmTypes" optionLabel="label"
+                                optionValue="value" placeholder="Farm Type" class="w-full mt-4">
+                            </p-dropdown>
+                            <div class="flex items-center gap-2 mt-4">
+                                <p-checkbox binary="true" inputId="organicCertification" formControlName="organicCertification"></p-checkbox>
+                                <label for="organicCertification" class="body-small">
+                                    <span class="label-small text-surface-950 dark:text-surface-0">Organic Certification</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Restaurant specific fields -->
+                        <div *ngIf="registerForm.get('userType')?.value === 'RESTAURANT'">
+                            <input type="text" pInputText formControlName="restaurantName" class="w-full mt-4"
+                                placeholder="Restaurant Name" />
+                            <input type="text" pInputText formControlName="website" class="w-full mt-4"
+                                placeholder="Website" />
+                        </div>
+
+                        <!-- Courier specific fields -->
+                        <div *ngIf="registerForm.get('userType')?.value === 'COURIER'">
+                            <input type="text" pInputText formControlName="vehicleType" class="w-full mt-4"
+                                placeholder="Vehicle Type" />
+                            <input type="text" pInputText formControlName="vehicleRegistrationNumber"
+                                class="w-full mt-4" placeholder="Vehicle Registration Number" />
+                            <input type="text" pInputText formControlName="licenseNumber" class="w-full mt-4"
+                                placeholder="License Number" />
+                        </div>
+
+                        <div class="my-8 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <p-checkbox binary="true" inputId="terms" formControlName="terms"></p-checkbox>
+                                <label for="terms" class="body-small">
+                                    <span class="label-small text-surface-950 dark:text-surface-0">I have read the
+                                    </span>Terms and Conditions
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="body-button w-full" [disabled]="registerForm.invalid || loading">
+                            <span *ngIf="!loading">Register</span>
+                            <span *ngIf="loading">Registering...</span>
+                        </button>
+                    </form>
+                    <div class="mt-8 body-small text-center lg:text-left">Already have an account? <a
+                            routerLink="/auth/login" class="text-primary-500 hover:underline">Login</a></div>
+                </div>
+            </div>
+            <div class="mt-8 text-center lg:text-start block relative text-surface-400 dark:text-surface-500 text-sm">
+                ©{{ currentYear }} FreshBridge</div>
+        </div>
+
+    </div>
+</section>
+
+<p-dialog [(visible)]="showVerification" [modal]="true" [style]="{ width: '450px' }" [closable]="false">
+    <h5 class="title-h5 text-center">Email Verification</h5>
+    <p class="body-small mt-3.5 text-center">
+        We've sent a 6-digit code to {{ emailForVerification }}
+    </p>
+
+    <div class="mt-6 flex items-center justify-center">
+        <p-inputOtp [(ngModel)]="verificationCode" [integerOnly]="true" [length]="6"></p-inputOtp>
+    </div>
+
+    <div class="flex gap-4 mt-6">
+        <button (click)="showVerification = false" type="button"
+            class="body-button border border-surface-200 dark:border-surface-800 bg-transparent hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-950 dark:text-surface-0 flex-1">
+            Cancel
+        </button>
+        <button (click)="onVerify()" type="button" class="body-button flex-1"
+            [disabled]="!verificationCode || verificationCode.length !== 6">
+            Verify
+        </button>
+    </div>
+
+    <div class="text-center mt-4 body-small">
+        Didn't receive code?
+        <button (click)="onSubmit()" class="text-primary-500 hover:underline bg-transparent border-none cursor-pointer">
+            Resend
+        </button>
+    </div>
+</p-dialog>

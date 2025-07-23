@@ -1,0 +1,1 @@
+export { GoogleCallback } from './google-callback.component'; 

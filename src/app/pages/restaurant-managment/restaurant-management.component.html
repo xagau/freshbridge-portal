@@ -1,0 +1,105 @@
+<div class="card">
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <p-button label="New Restaurant" icon="pi pi-plus" severity="secondary" class="mr-2"
+                (onClick)="openNew()" />
+            <p-button severity="danger" label="Delete" icon="pi pi-trash"
+                [disabled]="!selectedRestaurants || selectedRestaurants.length === 0"
+                (onClick)="confirmDeleteSelected()" />
+        </ng-template>
+    </p-toolbar>
+
+
+    <div *ngIf="loading()" class="flex justify-center items-center" style="height: 200px;">
+        <p-progressSpinner fill="var(--surface-ground)" animationDuration=".5s">
+        </p-progressSpinner>
+    </div>
+
+    <ng-container *ngIf="!loading()">
+        <p-table [value]="restaurants()" [rows]="10" [paginator]="true"
+            [globalFilterFields]="['name','email','phoneNumber']" [(selection)]="selectedRestaurants" dataKey="id"
+            [rowHover]="true" styleClass="p-datatable-gridlines">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 3rem">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                    <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                    <th pSortableColumn="phoneNumber">Phone</th>
+                    <th pSortableColumn="address">Address</th>
+                    <th pSortableColumn="website">Website</th>
+                    <th pSortableColumn="active">Status</th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-restaurant>
+                <tr>
+                    <td>
+                        <p-tableCheckbox [value]="restaurant"></p-tableCheckbox>
+                    </td>
+                    <td>{{restaurant.name}}</td>
+                    <td>{{restaurant.email}}</td>
+                    <td>{{restaurant.phoneNumber}}</td>
+                    <td>{{restaurant.address}}</td>
+                    <td>{{restaurant.website}}</td>
+                    <td>
+                        <p-tag [value]="restaurant.active ? 'Active' : 'Inactive'"
+                            [severity]="getStatusSeverity(restaurant.active)"></p-tag>
+                    </td>
+                    <td>
+                        <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true"
+                            (click)="editRestaurant(restaurant)"></p-button>
+                        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+                            (click)="deleteRestaurant(restaurant)" class="ml-1"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-container>
+</div>
+
+<p-dialog [(visible)]="restaurantDialog" [style]="{width: '600px'}" header="Restaurant Details" [modal]="true">
+    <form (ngSubmit)="saveRestaurant()">
+        <div class="grid p-fluid grid-cols-12 gap-6 justify-center">
+            <div class="col-span-12 sm:col-span-6">
+                <h4 for="name">Name</h4>
+                <input type="text" pInputText id="name" [(ngModel)]="restaurant.name" name="name" required />
+            </div>
+            <div class="col-span-12 sm:col-span-6">
+                <h4 for="address">Address</h4>
+                <input type="text" pInputText id="address" [(ngModel)]="restaurant.address" name="address" required />
+            </div>
+            <div class="col-span-12 sm:col-span-6">
+                <h4 for="phoneNumber">Phone</h4>
+                <input type="tel" pInputText id="phoneNumber" [(ngModel)]="restaurant.phoneNumber" name="phoneNumber"
+                    required />
+            </div>
+            <div class="col-span-12 sm:col-span-6">
+                <h4 for="email">Email</h4>
+                <input type="email" pInputText id="email" [(ngModel)]="restaurant.email" name="email" required />
+            </div>
+            <div class="col-span-12 sm:col-span-6">
+                <h4 for="website">Website</h4>
+                <input type="url" pInputText id="website" [(ngModel)]="restaurant.website" name="website" />
+            </div>
+            <div class="flex align-items-center gap-2">
+                <label for="activeToggle">Status:</label>
+                <p-toggleSwitch id="activeToggle" [(ngModel)]="restaurant.active" name="active"
+                    [style]="{'width': '3.5rem'}">
+                    <ng-template #handle let-checked="checked">
+                        <i [ngClass]="['text-xs', 'pi', checked ? 'pi-check' : 'pi-times']"></i>
+                    </ng-template>
+                </p-toggleSwitch>
+                <span class="text-sm ml-2">{{restaurant.active ? 'Active' : 'Inactive'}}</span>
+            </div>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" icon="pi pi-times" (click)="hideDialog()" styleClass="p-button-text"></p-button>
+        <p-button label="Save" icon="pi pi-check" (click)="saveRestaurant()"></p-button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-toast></p-toast>

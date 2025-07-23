@@ -1,0 +1,55 @@
+<div *ngIf="loading" class="text-center">
+    <p-progressSpinner></p-progressSpinner>
+</div>
+
+<div *ngIf="!loading && order" class="p-4 text-lg flex flex-col gap-1">
+    <h3 class="text-xl font-bold">Order #{{ order.id }}</h3>
+
+    <div class="mb-3">
+        <p-tag [value]="order.status" [severity]="order.status | statusColor"></p-tag>
+        <span *ngIf="order.paid" class="ml-2 text-green-600">Paid</span>
+    </div>
+
+    <h3 class="text-xl font-bold">Items</h3>
+    <ul class="ml-3">
+        <li *ngFor="let item of order.items" class="mb-2 flex items-center justify-start gap-2">
+            <span class="w-2 h-2 rounded-full" [style]="{ background: bgColors }"></span>
+            {{ item.productName }} × {{ item.quantity }} &#64; {{ item.subtotal | currency: 'CAD' }}
+        </li>
+    </ul>
+
+    <h4 class="text-xl font-bold">Totals</h4>
+    <div class="ml-3 mb-2 flex items-center justify-start gap-2">
+        <span class="w-2 h-2 rounded-full" [style]="{ background: bgColors }"></span>
+        <p>Total Amount: {{ order.totalAmount | currency: 'CAD' }}</p>
+    </div>
+
+    <h4 class="text-xl font-bold">Delivery</h4>
+
+    <div class="ml-3 mb-2 flex items-center justify-start gap-2">
+        <span class="w-2 h-2 rounded-full" [style]="{ background: bgColors }"></span>
+        <p>{{ order.deliveryAddress }} / ETA: {{ order.expectedDeliveryDate | date: 'medium' }}</p>
+    </div>
+
+    <!-- Leaflet Map Section -->
+    <div *ngIf="showTracking()" class="mt-4">
+        <h4 class="text-xl font-bold mb-2">Delivery Tracking</h4>
+        <div class="map-container border rounded-lg overflow-hidden">
+            <div id="map" class="w-full h-96"></div>
+        </div>
+        <div class="mt-2 flex justify-between items-center">
+            <p class="text-sm text-gray-600">
+                Status: <span class="font-medium">{{ order.status }}</span> •
+                ETA: <span class="font-medium">{{ order.expectedDeliveryDate | date: 'medium' }}</span>
+            </p>
+            <button pButton label="Refresh" icon="pi pi-refresh" class="p-button-sm" (click)="initMap()"></button>
+        </div>
+    </div>
+
+    <div class="ml-3 mb-2 flex items-center gap-2" *ngIf="currentUser?.role === 'ADMIN'">
+        <h4 class="text-xl font-bold">Actions</h4>
+        <p-dropdown appendTo="body" *ngIf="validTransitions(order.status).length"
+            [options]="validTransitions(order.status)" placeholder="Change status"
+            (onChange)="changeStatus($event.value)"></p-dropdown>
+    </div>
+</div>

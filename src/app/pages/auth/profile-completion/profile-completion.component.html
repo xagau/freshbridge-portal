@@ -1,0 +1,82 @@
+<section
+    class="min-h-screen flex items-center lg:items-start lg:py-20 justify-center animate-fadein animate-duration-300 animate-ease-in max-w-[100rem] mx-auto">
+    <div class="flex w-full h-full justify-center gap-12">
+        <div class="flex flex-col py-20 lg:min-w-[30rem]">
+            <a routerLink="/" class="flex items-center justify-center lg:justify-start mb-8">
+                <logo-widget></logo-widget>
+            </a>
+            <div class="flex flex-col justify-center flex-grow">
+                <div class="max-w-md mx-auto w-full">
+                    <h5 class="title-h5 text-center lg:text-left">Complete Your Profile</h5>
+                    <p class="body-small mt-3.5 text-center lg:text-left">Please select your account type and provide
+                        additional information</p>
+
+                    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="mt-6">
+                        <!-- User Type Selection -->
+                        <p-dropdown formControlName="userType" [options]="userTypes" optionLabel="label"
+                            optionValue="value" placeholder="Select Account Type" class="w-full mb-4">
+                        </p-dropdown>
+
+                        <!-- Common Fields -->
+                        <input type="text" pInputText formControlName="phoneNumber" class="w-full"
+                            placeholder="Phone Number" />
+
+                        <!-- Dynamic Fields Based on User Type -->
+                        <ng-container *ngIf="profileForm.get('userType')?.value === 'FARMER'">
+                            <input type="date" pInputText formControlName="farmEstablishedDate" class="w-full mt-4"
+                                placeholder="Farm Established Date" />
+                            <p-dropdown formControlName="farmType" [options]="[
+                                    {label: 'Organic', value: 'ORGANIC'},
+                                    {label: 'Conventional', value: 'CONVENTIONAL'},
+                                    {label: 'Hydroponic', value: 'HYDROPONIC'},
+                                    {label: 'Aquaponic', value: 'AQUAPONIC'}
+                                ]" optionLabel="label" optionValue="value" placeholder="Farm Type" class="w-full mt-4">
+                            </p-dropdown>
+                            <div class="flex items-center gap-2 mt-4">
+                                <p-checkbox binary="true" inputId="organicCertification"
+                                    formControlName="organicCertification"></p-checkbox>
+                                <label for="organicCertification" class="body-small">Organic Certification</label>
+                            </div>
+                        </ng-container>
+
+                        <ng-container *ngIf="profileForm.get('userType')?.value === 'RESTAURANT'">
+                            <input type="text" pInputText formControlName="restaurantName" class="w-full mt-4"
+                                placeholder="Restaurant Name" />
+                            <input type="text" pInputText formControlName="website" class="w-full mt-4"
+                                placeholder="Website" />
+                        </ng-container>
+
+                        <ng-container *ngIf="profileForm.get('userType')?.value === 'COURIER'">
+                            <input type="text" pInputText formControlName="vehicleType" class="w-full mt-4"
+                                placeholder="Vehicle Type (e.g., Car, Bike, Truck)" />
+                            <input type="text" pInputText formControlName="vehicleRegistrationNumber"
+                                class="w-full mt-4" placeholder="Vehicle Registration Number" />
+                            <input type="text" pInputText formControlName="licenseNumber" class="w-full mt-4"
+                                placeholder="Driver License Number" />
+                        </ng-container>
+
+                        <button type="submit" class="body-button w-full mt-8"
+                            [disabled]="profileForm.invalid || loading">
+                            <span *ngIf="!loading">Complete Registration</span>
+                            <span *ngIf="loading">Processing...</span>
+                        </button>
+                    </form>
+
+                    <div class="mt-8 body-small text-center lg:text-left">
+                        <a routerLink="/" class="text-primary-500 hover:underline cursor-pointer"><span>Back to
+                                Home</span></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 text-center lg:text-start block relative text-surface-400 dark:text-surface-500 text-sm">
+                ©{{ currentYear }} FreshBridge</div>
+        </div>
+        <div class="hidden lg:flex h-full py-20">
+            <div
+                class="h-full w-full lg:max-w-[32.5rem] xl:max-w-[60.5rem] mx-auto flex items-center justify-center shadow-[0px_1px_2px_0px_rgba(18,18,23,0.05)] rounded-3xl border border-surface overflow-hidden">
+                <img class="w-auto h-full object-contain object-left" src="/images/landing/auth-image.svg"
+                    alt="Auth Image" />
+            </div>
+        </div>
+    </div>
+</section>

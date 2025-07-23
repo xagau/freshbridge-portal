@@ -1,0 +1,103 @@
+<div class="grid grid-cols-12 gap-2 w-full">
+    <!-- Active Orders & Deliveries -->
+    <div class="col-span-12 md:col-span-7 z-0">
+        <p-card [header]="currentUser?.role === 'COURIER' ? 'Active Deliveries' : 'Active Orders'" class="h-full">
+            <!-- add text when shipment is empty -->
+            @if (shipments.length === 0) {
+            <span class="text-center text-gray-500">No shipments found</span>
+            }
+            <p-table [value]="shipments" [loading]="loading.shipments" [scrollable]="true" [rows]="4"
+                [paginator]="true">
+                <ng-template #header>
+                    <tr>
+                        <th>{{ currentUser?.role === 'COURIER' ? 'Shipment #' : 'Order #' }}</th>
+                        <th>Status</th>
+                        <th>Estimated Delivery</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-shipment>
+                    <tr>
+                        <td class="min-w-[100px]">
+                            <p-timeline [value]="getEvents(shipment)" layout="horizontal">
+                                <ng-template pTemplate="marker" let-event>
+                                    <span class="custom-marker" [ngStyle]="{'background-color': event.color}"></span>
+                                </ng-template>
+                            </p-timeline>
+                        </td>
+                        <td>
+                            <span class="p-1 rounded-md text-white text-xs {{ getStatusColor(shipment.status) }}">
+                                {{ shipment.status | titlecase }}
+                            </span>
+                        </td>
+                        <td>{{ shipment.estimatedDelivery | date:'mediumDate' }}</td>
+                        <td>
+                            <p-button icon="pi pi-eye" severity="info" (click)="viewShipment(shipment)"></p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+    </div>
+
+    <!-- Revenue by Type -->
+    <!-- <div class="col-span-12 md:col-span-6 2xl:col-span-4">
+        <p-card header="Revenue by Type" class="revenue-card h-full">
+            @if (!loading.revenue) {
+            <p-chart type="bar" [data]="revenueData" [options]="chartOptions"></p-chart>
+            } @else {
+            <div class="flex items-center justify-center h-full">
+                <p-progressSpinner></p-progressSpinner>
+            </div>
+            }
+        </p-card>
+    </div> -->
+
+    <!-- Top Savings Items -->
+    <div class="col-span-12 md:col-span-5 h-full">
+        <p-card [header]="currentUser?.role === 'FARMER' ? 'Top Selling Items' : 'Top Savings Items'"
+            class="h-full w-full flex flex-column">
+            <!-- <div class="flex justify-between mb-4">
+                <p-dropdown [options]="filterOptions" placeholder="Filter"></p-dropdown>
+                <p-dropdown [options]="farmOptions" placeholder="Farm"></p-dropdown>
+            </div> -->
+            @if (!loading.products) {
+            <p-table [value]="savingsItems" [tableStyle]="{ 'min-width': '100%' }">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>SKU</th>
+                        <th>Name</th>
+                        <th>Savings</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                    <tr>
+                        <td>{{ item.sku }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.savings | currency }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            } @else {
+            <div class="flex items-center justify-center h-full">
+                <p-progressSpinner></p-progressSpinner>
+            </div>
+            }
+        </p-card>
+    </div>
+
+    <!-- Orders Widget -->
+    <!-- <div class="col-span-12 md:col-span-6 xl:col-span-4 2xl:col-span-2 h-full">
+        <orders-widget />
+    </div> -->
+</div>
+
+
+<div class="grid grid-cols-12 gap-2 w-full">
+    <!-- ... your existing content ... -->
+
+    <!-- Add the shipment view component at the bottom -->
+    <app-shipment-view [(visible)]="showShipmentView" [shipmentData]="currentShipment"
+        (visibleChange)="onShipmentViewClosed()">
+    </app-shipment-view>
+</div>
