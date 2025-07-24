@@ -16,8 +16,8 @@ export class OrdersService {
         return this.http.get<Order[]>(this.API);
     }
 
-    // Get orders by role with filters
-    listByRole(params: {
+    // Get orders by user role with filters
+    getOrdersByUser(params: {
         restaurantId?: number | null,
         farmerId?: number | null,
         courierId?: number | null,
@@ -43,6 +43,17 @@ export class OrdersService {
         return this.http.get<Order[]>(`${environment.apiUrl}users/${userId}/orders`, {
             params: httpParams
         });
+    }
+
+    // Get orders for the current user by role
+    getOrdersByUser(params: {
+        restaurantId?: number | null,
+        farmerId?: number | null,
+        courierId?: number | null,
+        status?: string | null
+    }): Observable<Order[]> {
+        // This is an alias for listByRole to match component expectation
+        return this.listByRole(params);
     }
 
     // Get a specific order by ID

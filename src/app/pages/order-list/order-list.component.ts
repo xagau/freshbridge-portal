@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { OrdersService } from '@/service/orders.service';
@@ -59,9 +60,10 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
     constructor(
         private ordersSvc: OrdersService,
-        public authService: AuthService,
+        private shipmentService: ShipmentService,
+        private authService: AuthService,
         private toast: MessageService,
-        private shipmentService: ShipmentService
+        private router: Router
     ) { }
 
     ngOnInit() {
@@ -143,18 +145,27 @@ export class OrderListComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const params = {
-            status: this.selectedStatus !== 'ALL' ? this.selectedStatus : null
+        let params: any = {
+            status: this.selectedStatus !== 'ALL' ? this.selectedStatus : undefined
         };
 
-        this.ordersSvc.getOrdersByUser(this.currentUser.userId, params).pipe(takeUntil(this.destroy$)).subscribe({
+        if (this.currentUser.role === 'RESTAURANT') {
+            params.restaurantId = this.currentUser.userId;
+        } else if (this.currentUser.role === 'FARMER') {
+            params.farmerId = this.currentUser.userId;
+        } else if (this.currentUser.role === 'COURIER') {
+            params.courierId = this.currentUser.userId;
+        }
+
+        this.ordersSvc.getOrdersByUser(this.currentUser,params).pipe(takeUntil(this.destroy$)).subscribe({
             next: (data) => {
-                console.log('Fetched orders for user:', data);
+                console.log('Fetched orders:', data);
                 this.orders = data;
                 this.loading = false;
             },
             error: () => {
                 this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
+                this.orders = []; // Clear orders on error
                 this.loading = false;
             }
         });
@@ -166,6 +177,19 @@ export class OrderListComponent implements OnInit, OnDestroy {
     }
 
     statusStyle(status: string) {
-        return { background: `var(--${status.toLowerCase()})` };
+        switch (status) {
+            case 'PENDING':
+                return { 'background-color': '#FFC107', color: '#000' }; // Amber
+            case 'CONFIRMED':
+                return { 'background-color': '#4CAF50', color: '#fff' }; // Green
+            case 'DELIVERING':
+                return { 'background-color': '#2196F3', color: '#fff' }; // Blue
+            case 'DELIVERED':
+                return { 'background-color': '#9E9E9E', color: '#fff' }; // Grey
+            case 'CANCELLED':
+                return { 'background-color': '#F44336', color: '#fff' }; // Red
+            default:
+                return {};
+        }
     }
 }
