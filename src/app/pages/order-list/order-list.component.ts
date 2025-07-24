@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { OrdersService } from '@/service/orders.service';
 import { AuthService } from '@/auth/auth.service';
 import { MessageService } from 'primeng/api';
@@ -28,7 +30,7 @@ import { ShipmentSelectDialogComponent } from './shipment-select-dialog/shipment
     imports: [DropdownModule, OrderDetailComponent, ScheduleOrderButton, ShipmentSelectDialogComponent, TableModule, StatusColorPipe, ProgressBarModule, DialogModule, ButtonModule, TagModule, ToastModule, CardModule, FormsModule, CommonModule],
     providers: [MessageService, OrdersService, AuthService]
 })
-export class OrderListComponent implements OnInit {
+export class OrderListComponent implements OnInit, OnDestroy {
     orders: Order[] = [];
     selectedStatus = 'ALL';
     statuses = [
@@ -58,9 +60,26 @@ export class OrderListComponent implements OnInit {
         private shipmentService: ShipmentService
     ) { }
 
+    private destroy$ = new Subject<void>();
+
 
     ngOnInit() {
-        this.fetch();
+        this.authService.currentUser$.pipe(
+            takeUntil(this.destroy$)
+        ).subscribe(user => {
+            if (user) {
+                this.currentUser = { userId: user.id, role: user.role };
+                this.fetch(); // Initial fetch once user is available
+            } else {
+                this.orders = [];
+                this.loading = false;
+            }
+        });
+    }
+
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     handleScheduleSave(event: any) {
@@ -115,44 +134,40 @@ export class OrderListComponent implements OnInit {
 
     fetch() {
         this.loading = true;
-        this.authService.currentUser$.subscribe(user => {
-            if (!user) {
-                this.loading = false;
-                this.orders = [];
-                return;
-            }
 
-            this.currentUser.userId = user.id;
-            this.currentUser.role = user.role;
+        if (!this.currentUser || !this.currentUser.userId) {
+            this.orders = [];
+            this.loading = false;
+            return;
+        }
 
-            let params: any = {
-                status: this.selectedStatus !== 'ALL' ? this.selectedStatus : undefined
-            };
+        let params: any = {
+            status: this.selectedStatus !== 'ALL' ? this.selectedStatus : undefined
+        };
 
-            if (user.role === 'RESTAURANT') {
-                params.restaurantId = user.id;
-            } else if (user.role === 'FARMER') {
-                params.farmerId = user.id;
-            } else if (user.role === 'COURIER') {
-                params.courierId = user.id;
-            }
+        if (this.currentUser.role === 'RESTAURANT') {
+            params.restaurantId = this.currentUser.userId;
+        } else if (this.currentUser.role === 'FARMER') {
+            params.farmerId = this.currentUser.userId;
+        } else if (this.currentUser.role === 'COURIER') {
+            params.courierId = this.currentUser.userId;
+        }
 
-            if (params.restaurantId || params.farmerId || params.courierId) {
-                this.ordersSvc.listByRole(params).subscribe({
-                    next: (data) => {
-                        this.orders = data;
-                        this.loading = false;
-                    },
-                    error: () => {
-                        this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
-                        this.loading = false;
-                    }
-                });
-            } else {
-                this.orders = [];
-                this.loading = false;
-            }
-        });
+        if (params.restaurantId || params.farmerId || params.courierId) {
+            this.ordersSvc.listByRole(params).subscribe({
+                next: (data) => {
+                    this.orders = data;
+                    this.loading = false;
+                },
+                error: () => {
+                    this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
+                    this.loading = false;
+                }
+            });
+        } else {
+            this.orders = [];
+            this.loading = false;
+        }
     }
 
     openDetail(order: Order) {
