@@ -73,7 +73,7 @@ export class OrdersService {
     
         console.log('✅ getAllOrdersByRole called with params:', httpParams.toString());
     
-        return this.http.get<Order[]>(`${environment.apiUrl}api/v1/orders`, {
+        return this.http.get<Order[]>(`${environment.apiUrl}orders`, {
         params: httpParams
         });
     }
