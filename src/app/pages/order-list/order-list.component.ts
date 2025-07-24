@@ -158,18 +158,20 @@ export class OrderListComponent implements OnInit, OnDestroy {
         }
 
 
-       this.ordersSvc.getOrdersByUser(this.currentUser.userId, params).pipe(takeUntil(this.destroy$)).subscribe({
+
+        this.ordersSvc.getAllOrdersByRole(query).pipe(takeUntil(this.destroy$)).subscribe({
             next: (data) => {
-                console.log('Fetched orders:', data);
-                this.orders = data;
-                this.loading = false;
+              console.log('✅ Orders loaded', data);
+              this.orders = data;
+              this.loading = false;
             },
-            error: () => {
-                this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
-                this.orders = [];
-                this.loading = false;
+            error: (err) => {
+              console.error('❌ Failed to load orders', err);
+              this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
+              this.loading = false;
             }
-        });
+          });
+
         
     }
 

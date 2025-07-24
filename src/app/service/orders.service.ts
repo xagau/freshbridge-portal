@@ -39,7 +39,7 @@ export class OrdersService {
     getOrdersByUser(userId: number, params: { status?: string | null }): Observable<Order[]> {
         console.log("user ID:" + userId);
         console.log("params:" + params);
-        
+
         const httpParams: any = {};
         if (params.status != null) httpParams.status = params.status;
 
@@ -47,6 +47,17 @@ export class OrdersService {
             params: httpParams
         });
     }
+
+    getAllOrdersByRole(params: {
+        restaurantId?: number;
+        farmerId?: number;
+        courierId?: number;
+        status?: string;
+      }): Observable<Order[]> {
+        return this.http.get<Order[]>(`${environment.apiUrl}orders`, {
+          params: params as any
+        });
+      }
 
    
     // Get a specific order by ID
