@@ -143,34 +143,21 @@ export class OrderListComponent implements OnInit, OnDestroy {
             return;
         }
 
-        let params: any = {
-            status: this.selectedStatus !== 'ALL' ? this.selectedStatus : undefined
+        const params = {
+            status: this.selectedStatus !== 'ALL' ? this.selectedStatus : null
         };
 
-        if (this.currentUser.role === 'RESTAURANT') {
-            params.restaurantId = this.currentUser.userId;
-        } else if (this.currentUser.role === 'FARMER') {
-            params.farmerId = this.currentUser.userId;
-        } else if (this.currentUser.role === 'COURIER') {
-            params.courierId = this.currentUser.userId;
-        }
-
-        if (params.restaurantId || params.farmerId || params.courierId) {
-            this.ordersSvc.listByRole(params).pipe(takeUntil(this.destroy$)).subscribe({
-                next: (data) => {
-                    console.log('Fetched orders:', data);
-                    this.orders = data;
-                    this.loading = false;
-                },
-                error: () => {
-                    this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
-                    this.loading = false;
-                }
-            });
-        } else {
-            this.orders = [];
-            this.loading = false;
-        }
+        this.ordersSvc.getOrdersByUser(this.currentUser.userId, params).pipe(takeUntil(this.destroy$)).subscribe({
+            next: (data) => {
+                console.log('Fetched orders for user:', data);
+                this.orders = data;
+                this.loading = false;
+            },
+            error: () => {
+                this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
+                this.loading = false;
+            }
+        });
     }
 
     openDetail(order: Order) {
