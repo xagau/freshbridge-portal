@@ -37,6 +37,9 @@ export class OrdersService {
 
     // Get orders for a specific user
     getOrdersByUser(userId: number, params: { status?: string | null }): Observable<Order[]> {
+        console.log("user ID:" + userId);
+        console.log("params:" + params);
+        
         const httpParams: any = {};
         if (params.status != null) httpParams.status = params.status;
 

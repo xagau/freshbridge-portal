@@ -157,7 +157,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
             params.courierId = this.currentUser.userId;
         }
 
-        this.ordersSvc.getOrdersByUser(this.currentUser,params).pipe(takeUntil(this.destroy$)).subscribe({
+
+       this.ordersSvc.getOrdersByUser(this.currentUser.userId, params).pipe(takeUntil(this.destroy$)).subscribe({
             next: (data) => {
                 console.log('Fetched orders:', data);
                 this.orders = data;
@@ -165,10 +166,11 @@ export class OrderListComponent implements OnInit, OnDestroy {
             },
             error: () => {
                 this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
-                this.orders = []; // Clear orders on error
+                this.orders = [];
                 this.loading = false;
             }
         });
+        
     }
 
     openDetail(order: Order) {
