@@ -136,6 +136,48 @@ export class OrderListComponent implements OnInit, OnDestroy {
         });
     }
 
+    fetch(): void {
+        this.loading = true;
+      
+        if (!this.currentUser || !this.currentUser.userId) {
+          this.orders = [];
+          this.loading = false;
+          return;
+        }
+      
+        // Build params from already-known currentUser
+        let params: any = {};
+        if (this.currentUser.role === 'RESTAURANT') {
+          params = { restaurantId: this.currentUser.userId };
+        } else if (this.currentUser.role === 'FARMER') {
+          params = { farmerId: this.currentUser.userId };
+        } else if (this.currentUser.role === 'COURIER') {
+          params = { courierId: this.currentUser.userId };
+        }
+      
+        // Call the same service as dashboard
+        this.ordersSvc.listByRole(params)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (orders: any[]) => {
+              console.log('✅ Orders loaded from listByRole:', orders);
+              this.orders = orders;
+              this.loading = false;
+            },
+            error: (err) => {
+              console.error('❌ Failed to load orders from listByRole', err);
+              this.toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to load orders.'
+              });
+              this.loading = false;
+            }
+          });
+      }
+      
+
+      /*
     fetch() {
         this.loading = true;
       
@@ -178,6 +220,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
             }
           });
       }
+          */
 
     openDetail(order: Order) {
         this.currentOrder = order;
