@@ -65,19 +65,20 @@ export class OrderListComponent implements OnInit, OnDestroy {
     ) { }
 
     ngOnInit() {
-        this.authService.currentUser$.pipe(
-            takeUntil(this.destroy$)
-        ).subscribe(user => {
+        this.authService.currentUser$
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(user => {
             if (user) {
-                this.currentUser = { userId: user.id, role: user.role };
-                this.fetch(); // Initial fetch once user is available
+              this.currentUser = { userId: user.id, role: user.role };
+              console.log('✅ currentUser is now set:', this.currentUser); // log here
+              this.fetch();
             } else {
-                this.orders = [];
-                this.loading = false;
+              console.log('❌ No user found');
+              this.orders = [];
+              this.loading = false;
             }
-        });
-    }
-
+          });
+      }
     ngOnDestroy() {
         this.destroy$.next();
         this.destroy$.complete();
