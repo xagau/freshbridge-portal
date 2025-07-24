@@ -20,15 +20,27 @@ export class OrdersService {
     listByRole(params: {
         restaurantId?: number | null,
         farmerId?: number | null,
+        courierId?: number | null,
         status?: string | null
     }): Observable<Order[]> {
-        // Remove null or undefined params
+        // Remove null or undefined params and use snake_case
         const httpParams: any = {};
-        if (params.restaurantId != null) httpParams.restaurantId = params.restaurantId.toString();
-        if (params.farmerId != null) httpParams.farmerId = params.farmerId.toString();
+        if (params.restaurantId != null) httpParams.restaurant_id = params.restaurantId.toString();
+        if (params.farmerId != null) httpParams.farmer_id = params.farmerId.toString();
+        if (params.courierId != null) httpParams.courier_id = params.courierId.toString();
         if (params.status != null) httpParams.status = params.status;
 
         return this.http.get<Order[]>(this.API, {
+            params: httpParams
+        });
+    }
+
+    // Get orders for a specific user
+    getOrdersByUser(userId: number, params: { status?: string | null }): Observable<Order[]> {
+        const httpParams: any = {};
+        if (params.status != null) httpParams.status = params.status;
+
+        return this.http.get<Order[]>(`${environment.apiUrl}users/${userId}/orders`, {
             params: httpParams
         });
     }

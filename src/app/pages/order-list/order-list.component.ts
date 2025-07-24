@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { OrdersService } from '@/service/orders.service';
 import { AuthService } from '@/auth/auth.service';
 import { MessageService } from 'primeng/api';
@@ -20,6 +22,7 @@ import { StatusColorPipe } from '@/shared/pipes/status-color.pipe';
 import { ScheduleOrderButton } from '@/components/schedule-order/schedule-order-button';
 import { ShipmentService } from '@/service/shipment.service';
 import { ShipmentSelectDialogComponent } from './shipment-select-dialog/shipment-select-dialog.component';
+
 @Component({
     selector: 'app-order-list',
     templateUrl: './order-list.component.html',
@@ -28,7 +31,7 @@ import { ShipmentSelectDialogComponent } from './shipment-select-dialog/shipment
     imports: [DropdownModule, OrderDetailComponent, ScheduleOrderButton, ShipmentSelectDialogComponent, TableModule, StatusColorPipe, ProgressBarModule, DialogModule, ButtonModule, TagModule, ToastModule, CardModule, FormsModule, CommonModule],
     providers: [MessageService, OrdersService, AuthService]
 })
-export class OrderListComponent implements OnInit {
+export class OrderListComponent implements OnInit, OnDestroy {
     orders: Order[] = [];
     selectedStatus = 'ALL';
     statuses = [
@@ -51,6 +54,9 @@ export class OrderListComponent implements OnInit {
         role: "FARMER"
     };
     showShipmentDialog = false;
+
+    private destroy$ = new Subject<void>();
+
     constructor(
         private ordersSvc: OrdersService,
         public authService: AuthService,
@@ -58,9 +64,24 @@ export class OrderListComponent implements OnInit {
         private shipmentService: ShipmentService
     ) { }
 
-
     ngOnInit() {
-        this.fetch();
+        this.authService.currentUser$
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(user => {
+            if (user) {
+              this.currentUser = { userId: user.id, role: user.role };
+              console.log('✅ currentUser is now set:', this.currentUser); // log here
+              this.fetch();
+            } else {
+              console.log('❌ No user found');
+              this.orders = [];
+              this.loading = false;
+            }
+          });
+      }
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     handleScheduleSave(event: any) {
@@ -76,11 +97,11 @@ export class OrderListComponent implements OnInit {
         event.stopPropagation();
         this.ordersSvc.updateStatus(order.id, status).subscribe(() => this.fetch());
     }
+
     public markOrderPaid(event: Event, order: any): void {
         event.stopPropagation();
         this.ordersSvc.markPaid(order.id).subscribe(() => this.fetch());
     }
-
 
     pickupOrder(event: Event, order: Order) {
         event.stopPropagation();
@@ -115,31 +136,21 @@ export class OrderListComponent implements OnInit {
 
     fetch() {
         this.loading = true;
-        let params: any = {};
-        this.authService.currentUser$.subscribe(user => {
-            if (user) {
-                this.currentUser.userId = user?.id;
-                this.currentUser.role = user?.role;
-            }
-            if (user?.role === 'RESTAURANT') {
-                params = {
-                    restaurantId: this.currentUser.userId,
-                    status: this.selectedStatus !== 'ALL' ? this.selectedStatus : undefined
-                };
-            }
-            else if (user?.role === 'FARMER') {
-                params = {
-                    farmerId: this.currentUser.userId,
-                    status: this.selectedStatus !== 'ALL' ? this.selectedStatus : undefined
-                };
-            }
-        })
 
-        this.ordersSvc.listByRole(params).subscribe({
+        if (!this.currentUser || !this.currentUser.userId) {
+            this.orders = [];
+            this.loading = false;
+            return;
+        }
+
+        const params = {
+            status: this.selectedStatus !== 'ALL' ? this.selectedStatus : null
+        };
+
+        this.ordersSvc.getOrdersByUser(this.currentUser.userId, params).pipe(takeUntil(this.destroy$)).subscribe({
             next: (data) => {
+                console.log('Fetched orders for user:', data);
                 this.orders = data;
-                console.log("data", data);
-
                 this.loading = false;
             },
             error: () => {
