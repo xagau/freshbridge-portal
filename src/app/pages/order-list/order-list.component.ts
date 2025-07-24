@@ -138,28 +138,34 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
     fetch() {
         this.loading = true;
-
+      
         if (!this.currentUser || !this.currentUser.userId) {
-            this.orders = [];
-            this.loading = false;
-            return;
+          this.orders = [];
+          this.loading = false;
+          return;
         }
-
-        let params: any = {
-            status: this.selectedStatus !== 'ALL' ? this.selectedStatus : undefined
-        };
-
+      
+        // Build params dynamically without status=undefined
+        const params: any = {};
+      
+        // ✅ Only add status if not ALL
+        if (this.selectedStatus && this.selectedStatus !== 'ALL') {
+          params.status = this.selectedStatus;
+        }
+      
+        // ✅ Add role-specific param
         if (this.currentUser.role === 'RESTAURANT') {
-            params.restaurantId = this.currentUser.userId;
+          params.restaurantId = this.currentUser.userId;
         } else if (this.currentUser.role === 'FARMER') {
-            params.farmerId = this.currentUser.userId;
+          params.farmerId = this.currentUser.userId;
         } else if (this.currentUser.role === 'COURIER') {
-            params.courierId = this.currentUser.userId;
+          params.courierId = this.currentUser.userId;
         }
-
-
-
-        this.ordersSvc.getAllOrdersByRole(params).pipe(takeUntil(this.destroy$)).subscribe({
+      
+        // ✅ Now call your service
+        this.ordersSvc.getAllOrdersByRole(params)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
             next: (data) => {
               console.log('✅ Orders loaded', data);
               this.orders = data;
@@ -171,9 +177,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
               this.loading = false;
             }
           });
-
-        
-    }
+      }
 
     openDetail(order: Order) {
         this.currentOrder = order;

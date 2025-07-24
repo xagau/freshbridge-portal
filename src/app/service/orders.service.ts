@@ -48,17 +48,35 @@ export class OrdersService {
         });
     }
 
+    // OrdersService.ts
     getAllOrdersByRole(params: {
         restaurantId?: number;
         farmerId?: number;
         courierId?: number;
         status?: string;
-      }): Observable<Order[]> {
-        return this.http.get<Order[]>(`${environment.apiUrl}orders`, {
-          params: params as any
+    }): Observable<Order[]> {
+        // Build HttpParams dynamically
+        let httpParams = new HttpParams();
+    
+        if (params.restaurantId) {
+        httpParams = httpParams.set('restaurantId', params.restaurantId.toString());
+        }
+        if (params.farmerId) {
+        httpParams = httpParams.set('farmerId', params.farmerId.toString());
+        }
+        if (params.courierId) {
+        httpParams = httpParams.set('courierId', params.courierId.toString());
+        }
+        if (params.status) {
+        httpParams = httpParams.set('status', params.status);
+        }
+    
+        console.log('✅ getAllOrdersByRole called with params:', httpParams.toString());
+    
+        return this.http.get<Order[]>(`${environment.apiUrl}api/v1/orders`, {
+        params: httpParams
         });
-      }
-
+    }
    
     // Get a specific order by ID
     getOrderById(orderId: number): Observable<Order> {
