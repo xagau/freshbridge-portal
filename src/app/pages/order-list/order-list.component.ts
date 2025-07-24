@@ -159,7 +159,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
 
 
-        this.ordersSvc.getAllOrdersByRole(query).pipe(takeUntil(this.destroy$)).subscribe({
+        this.ordersSvc.getAllOrdersByRole(params).pipe(takeUntil(this.destroy$)).subscribe({
             next: (data) => {
               console.log('✅ Orders loaded', data);
               this.orders = data;
