@@ -115,35 +115,41 @@ export class OrderListComponent implements OnInit {
 
     fetch() {
         this.loading = true;
-        let params: any = {};
         this.authService.currentUser$.subscribe(user => {
-            if (user) {
-                this.currentUser.userId = user?.id;
-                this.currentUser.role = user?.role;
-            }
-            if (user?.role === 'RESTAURANT') {
-                params = {
-                    restaurantId: this.currentUser.userId,
-                    status: this.selectedStatus !== 'ALL' ? this.selectedStatus : undefined
-                };
-            }
-            else if (user?.role === 'FARMER') {
-                params = {
-                    farmerId: this.currentUser.userId,
-                    status: this.selectedStatus !== 'ALL' ? this.selectedStatus : undefined
-                };
-            }
-        })
-
-        this.ordersSvc.listByRole(params).subscribe({
-            next: (data) => {
-                this.orders = data;
-                console.log("data", data);
-
+            if (!user) {
                 this.loading = false;
-            },
-            error: () => {
-                this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
+                this.orders = [];
+                return;
+            }
+
+            this.currentUser.userId = user.id;
+            this.currentUser.role = user.role;
+
+            let params: any = {
+                status: this.selectedStatus !== 'ALL' ? this.selectedStatus : undefined
+            };
+
+            if (user.role === 'RESTAURANT') {
+                params.restaurantId = user.id;
+            } else if (user.role === 'FARMER') {
+                params.farmerId = user.id;
+            } else if (user.role === 'COURIER') {
+                params.courierId = user.id;
+            }
+
+            if (params.restaurantId || params.farmerId || params.courierId) {
+                this.ordersSvc.listByRole(params).subscribe({
+                    next: (data) => {
+                        this.orders = data;
+                        this.loading = false;
+                    },
+                    error: () => {
+                        this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
+                        this.loading = false;
+                    }
+                });
+            } else {
+                this.orders = [];
                 this.loading = false;
             }
         });
