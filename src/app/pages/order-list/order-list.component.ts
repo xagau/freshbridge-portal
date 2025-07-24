@@ -158,6 +158,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
         if (params.restaurantId || params.farmerId || params.courierId) {
             this.ordersSvc.listByRole(params).pipe(takeUntil(this.destroy$)).subscribe({
                 next: (data) => {
+                    console.log('Fetched orders:', data);
                     this.orders = data;
                     this.loading = false;
                 },
