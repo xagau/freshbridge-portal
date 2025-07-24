@@ -22,6 +22,7 @@ import { StatusColorPipe } from '@/shared/pipes/status-color.pipe';
 import { ScheduleOrderButton } from '@/components/schedule-order/schedule-order-button';
 import { ShipmentService } from '@/service/shipment.service';
 import { ShipmentSelectDialogComponent } from './shipment-select-dialog/shipment-select-dialog.component';
+
 @Component({
     selector: 'app-order-list',
     templateUrl: './order-list.component.html',
@@ -53,15 +54,15 @@ export class OrderListComponent implements OnInit, OnDestroy {
         role: "FARMER"
     };
     showShipmentDialog = false;
+
+    private destroy$ = new Subject<void>();
+
     constructor(
         private ordersSvc: OrdersService,
         public authService: AuthService,
         private toast: MessageService,
         private shipmentService: ShipmentService
     ) { }
-
-    private destroy$ = new Subject<void>();
-
 
     ngOnInit() {
         this.authService.currentUser$.pipe(
@@ -95,11 +96,11 @@ export class OrderListComponent implements OnInit, OnDestroy {
         event.stopPropagation();
         this.ordersSvc.updateStatus(order.id, status).subscribe(() => this.fetch());
     }
+
     public markOrderPaid(event: Event, order: any): void {
         event.stopPropagation();
         this.ordersSvc.markPaid(order.id).subscribe(() => this.fetch());
     }
-
 
     pickupOrder(event: Event, order: Order) {
         event.stopPropagation();
@@ -154,7 +155,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
         }
 
         if (params.restaurantId || params.farmerId || params.courierId) {
-            this.ordersSvc.listByRole(params).subscribe({
+            this.ordersSvc.listByRole(params).pipe(takeUntil(this.destroy$)).subscribe({
                 next: (data) => {
                     this.orders = data;
                     this.loading = false;
