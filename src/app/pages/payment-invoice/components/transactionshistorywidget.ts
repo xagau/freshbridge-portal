@@ -406,7 +406,8 @@ export class TransactionsHistoryWidget {
 
     reloadTransactions() {
         this.transactionService.getTransactions().subscribe(transactions => {
-            this.transactions = transactions.map(t => this.transformTransaction(t));
+            const sortedTransactions = transactions.sort((a: Transaction, b: Transaction) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime());
+            this.transactions = sortedTransactions.map(t => this.transformTransaction(t));
         });
     }
 }
