@@ -234,7 +234,11 @@ export class TransactionsHistoryWidget {
     transactions: any[] = [];
     ngOnInit() {
         this.transactionService.getTransactions().subscribe(transactions => {
-            this.transactions = transactions.map(t => this.transformTransaction(t));
+          const sortedTransactions = transactions.sort(
+            (a: Transaction, b: Transaction) =>
+              new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()
+          );
+          this.transactions = sortedTransactions.map(t => this.transformTransaction(t));
         });
     }
 
@@ -406,8 +410,12 @@ export class TransactionsHistoryWidget {
 
     reloadTransactions() {
         this.transactionService.getTransactions().subscribe(transactions => {
-            const sortedTransactions = transactions.sort((a: Transaction, b: Transaction) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime());
-            this.transactions = sortedTransactions.map(t => this.transformTransaction(t));
+          this.transactions = transactions
+            .sort((a: Transaction, b: Transaction) =>
+              new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()
+            )
+            .map(t => this.transformTransaction(t));
         });
-    }
+      }
+    
 }

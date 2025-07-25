@@ -44,6 +44,16 @@ export class NotificationService {
     // }
 
     getRecentNotification(userId: number): Observable<Notification[]> {
+
+        if (!userId) {
+            console.warn('Skipping getRecentNotification because userId is missing or invalid');
+            // return an empty observable so callers don’t break
+            return new Observable<Notification[]>(subscriber => {
+              subscriber.next([]);  // send back empty notifications
+              subscriber.complete();
+            });
+        }
+        
         return this.http.get<Notification[]>(`${this.API}/recent/${userId}`);
     }
 

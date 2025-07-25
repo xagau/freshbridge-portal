@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { OrdersService } from '@/service/orders.service';
@@ -59,9 +60,10 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
     constructor(
         private ordersSvc: OrdersService,
-        public authService: AuthService,
+        private shipmentService: ShipmentService,
+        private authService: AuthService,
         private toast: MessageService,
-        private shipmentService: ShipmentService
+        private router: Router
     ) { }
 
     ngOnInit() {
@@ -134,31 +136,91 @@ export class OrderListComponent implements OnInit, OnDestroy {
         });
     }
 
+    fetch(): void {
+        this.loading = true;
+      
+        if (!this.currentUser || !this.currentUser.userId) {
+          this.orders = [];
+          this.loading = false;
+          return;
+        }
+      
+        // Build params from already-known currentUser
+        let params: any = {};
+        if (this.currentUser.role === 'RESTAURANT') {
+          params = { restaurantId: this.currentUser.userId };
+        } else if (this.currentUser.role === 'FARMER') {
+          params = { farmerId: this.currentUser.userId };
+        } else if (this.currentUser.role === 'COURIER') {
+          params = { courierId: this.currentUser.userId };
+        }
+      
+        // Call the same service as dashboard
+        this.ordersSvc.listByRole(params)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (orders: any[]) => {
+              console.log('✅ Orders loaded from listByRole:', orders);
+              this.orders = orders;
+              this.loading = false;
+            },
+            error: (err) => {
+              console.error('❌ Failed to load orders from listByRole', err);
+              this.toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to load orders.'
+              });
+              this.loading = false;
+            }
+          });
+      }
+      
+
+      /*
     fetch() {
         this.loading = true;
-
+      
         if (!this.currentUser || !this.currentUser.userId) {
-            this.orders = [];
-            this.loading = false;
-            return;
+          this.orders = [];
+          this.loading = false;
+          return;
         }
-
-        const params = {
-            status: this.selectedStatus !== 'ALL' ? this.selectedStatus : null
-        };
-
-        this.ordersSvc.getOrdersByUser(this.currentUser.userId, params).pipe(takeUntil(this.destroy$)).subscribe({
+      
+        // Build params dynamically without status=undefined
+        const params: any = {};
+      
+        // ✅ Only add status if not ALL
+        if (this.selectedStatus && this.selectedStatus !== 'ALL') {
+          params.status = this.selectedStatus;
+        }
+      
+        // ✅ Add role-specific param
+        if (this.currentUser.role === 'RESTAURANT') {
+          params.restaurantId = this.currentUser.userId;
+        } else if (this.currentUser.role === 'FARMER') {
+          params.farmerId = this.currentUser.userId;
+        } else if (this.currentUser.role === 'COURIER') {
+          params.courierId = this.currentUser.userId;
+        }
+      
+        // ✅ Now call your service
+        this.ordersSvc.getAllOrdersByRole(params)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
             next: (data) => {
-                console.log('Fetched orders for user:', data);
-                this.orders = data;
-                this.loading = false;
+              console.log('✅ Orders loaded', data);
+              this.orders = data;
+              this.loading = false;
             },
-            error: () => {
-                this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
-                this.loading = false;
+            error: (err) => {
+              console.error('❌ Failed to load orders', err);
+              this.toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load orders.' });
+              this.loading = false;
             }
-        });
-    }
+          });
+      }
+          */
 
     openDetail(order: Order) {
         this.currentOrder = order;
@@ -166,6 +228,19 @@ export class OrderListComponent implements OnInit, OnDestroy {
     }
 
     statusStyle(status: string) {
-        return { background: `var(--${status.toLowerCase()})` };
+        switch (status) {
+            case 'PENDING':
+                return { 'background-color': '#FFC107', color: '#000' }; // Amber
+            case 'CONFIRMED':
+                return { 'background-color': '#4CAF50', color: '#fff' }; // Green
+            case 'DELIVERING':
+                return { 'background-color': '#2196F3', color: '#fff' }; // Blue
+            case 'DELIVERED':
+                return { 'background-color': '#9E9E9E', color: '#fff' }; // Grey
+            case 'CANCELLED':
+                return { 'background-color': '#F44336', color: '#fff' }; // Red
+            default:
+                return {};
+        }
     }
 }
