@@ -77,17 +77,18 @@ export class GoogleCallback implements OnInit {
         private http: HttpClient,
         private authService: AuthService,
         private messageService: MessageService
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         this.handleGoogleCallback();
     }
 
     private handleGoogleCallback(): void {
+        console.log('++++=')
         this.route.queryParams.subscribe(params => {
             const code = params['code'];
             const error = params['error'];
-            
+
             if (error) {
                 this.messageService.add({
                     severity: 'error',
@@ -111,7 +112,7 @@ export class GoogleCallback implements OnInit {
                                 summary: 'Authentication Success',
                                 detail: 'Google authentication completed successfully.'
                             });
-                           
+
                         }
                     });
             } else {

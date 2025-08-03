@@ -11,7 +11,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { environment } from '../../../../environments/environment';
-import { FarmerService, Farmer } from '@/service/farmer.service'; // You'll need to create this service
+import { FarmerService, Farmer } from '@/service/farmer.service';
+import { AuthService } from '@/auth/auth.service';
 
 @Component({
     selector: 'app-product-list',
@@ -37,31 +38,79 @@ export class ProductList {
     showFarmFilter = signal<boolean>(false);
     selectedFarmId = signal<number | null>(null);
 
+    // User role signals
+    isAdmin = signal<boolean>(false);
+    isFarmer = signal<boolean>(false);
+    isRestaurant = signal<boolean>(false);
+
+    // Current farmer ID (if user is a farmer)
+    currentFarmerId = signal<number | null>(null);
+
     public environment = environment;
 
     constructor(
         private router: Router,
         private productService: ProductService,
         private farmService: FarmerService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private authService: AuthService
     ) { }
 
     ngOnInit() {
+        // Set user role flags
+        const userRole = this.authService.currentUserValue?.role;
+        this.isAdmin.set(userRole === 'ADMIN');
+        this.isFarmer.set(userRole === 'FARMER');
+        this.isRestaurant.set(userRole === 'RESTAURANT');
+
+        // Get the current farmer ID if the user is a farmer
+        if (this.isFarmer()) {
+            const farmerId = this.authService.getProfileId();
+            console.log('Current farmer ID:', farmerId);
+            this.currentFarmerId.set(farmerId);
+        }
+
+        // Load products based on user role
         this.loadProducts();
-        this.loadFarms();
+
+        // Only load farms list if user is admin (for filtering)
+        if (this.isAdmin()) {
+            this.loadFarms();
+        }
     }
 
     loadProducts() {
         this.loading.set(true);
-        this.productService.getProducts().subscribe({
+
+        // Use the appropriate method based on user role
+        // For farmers: getProducts() will filter by farmer ID
+        // For restaurants and admins: getProductsAll() will show all products
+        const productsObservable = this.isFarmer()
+            ? this.productService.getProducts()
+            : this.productService.getProductsAll();
+
+        productsObservable.subscribe({
             next: (data) => {
                 this.products.set(data);
-                console.log("data", data);
+                console.log("Products loaded:", data.length);
+
+                // If user is a farmer, we can verify the products belong to them
+                if (this.isFarmer() && this.currentFarmerId()) {
+                    const farmerId = this.currentFarmerId();
+                    console.log(`Verifying products belong to farmer ID: ${farmerId}`);
+
+                    // This is just a verification step - the API should already filter correctly
+                    const farmerProducts = data.filter(product => product.farmerId === farmerId);
+                    if (farmerProducts.length !== data.length) {
+                        console.warn(`Found ${data.length} products, but only ${farmerProducts.length} belong to the current farmer`);
+                    }
+                }
 
                 this.filteredProducts.set(data);
                 this.loading.set(false);
             },
             error: (err) => {
+                console.error("Error loading products:", err);
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
