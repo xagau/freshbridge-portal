@@ -54,6 +54,10 @@ export class ProductService {
     }
   }
 
+  getProductsAll(): Observable<Product[]> {
+    return this.http.get<Product[]>(this.API, { headers: this.getAuthHeaders() });
+  }
+
   getProduct(id: number): Observable<Product> {
     return this.http.get<Product>(`${this.API}/${id}`, { headers: this.getAuthHeaders() });
   }

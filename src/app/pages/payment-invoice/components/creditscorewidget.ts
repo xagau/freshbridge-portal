@@ -69,8 +69,17 @@ export class CreditScoreWidget implements OnInit {
     }
 
     initAccountInfo() {
-        const accountId = 1; // Replace with actual account id as needed
-        this.authService.getAccountInfo(accountId).subscribe({
+        // Get the current user's ID
+        const currentUser = this.authService.currentUserValue;
+        if (!currentUser) {
+            console.error('No user is currently logged in');
+            return;
+        }
+
+        // Use the current user's ID (11 in your case) instead of hardcoded value
+        const userId = currentUser.id;
+
+        this.authService.getAccountInfo(userId).subscribe({
             next: (data) => {
                 this.accountId = data.id;
                 this.accountNumber = data.accountNumber;
@@ -86,12 +95,30 @@ export class CreditScoreWidget implements OnInit {
             },
             error: (err) => {
                 console.error('Error fetching account info:', err);
+                // Add fallback values in case of error
+                this.balance = 0;
+                this.availableBalance = 0;
+                this.data = [0];
+                this.labels = ['Balance', 'Pending Transfers'];
             }
         });
     }
 
     handleTransaction(event: { type: string, amount: number, description: string }) {
-        if (!this.accountId) return;
+        // Get the current user's ID
+        const currentUser = this.authService.currentUserValue;
+        if (!currentUser) {
+            console.error('No user is currently logged in');
+            return;
+        }
+
+        // Use the current user's ID instead of the stored accountId
+        const userId = currentUser.id;
+
+        if (!userId) {
+            console.error('User ID is not available');
+            return;
+        }
 
         const onSuccess = () => {
             this.initAccountInfo();
@@ -99,17 +126,17 @@ export class CreditScoreWidget implements OnInit {
         };
 
         if (event.type === 'WITHDRAWAL') {
-            this.authService.withdraw(this.accountId, event.amount).subscribe({
+            this.authService.withdraw(userId, event.amount).subscribe({
                 next: onSuccess,
                 error: err => console.error('Withdrawal failed', err)
             });
         } else if (event.type === 'CREDIT') {
-            this.authService.deposit(this.accountId, event.amount).subscribe({
+            this.authService.deposit(userId, event.amount).subscribe({
                 next: onSuccess,
                 error: err => console.error('Deposit failed', err)
             });
         } else if (event.type === 'REFUND') {
-            this.authService.refund(this.accountId, event.amount).subscribe({
+            this.authService.refund(userId, event.amount).subscribe({
                 next: onSuccess,
                 error: err => console.error('Refund failed', err)
             });

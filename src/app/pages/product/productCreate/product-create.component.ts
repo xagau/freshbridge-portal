@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -14,6 +14,7 @@ import { MessageService } from 'primeng/api';
 import { ProductService, Product } from '@/service/product.service';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
+import { AuthService } from '@/auth/auth.service';
 @Component({
     selector: 'app-product-create',
     standalone: true,
@@ -31,10 +32,10 @@ import { ToastModule } from 'primeng/toast';
         TextareaModule,
         ToastModule
     ],
-    providers: [MessageService, ProductService],
+    providers: [MessageService, ProductService, AuthService],
     templateUrl: './product-create.component.html',
 })
-export class ProductCreateComponent {
+export class ProductCreateComponent implements OnInit {
     product: Partial<Product> = {
         name: '',
         description: '',
@@ -51,20 +52,63 @@ export class ProductCreateComponent {
     previewUrls: (string | ArrayBuffer)[] = [];
     maxImages = 4;
 
+    // Store the current farmer ID
+    currentFarmerId: number | null = null;
+
     constructor(
         private productService: ProductService,
         private messageService: MessageService,
-        private router: Router
+        private router: Router,
+        private authService: AuthService
     ) { }
+
+    ngOnInit() {
+        // Get the current user's role
+        const userRole = this.authService.currentUserValue?.role;
+
+        // If the user is a farmer, get their farmer ID
+        if (userRole === 'FARMER') {
+            this.currentFarmerId = this.authService.getProfileId();
+            console.log('Current farmer ID:', this.currentFarmerId);
+        } else if (userRole === 'ADMIN') {
+            // Admins can create products for any farm, but we'll need to handle this differently
+            // For now, we'll just log a message
+            console.log('Admin user detected. Will need to select a farm.');
+        } else {
+            // If the user is not a farmer or admin, they shouldn't be on this page
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Access Denied',
+                detail: 'You do not have permission to create products'
+            });
+            this.router.navigate(['/product-management']);
+        }
+    }
 
     onSubmit() {
         this.loading = true;
+
+        // Check if we have a valid farmer ID
+        if (!this.currentFarmerId && this.authService.currentUserValue?.role === 'FARMER') {
+            this.handleError('Unable to determine your farmer ID. Please try logging in again.');
+            return;
+        }
+
+        // For admin users who might be creating products for any farm
+        // In a real app, you'd have a farm selector in the UI
+        const farmerId = this.currentFarmerId ||
+            (this.authService.currentUserValue?.role === 'ADMIN' ? 1 : null);
+
+        if (!farmerId) {
+            this.handleError('No farmer ID available. Cannot create product.');
+            return;
+        }
 
         const productToCreate: Product = {
             ...this.product,
             price: Number(this.product.price),
             quantityAvailable: Number(this.product.quantityAvailable),
-            farmerId: 1, // This should come from auth service in a real app
+            farmerId: farmerId, // Use the farmer ID from auth service
             harvestDateStr: this.product.harvestDate || new Date().toISOString().split('T')[0]
         } as Product;
 

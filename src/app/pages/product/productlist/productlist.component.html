@@ -2,51 +2,57 @@
 
 <div class="card">
     <div class="flex justify-between">
-        <div class="text-surface-900 dark:text-surface-0 font-medium text-4xl mb-6">Popular Products</div>
         <div>
-            <p-button (onClick)="createNewProject()" label="Create New Product" severity="info" />
+            <div class="text-surface-900 dark:text-surface-0 font-medium text-4xl mb-2">
+                <!-- Dynamic title based on user role -->
+                <span *ngIf="isAdmin()">All Farm Products</span>
+                <span *ngIf="isFarmer()">Your Farm Products</span>
+                <span *ngIf="isRestaurant()">Available Products</span>
+            </div>
+            <p class="mt-0 p-0 mb-4 text-surface-700 dark:text-surface-100 text-2xl">
+                <!-- Dynamic subtitle based on user role -->
+                <span *ngIf="isAdmin()">Manage all products across farms</span>
+                <span *ngIf="isFarmer()">Manage your farm's product catalog (Farmer ID: {{ currentFarmerId() }})</span>
+                <span *ngIf="isRestaurant()">Browse products from local farms</span>
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <!-- Only show farm filter toggle for admin users -->
+            <p-button *ngIf="isAdmin()" (onClick)="toggleFarmFilter()" [label]="showFarmFilter() ? 'Hide Farm Filter' : 'Filter by Farm'" severity="secondary" />
+
+            <!-- Only show create button for farmers and admins -->
+            <p-button *ngIf="isFarmer() || isAdmin()" (onClick)="createNewProject()" label="Create New Product" severity="info" />
         </div>
     </div>
-    <p class="mt-0 p-0 mb-8 text-surface-700 dark:text-surface-100 text-2xl">Exclusive Selection</p>
 
-    <!-- Farm Filter Section -->
-    <div *ngIf="showFarmFilter" class="mb-6 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg">
+    <!-- Farm Filter Section - Only visible for admin users when toggled -->
+    <div *ngIf="showFarmFilter() && isAdmin()" class="mb-6 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg">
         <h3 class="text-xl font-medium mb-4">Filter by Farm</h3>
         <div class="flex flex-wrap gap-2">
-            <p-button *ngFor="let farm of farms()" [label]="farm.firstName + ' ' + farm.lastName"
-                [severity]="selectedFarmId() === farm.id ? 'primary' : 'info'"
-                (onClick)="filterByFarm(farm.id)"></p-button>
+            <p-button *ngFor="let farm of farms()" [label]="farm.firstName + ' ' + farm.lastName" [severity]="selectedFarmId() === farm.id ? 'primary' : 'info'" (onClick)="filterByFarm(farm.id)"></p-button>
             <p-button label="All Farms" severity="info" (onClick)="clearFarmFilter()"></p-button>
         </div>
     </div>
 
-    <div *ngIf="loading()" class="flex justify-content-center align-items-center" style="height: 200px;">
-        <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(--surface-ground)"
-            animationDuration=".5s">
-        </p-progressSpinner>
+    <div *ngIf="loading()" class="flex justify-content-center align-items-center" style="height: 200px">
+        <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"> </p-progressSpinner>
     </div>
 
     <div class="grid grid-cols-12 gap-4" *ngIf="!loading()">
         <div class="col-span-12 md:col-span-6 lg:col-span-4" *ngFor="let product of filteredProducts()">
-            <div class="p-2" (click)="goToProduct(product)" style="cursor:pointer;">
-                <div
-                    class="shadow p-6 bg-surface-0 dark:bg-surface-900 rounded hover:bg-surface-300 hover:scale-[1.1] duration-300">
+            <div class="p-2" (click)="goToProduct(product)" style="cursor: pointer">
+                <div class="shadow p-6 bg-surface-0 dark:bg-surface-900 rounded hover:bg-surface-300 hover:scale-[1.1] duration-300">
                     <!-- Farm Banner -->
                     <div *ngIf="product.farmer" class="flex items-center mb-3">
-                        <img [src]="environment.apiUrl + 'farms/' + product.farmer.logoUrl"
-                            (error)="setDefaultFarmImage($event)" class="w-8 h-8 rounded-full mr-2 object-cover" />
-                        <span class="text-sm text-surface-600 dark:text-surface-300">{{product.farmer.name}}</span>
+                        <img [src]="environment.apiUrl + 'farms/' + product.farmer.logoUrl" (error)="setDefaultFarmImage($event)" class="w-8 h-8 rounded-full mr-2 object-cover" />
+                        <span class="text-sm text-surface-600 dark:text-surface-300">{{ product.farmer.name }}</span>
                     </div>
 
                     <div class="relative mb-4">
-                        <span
-                            class="bg-surface-0 dark:bg-surface-900 text-surface-900 dark:text-surface-0 shadow px-4 py-2 absolute rounded-3xl"
-                            style="left: 1rem; top: 1rem">
+                        <span class="bg-surface-0 dark:bg-surface-900 text-surface-900 dark:text-surface-0 shadow px-4 py-2 absolute rounded-3xl" style="left: 1rem; top: 1rem">
                             {{ product.unit }}
                         </span>
-                        <img [src]="environment.apiUrl + 'farm-products/' + product.imageUrls[0]"
-                            (error)="setDefaultImage($event)" class="w-full"
-                            style="height: 200px; object-fit: cover;" />
+                        <img [src]="environment.apiUrl + 'farm-products/' + product.imageUrls[0]" (error)="setDefaultImage($event)" class="w-full" style="height: 200px; object-fit: cover" />
                     </div>
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ product.name }}</span>
@@ -55,10 +61,9 @@
                             <span class="font-medium">{{ product.rating }}</span>
                         </span>
                     </div>
-                    <p class="mt-0 mb-4 text-surface-700 dark:text-surface-100 leading-normal">{{ product.description }}
-                    </p>
+                    <p class="mt-0 mb-4 text-surface-700 dark:text-surface-100 leading-normal">{{ product.description }}</p>
                     <div class="flex justify-between items-center">
-                        <span class="text-primary text-xl font-medium">${{ product.price | number:'1.2-2' }}</span>
+                        <span class="text-primary text-xl font-medium">${{ product.price | number: '1.2-2' }}</span>
                         <span class="text-sm text-surface-500">Available: {{ product.quantityAvailable }}</span>
                     </div>
                     <!-- <div class="mt-2">
