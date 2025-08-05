@@ -154,14 +154,6 @@ export class AuthService {
         );
     }
 
-    requestPasswordReset(email: string): Observable<{ success: boolean }> {
-        return of({ success: true }).pipe(delay(500));
-    }
-
-    resetPassword(token: string, newPassword: string): Observable<{ success: boolean }> {
-        return of({ success: true }).pipe(delay(500));
-    }
-
     refreshToken(): Observable<string> {
         // In a real app, this would call your refresh token endpoint
         return of(this.generateMockToken()).pipe(
@@ -312,7 +304,13 @@ export class AuthService {
 
 
     getAccountInfo(id: number) {
-        return this.http.get<Account>(`${environment.apiUrl}auth/${id}/info`);
+        // The return type is actually a more complex structure with account and transactions
+        // Based on the example response:
+        // {
+        //   "account": { ... },
+        //   "transactions": [ ... ]
+        // }
+        return this.http.get<any>(`${environment.apiUrl}auth/${id}/info`);
     }
 
     withdraw(accountId: number, amount: number) {
@@ -352,6 +350,18 @@ export class AuthService {
             })
 
         );
+    }
+
+    forgotPassword(email: string) {
+        return this.http.post(`${environment.apiUrl}auth/forgot-password`, { email });
+    }
+
+    verifyResetCode(email: string, code: string) {
+        return this.http.post(`${environment.apiUrl}auth/verify-reset-code`, { email, code });
+    }
+
+    resetPassword(email: string, code: string, password: string) {
+        return this.http.post(`${environment.apiUrl}auth/reset-password`, { email, code, password });
     }
 
 }

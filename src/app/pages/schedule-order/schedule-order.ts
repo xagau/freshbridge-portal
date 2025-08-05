@@ -299,9 +299,9 @@ export class ScheduleRepeatOrder {
     addressSuggestions: string[] = [];
 
     // Example IDs, replace with actual logic as needed
-    restaurantId = 1;
-    farmerId = 1;
-
+    // restaurantId = 1;
+    // farmerId = 1;
+    userId = 1
     // Validation state
     isSubmitting = false;
 
@@ -391,7 +391,7 @@ export class ScheduleRepeatOrder {
 
         const today = this.getCurrentDate();
         today.setHours(0, 0, 0, 0);
-        
+
         if (this.startDate < today) {
             this.messageService.add({
                 severity: 'error',
@@ -487,11 +487,11 @@ export class ScheduleRepeatOrder {
 
     validateAll(): boolean {
         return this.validateDeliveryAddress() &&
-               this.validateStartDate() &&
-               this.validateFrequency() &&
-               this.validateWeeklyDays() &&
-               this.validateEndDate() &&
-               this.validateUserRole();
+            this.validateStartDate() &&
+            this.validateFrequency() &&
+            this.validateWeeklyDays() &&
+            this.validateEndDate() &&
+            this.validateUserRole();
     }
 
     saveOrder() {
@@ -516,15 +516,19 @@ export class ScheduleRepeatOrder {
         this.authService.currentUser$.subscribe(user => {
             console.log(user);
 
-            if (user?.role === 'RESTAURANT') {
+            /* if (user?.role === "RESTAURANT") {
                 this.restaurantId = this.authService.getProfileId() || 0;
+                console.log("restaurantId", this.authService.getProfileId())
             }
-            else if (user?.role === 'FARMER') {
+            else if (user?.role === "FARMER") {
                 this.farmerId = this.authService.getProfileId() || 0;
-            }
-
+                console.log("farmerId", this.authService.getProfileId())
+            } */
+            this.userId = this.authService.getProfileId() || 0;
+            // console.log(this.farmerId)
+            // console.log(this.restaurantId)
             // Validate IDs after getting them
-            if (this.restaurantId === 0 && this.farmerId === 0) {
+            if (this.userId === 0) {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Validation Error',
@@ -537,8 +541,7 @@ export class ScheduleRepeatOrder {
 
             // Proceed with order creation
             this.ordersService.createOrder({
-                restaurantId: this.restaurantId,
-                farmerId: this.farmerId,
+                userId: this.userId,
                 startDate: this.startDate.toISOString().slice(0, 10),
                 frequency: this.selectedFrequency.value.toUpperCase(),
                 repeatOnDays: repeatOnDays,

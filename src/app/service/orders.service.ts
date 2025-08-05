@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Order } from '../model/order.model';
 import { environment } from '../../environments/environment';
@@ -18,16 +18,16 @@ export class OrdersService {
 
     // Get orders by role with filters
     listByRole(params: {
+        userId?: number | null,
         restaurantId?: number | null,
         farmerId?: number | null,
-        courierId?: number | null,
         status?: string | null
     }): Observable<Order[]> {
-        // Remove null or undefined params and use snake_case
+        // Remove null or undefined params
         const httpParams: any = {};
-        if (params.restaurantId != null) httpParams.restaurant_id = params.restaurantId.toString();
-        if (params.farmerId != null) httpParams.farmer_id = params.farmerId.toString();
-        if (params.courierId != null) httpParams.courier_id = params.courierId.toString();
+        if (params.userId != null) httpParams.userId = params.userId.toString();
+        if (params.restaurantId != null) httpParams.restaurantId = params.restaurantId.toString();
+        if (params.farmerId != null) httpParams.farmerId = params.farmerId.toString();
         if (params.status != null) httpParams.status = params.status;
 
         return this.http.get<Order[]>(this.API, {
@@ -35,49 +35,6 @@ export class OrdersService {
         });
     }
 
-    // Get orders for a specific user
-    getOrdersByUser(userId: number, params: { status?: string | null }): Observable<Order[]> {
-        console.log("user ID:" + userId);
-        console.log("params:" + params);
-
-        const httpParams: any = {};
-        if (params.status != null) httpParams.status = params.status;
-
-        return this.http.get<Order[]>(`${environment.apiUrl}users/${userId}/orders`, {
-            params: httpParams
-        });
-    }
-
-    // OrdersService.ts
-    getAllOrdersByRole(params: {
-        restaurantId?: number;
-        farmerId?: number;
-        courierId?: number;
-        status?: string;
-    }): Observable<Order[]> {
-        // Build HttpParams dynamically
-        let httpParams = new HttpParams();
-    
-        if (params.restaurantId) {
-        httpParams = httpParams.set('restaurantId', params.restaurantId.toString());
-        }
-        if (params.farmerId) {
-        httpParams = httpParams.set('farmerId', params.farmerId.toString());
-        }
-        if (params.courierId) {
-        httpParams = httpParams.set('courierId', params.courierId.toString());
-        }
-        if (params.status) {
-        httpParams = httpParams.set('status', params.status);
-        }
-    
-        console.log('✅ getAllOrdersByRole called with params:', httpParams.toString());
-    
-        return this.http.get<Order[]>(`${environment.apiUrl}orders`, {
-        params: httpParams
-        });
-    }
-   
     // Get a specific order by ID
     getOrderById(orderId: number): Observable<Order> {
         return this.http.get<Order>(`${this.API}/${orderId}`);
@@ -85,8 +42,7 @@ export class OrdersService {
 
     // Create a new scheduled order
     createOrder(scheduleOrder: {
-        restaurantId: number,
-        farmerId: number,
+        userId: number,
         startDate: string,
         frequency: string,
         repeatOnDays: string,

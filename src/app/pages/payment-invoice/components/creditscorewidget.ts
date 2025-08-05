@@ -80,12 +80,15 @@ export class CreditScoreWidget implements OnInit {
         const userId = currentUser.id;
 
         this.authService.getAccountInfo(userId).subscribe({
-            next: (data) => {
+            next: (response: any) => {
+                // Extract account data from the response
+                const data = response.account;
+
                 this.accountId = data.id;
                 this.accountNumber = data.accountNumber;
                 this.availableBalance = data.availableBalance;
                 this.balance = data.balance;
-                this.completedTransfers = data.transactions.length;
+                this.completedTransfers = response.transactions ? response.transactions.length : 0;
                 this.name = data.name;
                 this.accountType = data.accountType;
 
