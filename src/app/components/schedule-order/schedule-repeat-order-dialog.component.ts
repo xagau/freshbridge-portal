@@ -289,7 +289,7 @@ export class ScheduleRepeatOrderDialog {
     // Example IDs, replace with actual logic as needed
     restaurantId = 1;
     farmerId = 1;
-
+    userId = 1;
 
     onAddressInput(event: Event) {
         const input = event.target as HTMLInputElement;
@@ -341,8 +341,9 @@ export class ScheduleRepeatOrderDialog {
             .join(',');
 
         this.ordersService.createOrder({
-            restaurantId: this.restaurantId,
-            farmerId: this.farmerId,
+            userId: this.userId,
+            /* restaurantId: this.restaurantId,
+            farmerId: this.farmerId,*/
             startDate: this.startDate.toISOString().slice(0, 10),
             frequency: this.selectedFrequency.value.toUpperCase(),
             repeatOnDays: repeatOnDays,

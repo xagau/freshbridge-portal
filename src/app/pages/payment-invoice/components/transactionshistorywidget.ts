@@ -10,6 +10,7 @@ import { Dialog } from 'primeng/dialog';
 import { TimelineModule } from 'primeng/timeline';
 import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
+import { AuthService } from '@/auth/auth.service';
 
 enum TransactionStatus {
     PENDING = 'PENDING',
@@ -228,41 +229,98 @@ export class TransactionsHistoryWidget {
 
     constructor(
         private customerService: CustomerService,
-        private transactionService: TransactionService
+        private transactionService: TransactionService,
+        private authService: AuthService
     ) { }
 
     transactions: any[] = [];
     ngOnInit() {
-        this.transactionService.getTransactions().subscribe(transactions => {
-          const sortedTransactions = transactions.sort(
-            (a: Transaction, b: Transaction) =>
-              new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()
-          );
-          this.transactions = sortedTransactions.map(t => this.transformTransaction(t));
+        this.loadTransactionsFromAccountInfo();
+    }
+
+    private loadTransactionsFromAccountInfo() {
+        const currentUser = this.authService.currentUserValue;
+        if (!currentUser) {
+            console.error('No user is currently logged in');
+            return;
+        }
+
+        const userId = currentUser.id;
+
+        this.authService.getAccountInfo(userId).subscribe({
+            next: (response: any) => {
+                // Based on the example response structure you provided:
+                // {
+                //   "account": { ... },
+                //   "transactions": [ ... ]
+                // }
+
+                if (response && response.transactions && Array.isArray(response.transactions)) {
+                    // Store the account name for use in transformTransaction
+                    const accountName = response.account?.name || currentUser?.name || 'Unknown';
+
+                    // Use the transactions array from the response
+                    this.transactions = response.transactions.map((t: Transaction) => {
+                        // Add the account name to each transaction
+                        return this.transformTransaction({ ...t, accountName: accountName });
+                    });
+                } else {
+                    console.warn('No transactions found in account info response');
+                    this.transactions = [];
+                }
+            },
+            error: (err) => {
+                console.error('Error fetching account info:', err);
+                this.transactions = [];
+            }
         });
     }
 
-    private transformTransaction(t: Transaction): any {
-        const name = t.account?.name || 'Unknown';
-        const capName: string = name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+    private transformTransaction(t: any): any {
+        // Use the account name passed from loadTransactionsFromAccountInfo
+        // This comes from response.account.name in the API response
+        let accountName = t.accountName || 'Unknown';
+        let accountId = '0000';
+
+        // Get the account ID from the transaction
+        if (typeof t.account === 'number') {
+            accountId = t.account.toString();
+        }
+        // Or it could be an object with id property
+        else if (typeof t.account === 'object' && t.account !== null) {
+            accountId = t.account.id?.toString() || '0000';
+        }
+
+        // Create initials for the avatar
+        const capName: string = accountName.split(' ')
+            .map((n: string) => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+
+        // Format the transaction date
+        const dateStr = t.transactionDate || t.createdAt || new Date().toISOString();
+        const formattedDate = new Date(dateStr).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
 
         return {
             id: t.id.toString(),
             name: {
-                value: name,
+                value: accountName,
                 bgColor: this.getRandomColor(),
                 capName: capName
             },
-            date: new Date(t.transactionDate).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-            }),
+            date: formattedDate,
             type: t.type,
             status: t.status,
             description: t.description || 'No description provided',
             amount: `${t.type === 'CREDIT' ? '+' : '-'}${t.amount.toLocaleString()}`,
-            account: `**** **** ${t.account?.id?.toString().padStart(4, '0').slice(-4) || '0000'}`
+            account: `**** **** ${accountId.padStart(4, '0').slice(-4)}`,
+            // Store the original transaction for details view
+            originalTransaction: t
         };
     }
 
@@ -409,13 +467,7 @@ export class TransactionsHistoryWidget {
     }
 
     reloadTransactions() {
-        this.transactionService.getTransactions().subscribe(transactions => {
-          this.transactions = transactions
-            .sort((a: Transaction, b: Transaction) =>
-              new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()
-            )
-            .map(t => this.transformTransaction(t));
-        });
-      }
-    
+        // Reload transactions using the account info API
+        this.loadTransactionsFromAccountInfo();
+    }
 }
