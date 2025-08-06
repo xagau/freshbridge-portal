@@ -41,6 +41,9 @@ interface NotificationsBars {
 
         <div class="topbar-right">
             <ul class="topbar-menu">
+                <li class="email-display mr-4" *ngIf="userEmail()">
+                    <span class="label-small text-surface-950 dark:text-surface-0 px-3 py-2 bg-surface-100 dark:bg-surface-800 rounded-lg">{{ userEmail() }}</span>
+                </li>
                 <li class="right-sidebar-item">
                     <a class="right-sidebar-button" (click)="toggleSearchBar()">
                         <i class="pi pi-search"></i>
@@ -178,6 +181,7 @@ export class AppTopbar implements OnInit {
     notificationsList = signal<Notification[]>([]);
 
     userId: number = 0;
+    userEmail = signal<string>('');
 
     private notificationSubscription: Subscription | null = null;
 
@@ -186,6 +190,7 @@ export class AppTopbar implements OnInit {
         this.authService.currentUser$.subscribe(user => {
             if (user) {
                 this.userId = user?.userId;
+                this.userEmail.set(user?.email || '');
             }
         })
 

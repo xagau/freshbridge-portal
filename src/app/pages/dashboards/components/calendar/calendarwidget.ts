@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { addDays, addMonths, format, getDaysInMonth, getMonth, getYear, isSameDay, isSameMonth, isToday, lastDayOfMonth, startOfMonth, subMonths } from 'date-fns';
@@ -6,6 +6,7 @@ import { OrdersService } from '@/service/orders.service';
 import { AuthService } from '@/auth/auth.service';
 import { OrderDetailsModalComponent } from '@/components/order-details-modal/order-details-modal.component';
 import { Order } from '@/model/order.model';
+import { DashboardDataService } from '@/service/dashboard-data.service';
 
 @Component({
     selector: 'app-google-like-calendar',
@@ -24,10 +25,9 @@ export class GoogleLikeCalendarComponent implements OnInit {
 
     weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     currentUser: any = { userId: 0, role: "" };
-    constructor(
-        private orderService: OrdersService,
-        private authService: AuthService
-    ) { }
+    private orderService = inject(OrdersService);
+    private authService = inject(AuthService);
+    private dashboardDataService = inject(DashboardDataService);
 
     ngOnInit(): void {
         this.generateCalendar();
@@ -35,23 +35,20 @@ export class GoogleLikeCalendarComponent implements OnInit {
     }
 
     loadEventsForMonth(): void {
-        let params: any = {};
+        // Get user info for display purposes
         this.authService.currentUser$.subscribe(user => {
-
             if (user) {
                 this.currentUser.userId = user?.id;
                 this.currentUser.role = user?.role;
             }
-            if (user?.role === 'RESTAURANT') {
-                params = { restaurantId: this.authService.getProfileId() };
-            }
-            else if (user?.role === 'FARMER') {
-                params = { farmerId: this.authService.getProfileId() };
-            }
-        })
-        console.log("calendar widget params", params);
+        });
 
-        this.orderService.listByRole(params).subscribe((orders: Order[]) => {
+        // Use the shared dashboard data service instead of making a separate API call
+        this.dashboardDataService.orders$.subscribe((orders: Order[]) => {
+            if (!orders || orders.length === 0) {
+                return;
+            }
+
             this.events = [];
 
             orders.forEach(order => {

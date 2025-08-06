@@ -44,8 +44,8 @@ export class ProductList {
     isRestaurant = signal<boolean>(false);
 
     // Current farmer ID (if user is a farmer)
-    currentFarmerId = signal<number | null>(null);
-
+    // currentFarmerId = signal<number | null>(null);
+    currentUserId = signal<number | null>(null);
     public environment = environment;
 
     constructor(
@@ -65,9 +65,9 @@ export class ProductList {
 
         // Get the current farmer ID if the user is a farmer
         if (this.isFarmer()) {
-            const farmerId = this.authService.getProfileId();
-            console.log('Current farmer ID:', farmerId);
-            this.currentFarmerId.set(farmerId);
+            const userId = this.authService.getProfileId();
+            console.log('Current farmer ID:', userId);
+            this.currentUserId.set(userId);
         }
 
         // Load products based on user role
@@ -95,12 +95,12 @@ export class ProductList {
                 console.log("Products loaded:", data.length);
 
                 // If user is a farmer, we can verify the products belong to them
-                if (this.isFarmer() && this.currentFarmerId()) {
-                    const farmerId = this.currentFarmerId();
-                    console.log(`Verifying products belong to farmer ID: ${farmerId}`);
+                if (this.isFarmer() && this.currentUserId()) {
+                    const userId = this.currentUserId();
+                    console.log(`Verifying products belong to farmer ID: ${userId}`);
 
                     // This is just a verification step - the API should already filter correctly
-                    const farmerProducts = data.filter(product => product.farmerId === farmerId);
+                    const farmerProducts = data.filter(product => product.farmerId === userId);
                     if (farmerProducts.length !== data.length) {
                         console.warn(`Found ${data.length} products, but only ${farmerProducts.length} belong to the current farmer`);
                     }

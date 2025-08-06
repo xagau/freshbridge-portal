@@ -53,8 +53,8 @@ export class ProductCreateComponent implements OnInit {
     maxImages = 4;
 
     // Store the current farmer ID
-    currentFarmerId: number | null = null;
-
+    // currentFarmerId: number | null = null;
+    userId: number | null = null;
     constructor(
         private productService: ProductService,
         private messageService: MessageService,
@@ -68,8 +68,8 @@ export class ProductCreateComponent implements OnInit {
 
         // If the user is a farmer, get their farmer ID
         if (userRole === 'FARMER') {
-            this.currentFarmerId = this.authService.getProfileId();
-            console.log('Current farmer ID:', this.currentFarmerId);
+            this.userId = this.authService.getProfileId();
+            console.log('Current farmer ID:', this.userId);
         } else if (userRole === 'ADMIN') {
             // Admins can create products for any farm, but we'll need to handle this differently
             // For now, we'll just log a message
@@ -89,17 +89,17 @@ export class ProductCreateComponent implements OnInit {
         this.loading = true;
 
         // Check if we have a valid farmer ID
-        if (!this.currentFarmerId && this.authService.currentUserValue?.role === 'FARMER') {
+        if (!this.userId && this.authService.currentUserValue?.role === 'FARMER') {
             this.handleError('Unable to determine your farmer ID. Please try logging in again.');
             return;
         }
 
         // For admin users who might be creating products for any farm
         // In a real app, you'd have a farm selector in the UI
-        const farmerId = this.currentFarmerId ||
+        const UID = this.userId ||
             (this.authService.currentUserValue?.role === 'ADMIN' ? 1 : null);
 
-        if (!farmerId) {
+        if (!UID) {
             this.handleError('No farmer ID available. Cannot create product.');
             return;
         }
@@ -108,7 +108,7 @@ export class ProductCreateComponent implements OnInit {
             ...this.product,
             price: Number(this.product.price),
             quantityAvailable: Number(this.product.quantityAvailable),
-            farmerId: farmerId, // Use the farmer ID from auth service
+            userId: UID, // Use the farmer ID from auth service
             harvestDateStr: this.product.harvestDate || new Date().toISOString().split('T')[0]
         } as Product;
 
