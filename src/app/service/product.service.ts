@@ -44,7 +44,7 @@ export class ProductService {
     console.log(this.authService.currentUserValue);
 
     if (this.authService.currentUserValue?.role === 'FARMER') {
-      return this.http.get<Product[]>(`${this.API}?farmerId=${this.authService.getProfileId()}`, { headers: this.getAuthHeaders() });
+      return this.http.get<Product[]>(`${this.API}?userId=${this.authService.getProfileId()}`, { headers: this.getAuthHeaders() });
     } else if (this.authService.currentUserValue?.role === 'RESTAURANT') {
       return this.http.get<Product[]>(`${this.API}?restaurantId=${this.authService.getProfileId()}`, { headers: this.getAuthHeaders() });
     } else if (this.authService.currentUserValue?.role === 'ADMIN') {

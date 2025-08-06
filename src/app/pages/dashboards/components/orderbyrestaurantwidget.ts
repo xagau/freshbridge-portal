@@ -9,6 +9,7 @@ import { MeterChart } from '@/components/charts/meterchart';
 import { OrdersService } from '@/service/orders.service';
 import { format, subDays, parseISO, startOfDay, addDays, eachDayOfInterval, isWithinInterval, isAfter } from 'date-fns';
 import { AuthService } from '@/auth/auth.service';
+import { DashboardDataService } from '@/service/dashboard-data.service';
 
 interface DailyData {
     date: Date;
@@ -77,6 +78,7 @@ export class OrderByRestaurantWidget implements OnInit {
     layoutService = inject(LayoutService);
     orderService = inject(OrdersService);
     authService = inject(AuthService);
+    dashboardDataService = inject(DashboardDataService);
 
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
     _computedData = signal<number[]>([]);
@@ -103,6 +105,7 @@ export class OrderByRestaurantWidget implements OnInit {
     });
 
     ngOnInit(): void {
+        this.setupUserInfo();
         this.loadOrders();
     }
 
@@ -111,34 +114,29 @@ export class OrderByRestaurantWidget implements OnInit {
         return Array.from({ length: 4 }, (_, i) => Math.ceil(maxValue * (1 - i / 3)));
     }
 
-
-    loadOrders(): void {
-        // TODO: Replace with real user ID
-        let params: any = {};
+    private setupUserInfo(): void {
         this.authService.currentUser$.subscribe(user => {
             if (user) {
                 this.currentUser.userId = user?.id;
                 this.currentUser.role = user?.role;
             }
-            if (user?.role === 'RESTAURANT') {
-                params = { restaurantId: this.currentUser.userId };
-            }
-            else if (user?.role === 'FARMER') {
-                params = { farmerId: this.currentUser.userId };
-            }
-        })
-
-        this.orderService.listByRole(params).subscribe((orders: any[]) => {
-            // Filter completed orders
-            const completedOrders = orders.filter(order => order.status === 'DELIVERED');
-
-            // Process daily data
-            this.processDailyData(completedOrders);
-
-            // Prepare chart data
-            this.prepareChartData();
         });
+    }
 
+    loadOrders(): void {
+        // Use the shared dashboard data service instead of making a separate API call
+        this.dashboardDataService.orders$.subscribe(orders => {
+            if (orders && orders.length > 0) {
+                // Filter completed orders
+                const completedOrders = orders.filter(order => order.status === 'DELIVERED');
+
+                // Process daily data
+                this.processDailyData(completedOrders);
+
+                // Prepare chart data
+                this.prepareChartData();
+            }
+        });
     }
 
     private processDailyData(orders: any[]): void {

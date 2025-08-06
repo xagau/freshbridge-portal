@@ -131,7 +131,7 @@ export class OrderListComponent implements OnInit {
       }
       else if (user?.role === 'FARMER') {
         params = {
-          farmerId: this.currentUser.userId,
+          userId: this.currentUser.userId,
           status: this.selectedStatus !== 'ALL' ? this.selectedStatus : null
         };
       }

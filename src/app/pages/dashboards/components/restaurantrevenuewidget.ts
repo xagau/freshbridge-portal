@@ -9,6 +9,7 @@ import { ChartModule } from 'primeng/chart';
 import { OrdersService } from '@/service/orders.service';
 import { addDays, addWeeks, addMonths, isAfter, format } from 'date-fns';
 import { AuthService } from '@/auth/auth.service';
+import { DashboardDataService } from '@/service/dashboard-data.service';
 
 @Component({
     selector: 'restaurant-revenue-widget',
@@ -74,6 +75,7 @@ export class RestaurantRevenueWidget implements OnInit {
 
     layoutService = inject(LayoutService);
     authService = inject(AuthService);
+    dashboardDataService = inject(DashboardDataService);
 
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
 
@@ -101,6 +103,7 @@ export class RestaurantRevenueWidget implements OnInit {
     constructor(private orderService: OrdersService) { }
 
     ngOnInit(): void {
+        this.setupUserInfo();
         this.loadOrders();
     }
 
@@ -116,107 +119,105 @@ export class RestaurantRevenueWidget implements OnInit {
         userId: 0,
         role: ''
     }
-    loadOrders(): void {
-        let params: any = {};
+
+    private setupUserInfo(): void {
         this.authService.currentUser$.subscribe(user => {
             if (user) {
                 this.currentUser.userId = user?.id;
                 this.currentUser.role = user?.role;
             }
-            if (user?.role === 'RESTAURANT') {
-                params = { restaurantId: this.currentUser.userId };
-            }
-            else if (user?.role === 'FARMER') {
-                params = { farmerId: this.currentUser.userId };
-            }
-        })
+        });
+    }
 
+    loadOrders(): void {
+        // Use the shared dashboard data service instead of making a separate API call
+        this.dashboardDataService.orders$.subscribe(orders => {
+            if (orders && orders.length > 0) {
+                const today = new Date();
+                const revenueMap = new Map<string, number>();
 
-        this.orderService.listByRole(params).subscribe((orders: any[]) => {
-            const today = new Date();
-            const revenueMap = new Map<string, number>();
+                // Process all orders to calculate projected revenue
+                orders.forEach(order => {
 
-            // Process all orders to calculate projected revenue
-            orders.forEach(order => {
-
-                if (order.frequency === 'ONCE') {
-                    // For one-time orders, use expected delivery date
-                    if (order.expectedDeliveryDate) {
-                        const deliveryDate = new Date(order.expectedDeliveryDate);
-                        if (isAfter(deliveryDate, today)) {
-                            this.addToRevenueMap(revenueMap, deliveryDate, order.totalAmount);
+                    if (order.frequency === 'ONCE') {
+                        // For one-time orders, use expected delivery date
+                        if (order.expectedDeliveryDate) {
+                            const deliveryDate = new Date(order.expectedDeliveryDate);
+                            if (isAfter(deliveryDate, today)) {
+                                this.addToRevenueMap(revenueMap, deliveryDate, order.totalAmount);
+                            }
                         }
-                    }
-                } else if (order.frequency === 'WEEKLY' && order.startDate && order.repeatOnDays) {
-                    // For weekly orders, calculate all future delivery dates based on repeat days
-                    const startDate = new Date(order.startDate);
-                    const daysOfWeek = order.repeatOnDays.split(',');
-                    const endDate = order.endDate ? new Date(order.endDate) : addMonths(today, 3); // Default to 3 months ahead if no end date
+                    } else if (order.frequency === 'WEEKLY' && order.startDate && order.repeatOnDays) {
+                        // For weekly orders, calculate all future delivery dates based on repeat days
+                        const startDate = new Date(order.startDate);
+                        const daysOfWeek = order.repeatOnDays.split(',');
+                        const endDate = order.endDate ? new Date(order.endDate) : addMonths(today, 3); // Default to 3 months ahead if no end date
 
-                    daysOfWeek.forEach((day: string) => {
-                        let currentDate = this.getNextWeekday(startDate, day.trim());
+                        daysOfWeek.forEach((day: string) => {
+                            let currentDate = this.getNextWeekday(startDate, day.trim());
+                            while (isAfter(endDate, currentDate)) {
+                                if (isAfter(currentDate, today)) {
+                                    this.addToRevenueMap(revenueMap, currentDate, order.totalAmount);
+                                }
+                                currentDate = addWeeks(currentDate, 1);
+                            }
+                        });
+                    } else if (order.frequency === 'BIWEEKLY' && order.startDate) {
+                        // For biweekly orders, calculate every 2 weeks from start date
+                        const startDate = new Date(order.startDate);
+                        const endDate = order.endDate ? new Date(order.endDate) : addMonths(today, 3);
+
+                        let currentDate = new Date(startDate);
                         while (isAfter(endDate, currentDate)) {
                             if (isAfter(currentDate, today)) {
                                 this.addToRevenueMap(revenueMap, currentDate, order.totalAmount);
                             }
-                            currentDate = addWeeks(currentDate, 1);
+                            currentDate = addWeeks(currentDate, 2);
                         }
-                    });
-                } else if (order.frequency === 'BIWEEKLY' && order.startDate) {
-                    // For biweekly orders, calculate every 2 weeks from start date
-                    const startDate = new Date(order.startDate);
-                    const endDate = order.endDate ? new Date(order.endDate) : addMonths(today, 3);
+                    } else if (order.frequency === 'MONTHLY' && order.startDate) {
+                        // For monthly orders, calculate same day each month
+                        const startDate = new Date(order.startDate);
+                        const endDate = order.endDate ? new Date(order.endDate) : addMonths(today, 6);
 
-                    let currentDate = new Date(startDate);
-                    while (isAfter(endDate, currentDate)) {
-                        if (isAfter(currentDate, today)) {
-                            this.addToRevenueMap(revenueMap, currentDate, order.totalAmount);
+                        let currentDate = new Date(startDate);
+                        while (isAfter(endDate, currentDate)) {
+                            if (isAfter(currentDate, today)) {
+                                this.addToRevenueMap(revenueMap, currentDate, order.totalAmount);
+                            }
+                            currentDate = addMonths(currentDate, 1);
                         }
-                        currentDate = addWeeks(currentDate, 2);
                     }
-                } else if (order.frequency === 'MONTHLY' && order.startDate) {
-                    // For monthly orders, calculate same day each month
-                    const startDate = new Date(order.startDate);
-                    const endDate = order.endDate ? new Date(order.endDate) : addMonths(today, 6);
+                });
 
-                    let currentDate = new Date(startDate);
-                    while (isAfter(endDate, currentDate)) {
-                        if (isAfter(currentDate, today)) {
-                            this.addToRevenueMap(revenueMap, currentDate, order.totalAmount);
-                        }
-                        currentDate = addMonths(currentDate, 1);
-                    }
-                }
-            });
+                // Convert map to array and sort by date
+                this.projectedRevenueData = Array.from(revenueMap.entries())
+                    .map(([date, amount]) => ({
+                        date: new Date(date),
+                        amount
+                    }))
+                    .sort((a, b) => a.date.getTime() - b.date.getTime());
 
-            // Convert map to array and sort by date
-            this.projectedRevenueData = Array.from(revenueMap.entries())
-                .map(([date, amount]) => ({
-                    date: new Date(date),
-                    amount
-                }))
-                .sort((a, b) => a.date.getTime() - b.date.getTime());
+                // Calculate total projected revenue
+                this.totalAmount = this.projectedRevenueData.reduce((sum, day) => sum + day.amount, 0);
 
-            // Calculate total projected revenue
-            this.totalAmount = this.projectedRevenueData.reduce((sum, day) => sum + day.amount, 0);
+                // Prepare chart data
+                const labels = this.projectedRevenueData.map(day =>
+                    format(day.date, 'MMM d')
+                );
+                const data = this.projectedRevenueData.map(day => day.amount);
 
-            // Prepare chart data
-            const labels = this.projectedRevenueData.map(day =>
-                format(day.date, 'MMM d')
-            );
-            const data = this.projectedRevenueData.map(day => day.amount);
+                const newGmvTrendData = {
+                    labels: labels,
+                    datasets: [{
+                        label: this.currentUser.role === 'RESTAURANT' ? 'Revenue' : 'Sales',
+                        data: data,
+                        borderColor: '#42A5F5',
+                        fill: false
+                    }]
+                };
 
-            const newGmvTrendData = {
-                labels: labels,
-                datasets: [{
-                    label: this.currentUser.role === 'RESTAURANT' ? 'Revenue' : 'Sales',
-                    data: data,
-                    borderColor: '#42A5F5',
-                    fill: false
-                }]
-            };
-
-            this.gmvTrendData.set(newGmvTrendData);
+                this.gmvTrendData.set(newGmvTrendData);
+            }
         });
     }
 

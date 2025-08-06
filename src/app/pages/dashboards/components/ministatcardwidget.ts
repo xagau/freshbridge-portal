@@ -18,6 +18,7 @@ import { ProductService } from '@/service/product.service';
 import { LayoutService } from '@/layout/service/layout.service';
 import { AppShipmentView } from '@/layout/components/app.shipmentView';
 import { AuthService } from '@/auth/auth.service';
+import { DashboardDataService } from '@/service/dashboard-data.service';
 @Component({
     selector: 'mini-stat-card-widget',
     standalone: true,
@@ -71,6 +72,7 @@ export class MiniStatCardWidget implements OnInit {
     layoutService = inject(LayoutService);
     authService = inject(AuthService);
     private shipmentView = inject(AppShipmentView);
+    dashboardDataService = inject(DashboardDataService);
 
     shipments: any[] = [];
     products: any[] = [];
@@ -133,23 +135,18 @@ export class MiniStatCardWidget implements OnInit {
                 error: () => this.loading.shipments = false
             });
         } else {
-            // Farmers and Restaurants get orders
-            let params: any = {};
-            if (this.currentUser.role === 'RESTAURANT') {
-                params.restaurantId = this.authService.getProfileId();
-            } else if (this.currentUser.role === 'FARMER') {
-                params.farmerId = this.authService.getProfileId();
-            }
-
-            this.ordersService.listByRole(params).subscribe({
+            // Farmers and Restaurants get orders from the shared service
+            this.dashboardDataService.orders$.subscribe({
                 next: (data: any) => {
-                    this.shipments = data.map((order: any) => ({
-                        id: order.id,
-                        orderId: order.id,
-                        status: order.status,
-                        estimatedDelivery: order.estimatedDeliveryDate || order.createdAt,
-                        trackingNumber: order.trackingNumber || `ORD-${order.id}`
-                    }));
+                    if (data && data.length > 0) {
+                        this.shipments = data.map((order: any) => ({
+                            id: order.id,
+                            orderId: order.id,
+                            status: order.status,
+                            estimatedDelivery: order.estimatedDeliveryDate || order.createdAt,
+                            trackingNumber: order.trackingNumber || `ORD-${order.id}`
+                        }));
+                    }
                     this.loading.shipments = false;
                 },
                 error: () => this.loading.shipments = false

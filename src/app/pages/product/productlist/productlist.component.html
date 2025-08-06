@@ -12,7 +12,7 @@
             <p class="mt-0 p-0 mb-4 text-surface-700 dark:text-surface-100 text-2xl">
                 <!-- Dynamic subtitle based on user role -->
                 <span *ngIf="isAdmin()">Manage all products across farms</span>
-                <span *ngIf="isFarmer()">Manage your farm's product catalog (Farmer ID: {{ currentFarmerId() }})</span>
+                <span *ngIf="isFarmer()">Manage your farm's product catalog (Farmer ID: {{ currentUserId() }})</span>
                 <span *ngIf="isRestaurant()">Browse products from local farms</span>
             </p>
         </div>
