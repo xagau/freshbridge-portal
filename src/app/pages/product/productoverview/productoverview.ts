@@ -16,6 +16,7 @@ import { ProductService, Product } from '@/service/product.service';
 import { environment } from '../../../../environments/environment';
 import { Order } from '@/model/order.model'; // Make sure this import exists
 import { ToastModule } from 'primeng/toast';
+import { AuthService } from '@/auth/auth.service';
 
 @Component({
     selector: 'app-product-overview',
@@ -33,7 +34,7 @@ import { ToastModule } from 'primeng/toast';
         CalendarModule,
         ToastModule
     ],
-    providers: [OrdersService, MessageService, ProductService],
+    providers: [OrdersService, MessageService, ProductService, AuthService],
     templateUrl: './productoverview.component.html',
 })
 export class ProductOverview implements OnInit {
@@ -53,6 +54,7 @@ export class ProductOverview implements OnInit {
         private orderService: OrdersService,
         private route: ActivatedRoute,
         private productService: ProductService,
+        private authService: AuthService,
     ) { }
 
 
@@ -108,7 +110,10 @@ export class ProductOverview implements OnInit {
         });
 
         // Fetch real orders for the restaurant (or user)
-        this.orderService.listByRole({ farmerId: this.farmerId }).subscribe({
+
+        this.farmerUserId = this.authService.getProfileId() || 1;
+
+        this.orderService.listByRole({ userId: this.farmerUserId }).subscribe({
             next: (orders: Order[]) => {
                 // Map orders to dropdown format with summary
                 console.log(orders);
@@ -156,9 +161,12 @@ export class ProductOverview implements OnInit {
         });
     }
 
-
+    createNewOrder() {
+        this.showOrderDialog = false;
+        this.router.navigate(['/schedule-order']);
+    }
     restaurantId = 1;
-    farmerId = 1;
+    farmerUserId = 1;
     addToOrder() {
         const orderItem = {
             productId: this.product.id,

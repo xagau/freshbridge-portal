@@ -1,5 +1,4 @@
-<p-dialog [(visible)]="order" [modal]="true" [closable]="true" [dismissableMask]="true" (onHide)="close()"
-    header="Delivery Details">
+<p-dialog [(visible)]="order" [modal]="true" [closable]="true" [dismissableMask]="true" (onHide)="close()" header="Delivery Details">
     <ng-container *ngIf="order">
         <div *ngIf="order" class="flex flex-col gap-1 p-4 text-lg">
             <div class="flex justify-between mb-3 gap-3">
@@ -14,8 +13,7 @@
             <ul class="ml-3">
                 <li *ngFor="let item of order.items" class="mb-2 flex items-center justify-start gap-2">
                     <span class="w-2 h-2 rounded-full" [style]="{ background: bgColors }"></span>
-                    {{ item.productName }} × {{ item.quantity }} &#64; {{ item.unitPrice | currency: 'CAD' }}/{{
-                    item.productUnit }}
+                    {{ item.productName }} × {{ item.quantity }} &#64; {{ item.unitPrice | currency: 'CAD' }}/{{ item.productUnit }}
                 </li>
             </ul>
 

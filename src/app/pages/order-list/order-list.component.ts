@@ -123,15 +123,15 @@ export class OrderListComponent implements OnInit {
         this.currentUser.userId = localStorage.getItem(this.PROFILE_ID_KEY);;
         this.currentUser.role = user?.role;
       }
-      if (user?.role === 'RESTAURANT') {
+      if (user?.role === 'RESTAURANT' || user?.role === "FARMER") {
         params = {
           userId: this.currentUser.userId,
           status: this.selectedStatus !== 'ALL' ? this.selectedStatus : null
         };
       }
-      else if (user?.role === 'FARMER') {
+      else {
         params = {
-          userId: this.currentUser.userId,
+          courierId: 1,
           status: this.selectedStatus !== 'ALL' ? this.selectedStatus : null
         };
       }
@@ -158,5 +158,20 @@ export class OrderListComponent implements OnInit {
 
   statusStyle(status: string) {
     return { background: `var(--${status.toLowerCase()})` };
+  }
+
+  onOrderUpdated() {
+    // Close the detail modal
+    this.showDetail = false;
+
+    // Refresh the order list
+    this.fetch();
+
+    // Show a success message
+    this.toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Order has been updated successfully'
+    });
   }
 }
