@@ -1,13 +1,12 @@
 <div class="shipment-select-dialog">
-    <p-dialog [(visible)]="visible" (onHide)="onCancel()" [modal]="true" [style]="{ width: '75vw' }"
-        [draggable]="false">
+    <p-dialog [(visible)]="visible" (onHide)="onCancel()" [modal]="true" [style]="{ width: '75vw' }" [draggable]="false">
         <ng-template pTemplate="header">
             <h3>Select Shipment</h3>
         </ng-template>
 
         <div class="content">
             <div class="map-container">
-                <div id="map" style="height: 400px; width: 100%;"></div>
+                <div id="map" style="height: 400px; width: 100%"></div>
                 <div class="map-legend">
                     <div class="legend-item">
                         <div class="color-box order-route"></div>
@@ -22,41 +21,36 @@
 
             <div class="shipment-selection">
                 <h4>Available Shipments</h4>
-                <p-dropdown [options]="shipments" [(ngModel)]="selectedShipment" appendTo="body"
-                    optionLabel="trackingNumber" placeholder="Select a shipment" (onChange)="updateShipmentRoute()">
+                <p-dropdown [options]="shipments" [(ngModel)]="selectedShipment" appendTo="body" optionLabel="trackingNumber" placeholder="Select a shipment" (onChange)="updateShipmentRoute()">
                     <ng-template pTemplate="selectedItem">
-                        <span *ngIf="selectedShipment">
-                            {{selectedShipment.trackingNumber}} - {{selectedShipment.status}}
-                        </span>
+                        <span *ngIf="selectedShipment"> {{ selectedShipment.trackingNumber }} - {{ selectedShipment.status }} </span>
                     </ng-template>
                     <ng-template let-shipment pTemplate="item">
                         <div class="shipment-item">
-                            <div class="tracking-number">{{shipment.trackingNumber}}</div>
-                            <div class="shipment-status">{{shipment.status}}</div>
-                            <div class="shipment-distance" *ngIf="shipment.distance">
-                                {{shipment.distance}} km to restaurant
-                            </div>
+                            <div class="tracking-number">{{ shipment.trackingNumber }}</div>
+                            <div class="shipment-status">{{ shipment.status }}</div>
+                            <div class="shipment-distance" *ngIf="shipment.distance">{{ shipment.distance }} km to restaurant</div>
                         </div>
                     </ng-template>
                 </p-dropdown>
 
                 <div class="shipment-details" *ngIf="selectedShipment">
                     <h5>Shipment Details</h5>
-                    <div><strong>Tracking #:</strong> {{selectedShipment.trackingNumber}}</div>
-                    <div><strong>Status:</strong> {{selectedShipment.status}}</div>
-                    <div><strong>Vehicle:</strong> {{selectedShipment.vehicleType || 'N/A'}}</div>
-                    <div><strong>Estimated Time:</strong> {{selectedShipment.eta || 'Calculating...'}}</div>
+                    <div><strong>Tracking #:</strong> {{ selectedShipment.trackingNumber }}</div>
+                    <div><strong>Status:</strong> {{ selectedShipment.status }}</div>
+                    <div><strong>Vehicle:</strong> {{ selectedShipment.vehicleType || 'N/A' }}</div>
+                    <div><strong>Estimated Time:</strong> {{ selectedShipment.eta || 'Calculating...' }}</div>
                 </div>
             </div>
         </div>
 
         <ng-template pTemplate="footer">
             <button pButton pRipple type="button" label="Cancel" (click)="onCancel()" class="p-button-text"></button>
-            <button pButton pRipple type="button" label="Select" (click)="onSelect()"
-                [disabled]="!selectedShipment"></button>
+            <!-- <button pButton pRipple type="button" label="Select" (click)="onSelect()"
+                [disabled]="!selectedShipment"></button> -->
+            <button pButton pRipple type="button" label="Select" (click)="onSelect()" [disabled]="false"></button>
         </ng-template>
     </p-dialog>
 
-    <p-progressSpinner *ngIf="loading" styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(--surface-ground)"
-        animationDuration=".5s"></p-progressSpinner>
+    <p-progressSpinner *ngIf="loading" styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
 </div>

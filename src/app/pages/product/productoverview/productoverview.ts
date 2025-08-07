@@ -111,9 +111,9 @@ export class ProductOverview implements OnInit {
 
         // Fetch real orders for the restaurant (or user)
 
-        this.farmerUserId = this.authService.getProfileId() || 1;
+        this.farmerId = this.authService.getProfileId() || 1;
 
-        this.orderService.listByRole({ userId: this.farmerUserId }).subscribe({
+        this.orderService.listByRole({ userId: this.farmerId }).subscribe({
             next: (orders: Order[]) => {
                 // Map orders to dropdown format with summary
                 console.log(orders);
@@ -166,7 +166,7 @@ export class ProductOverview implements OnInit {
         this.router.navigate(['/schedule-order']);
     }
     restaurantId = 1;
-    farmerUserId = 1;
+    farmerId = 1;
     addToOrder() {
         const orderItem = {
             productId: this.product.id,

@@ -20,6 +20,7 @@
                 <th>Action</th>
             </tr>
         </ng-template>
+
         <ng-template pTemplate="body" let-order>
             <tr (click)="openDetail(order)" class="cursor-pointer">
                 <td>{{ order.id }}</td>
@@ -38,21 +39,18 @@
                     <p-button *ngIf="currentUser.role === 'FARMER' && order.status === 'PENDING'" icon="pi pi-check" styleClass="p-button-sm p-button-success mr-2" (click)="changeStatus($event, order, 'ACCEPTED')" label="ACCEPT"></p-button>
                     <p-button *ngIf="currentUser.role === 'FARMER' && order.status === 'PENDING'" icon="pi pi-check" styleClass="p-button-sm p-button-danger mr-2" (click)="changeStatus($event, order, 'REJECTED')" label="REJECT"></p-button>
 
-                    <p-button *ngIf="currentUser.role === 'RESTAURANT' && order.status === 'ACCEPTED' && !order.paid" label="MARK PAID" icon="pi pi-dollar" styleClass="p-button-sm" (click)="markOrderPaid($event, order)"></p-button>
+                    <!-- <p-button *ngIf="currentUser.role === 'RESTAURANT' && order.status === 'ACCEPTED' && !order.paid" label="MARK PAID" icon="pi pi-dollar" styleClass="p-button-sm" (click)="markOrderPaid($event, order)"></p-button> -->
 
                     <p-button *ngIf="currentUser.role === 'FARMER' && order.status === 'PREPARING'" severity="info" label="READY TO SHIP" icon="pi pi-bell" (click)="changeStatus($event, order, 'READY_FOR_PICKUP')" />
 
-                    <p-button
-                        *ngIf="currentUser.role === 'FARMER' && order.status === 'ACCEPTED' && order.paid"
-                        icon="pi pi-check"
-                        styleClass="p-button-sm p-button-info mr-2"
-                        (click)="changeStatus($event, order, 'PREPARING')"
-                        label="PREPARING"
-                    ></p-button>
+                    <p-button *ngIf="currentUser.role === 'FARMER' && order.status === 'ACCEPTED'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'PREPARING')" label="PREPARING"></p-button>
 
                     <p-button *ngIf="currentUser.role === 'RESTAURANT' && order.status === 'DELIVERING'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'CONFIRMED')" label="CONFIRMED"></p-button>
 
-                    <p-button *ngIf="currentUser.role === 'COURIER' && order.status === 'READY_FOR_PICKUP'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="pickupOrder($event, order)" label="PICK UP"></p-button>
+                    <!-- <p-button *ngIf="currentUser.role === 'COURIER' && order.status === 'READY_FOR_PICKUP'"
+                        icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2"
+                        (click)="pickupOrder($event, order)" label="PICK UP"></p-button> -->
+                    <p-button *ngIf="currentUser.role === 'COURIER' && order.status === 'READY_FOR_PICKUP'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'COMPLETED')" label="PICK UP"></p-button>
                 </td>
             </tr>
         </ng-template>
@@ -61,7 +59,7 @@
 
 <!-- Detail dialog -->
 <p-dialog [(visible)]="showDetail" [modal]="true" [style]="{ width: '50rem' }" header="Order Details">
-    <fc-order-detail *ngIf="currentOrder" [currentUser]="currentUser" [orderId]="currentOrder.id" (updated)="onOrderUpdated()"></fc-order-detail>
+    <fc-order-detail *ngIf="currentOrder" [currentUser]="currentUser" [orderId]="currentOrder.id" (updated)="fetch()"></fc-order-detail>
 </p-dialog>
 
 <app-shipment-select-dialog [visible]="showShipmentDialog" [orderId]="currentOrder?.id || 0" (shipmentSelected)="onShipmentSelected($event)" (visibleChange)="showShipmentDialog = $event"> </app-shipment-select-dialog>
