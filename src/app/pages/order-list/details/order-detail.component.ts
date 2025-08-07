@@ -15,6 +15,8 @@ import { ToastModule } from 'primeng/toast';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageService } from 'primeng/api';
+import { AuthService } from '@/auth/auth.service';
 
 import { StatusColorPipe } from '@/shared/pipes/status-color.pipe';
 
@@ -34,6 +36,7 @@ import { StatusColorPipe } from '@/shared/pipes/status-color.pipe';
         FormsModule,
         CommonModule
     ],
+    providers: [MessageService],
     standalone: true,
     styleUrls: ['./order-detail.component.scss']
 })
@@ -55,7 +58,11 @@ export class OrderDetailComponent implements OnChanges, AfterViewInit, OnDestroy
         iconAnchor: [16, 32]
     });
 
-    constructor(private ordersSvc: OrdersService) { }
+    constructor(
+        private ordersSvc: OrdersService,
+        private messageService: MessageService,
+        public authService: AuthService
+    ) { }
 
     ngOnChanges() {
         this.load();
@@ -228,5 +235,57 @@ export class OrderDetailComponent implements OnChanges, AfterViewInit, OnDestroy
             DELIVERED: ['COMPLETED']
         };
         return map[status] ?? [];
+    }
+
+    isCourier(): boolean {
+        // Check if the currentUser has the COURIER role
+        return this.currentUser?.role === 'COURIER';
+    }
+
+    canMarkAsComplete(): boolean {
+        const canComplete = !!this.order &&
+            this.isCourier() &&
+            this.order.status !== 'COMPLETED' &&
+            this.order.status !== 'CANCELLED';
+
+        console.log('Can mark as complete:', {
+            hasOrder: !!this.order,
+            isCourier: this.isCourier(),
+            currentUserRole: this.currentUser?.role,
+            orderStatus: this.order?.status,
+            canComplete
+        });
+
+        return canComplete;
+    }
+
+    markAsComplete() {
+        if (!this.order || !this.canMarkAsComplete()) return;
+
+        this.loading = true;
+        this.ordersSvc.updateStatus(this.orderId, 'COMPLETED').subscribe({
+            next: () => {
+                this.loading = false;
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Order marked as completed successfully'
+                });
+                // Emit the updated event without reloading the current order
+                // This will refresh the order list in the parent component
+                this.updated.emit();
+
+                // No need to call this.load() as we're closing the modal
+            },
+            error: (error) => {
+                this.loading = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to update order status'
+                });
+                console.error('Error updating order status:', error);
+            }
+        });
     }
 }

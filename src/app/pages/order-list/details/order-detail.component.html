@@ -39,8 +39,7 @@
         </div>
         <div class="mt-2 flex justify-between items-center">
             <p class="text-sm text-gray-600">
-                Status: <span class="font-medium">{{ order.status }}</span> •
-                ETA: <span class="font-medium">{{ order.expectedDeliveryDate | date: 'medium' }}</span>
+                Status: <span class="font-medium">{{ order.status }}</span> • ETA: <span class="font-medium">{{ order.expectedDeliveryDate | date: 'medium' }}</span>
             </p>
             <button pButton label="Refresh" icon="pi pi-refresh" class="p-button-sm" (click)="initMap()"></button>
         </div>
@@ -48,8 +47,13 @@
 
     <div class="ml-3 mb-2 flex items-center gap-2" *ngIf="currentUser?.role === 'ADMIN'">
         <h4 class="text-xl font-bold">Actions</h4>
-        <p-dropdown appendTo="body" *ngIf="validTransitions(order.status).length"
-            [options]="validTransitions(order.status)" placeholder="Change status"
-            (onChange)="changeStatus($event.value)"></p-dropdown>
+        <p-dropdown appendTo="body" *ngIf="validTransitions(order.status).length" [options]="validTransitions(order.status)" placeholder="Change status" (onChange)="changeStatus($event.value)"></p-dropdown>
     </div>
+
+    <div class="ml-3 mb-2 flex items-center gap-2" *ngIf="canMarkAsComplete()">
+        <h4 class="text-xl font-bold">Courier Actions</h4>
+        <p-button label="Mark as Complete" severity="success" [loading]="loading" (onClick)="markAsComplete()"></p-button>
+    </div>
+
+    <p-toast></p-toast>
 </div>
