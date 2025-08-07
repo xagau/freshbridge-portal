@@ -129,9 +129,10 @@ export class OrderListComponent implements OnInit {
           status: this.selectedStatus !== 'ALL' ? this.selectedStatus : null
         };
       }
-      else {
+      else if (user?.role === 'COURIER') {
         params = {
-          courierId: 1,
+          // userId: this.currentUser.userId,
+          isCourier: true,
           status: this.selectedStatus !== 'ALL' ? this.selectedStatus : null
         };
       }
@@ -158,20 +159,5 @@ export class OrderListComponent implements OnInit {
 
   statusStyle(status: string) {
     return { background: `var(--${status.toLowerCase()})` };
-  }
-
-  onOrderUpdated() {
-    // Close the detail modal
-    this.showDetail = false;
-
-    // Refresh the order list
-    this.fetch();
-
-    // Show a success message
-    this.toast.add({
-      severity: 'success',
-      summary: 'Success',
-      detail: 'Order has been updated successfully'
-    });
   }
 }

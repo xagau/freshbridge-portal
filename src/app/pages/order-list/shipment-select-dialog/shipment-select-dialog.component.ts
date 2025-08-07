@@ -73,7 +73,7 @@ export class ShipmentSelectDialogComponent implements OnChanges, OnInit {
     loadShipments() {
         this.loading = true;
         console.log(this.currentUser.role);
-        
+
         if (this.currentUser.role === 'COURIER') {
             // Couriers get shipments
             this.shipmentService.getShipments(undefined, undefined, this.currentUser.userId).subscribe({
@@ -96,7 +96,7 @@ export class ShipmentSelectDialogComponent implements OnChanges, OnInit {
             } else if (this.currentUser.role === 'FARMER') {
                 params.farmerId = this.currentUser.userId;
             }
-            
+
             this.ordersService.listByRole(params).subscribe({
                 next: (data) => {
                     this.shipments = data.map(order => ({

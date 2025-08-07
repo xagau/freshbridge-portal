@@ -21,7 +21,7 @@ export class OrdersService {
         userId?: number | null,
         restaurantId?: number | null,
         farmerId?: number | null,
-        courierId?: number | null,
+        isCourier?: boolean | null,
         status?: string | null
     }): Observable<Order[]> {
         // Remove null or undefined params
@@ -31,7 +31,7 @@ export class OrdersService {
         if (params.farmerId != null) httpParams.farmerId = params.farmerId.toString();
         if (params.status != null) httpParams.status = params.status;
 
-        return this.http.get<Order[]>(this.API + (params.courierId != null ? "/all" : ""), {
+        return this.http.get<Order[]>(this.API + (params.isCourier ? "/all" : ""), {
             params: httpParams
         });
     }
