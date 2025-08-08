@@ -45,12 +45,15 @@
 
                     <p-button *ngIf="currentUser.role === 'FARMER' && order.status === 'ACCEPTED'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'PREPARING')" label="PREPARING"></p-button>
 
-                    <p-button *ngIf="currentUser.role === 'RESTAURANT' && order.status === 'DELIVERING'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'CONFIRMED')" label="CONFIRMED"></p-button>
+                    <!-- <p-button *ngIf="currentUser.role === 'RESTAURANT' && order.status === 'DELIVERING'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'CONFIRMED')" label="CONFIRMED"></p-button> -->
 
                     <!-- <p-button *ngIf="currentUser.role === 'COURIER' && order.status === 'READY_FOR_PICKUP'"
                         icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2"
                         (click)="pickupOrder($event, order)" label="PICK UP"></p-button> -->
-                    <p-button *ngIf="currentUser.role === 'COURIER' && order.status === 'READY_FOR_PICKUP'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'COMPLETED')" label="PICK UP"></p-button>
+                    <p-button *ngIf="currentUser.role === 'COURIER' && order.status === 'READY_FOR_PICKUP'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'DELIVERING')" label="PICK UP"></p-button>
+                    <p-button *ngIf="currentUser.role === 'RESTAURANT' && order.status === 'DELIVERING'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'DELIVERED')" label="Delivered"></p-button>
+                    <p-button *ngIf="currentUser.role === 'RESTAURANT' && order.status === 'DELIVERED'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'COMPLETED')" label="Complete"></p-button>
+                    <p-button *ngIf="currentUser.role === 'RESTAURANT' && order.status === 'DELIVERED'" icon="pi pi-check" styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'CANCELLED')" label="Calcel"></p-button>
                 </td>
             </tr>
         </ng-template>

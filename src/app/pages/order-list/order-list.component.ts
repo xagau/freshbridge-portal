@@ -37,6 +37,7 @@ export class OrderListComponent implements OnInit {
     { label: 'Accepted', value: 'ACCEPTED' },
     { label: 'Preparing', value: 'PREPARING' },
     { label: 'Ready for Pickup', value: 'READY_FOR_PICKUP' },
+    { label: 'Delivering', value: 'DELIVERING' },
     { label: 'Delivered', value: 'DELIVERED' },
     { label: 'Completed', value: 'COMPLETED' },
     { label: 'Cancelled', value: 'CANCELLED' }
