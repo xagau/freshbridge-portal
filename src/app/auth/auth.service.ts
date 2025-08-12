@@ -174,8 +174,8 @@ export class AuthService {
     }
 
     public getProfileId(): number | null {
-        const id = localStorage.getItem(this.PROFILE_ID_KEY);
-        return id ? parseInt(id) : null;
+        const userData = localStorage.getItem(this.USER_DATA_KEY);
+        return userData ? JSON.parse(userData).id : null;
     }
 
     public getProfileType(): 'farmer' | 'restaurant' | null {
