@@ -44,8 +44,6 @@ export class OrderListComponent implements OnInit {
   ];
   loading = true;
 
-  private readonly PROFILE_ID_KEY = 'freshbridge_profile_id';
-
   // Modal
   showDetail = false;
   currentOrder?: Order;
@@ -121,7 +119,7 @@ export class OrderListComponent implements OnInit {
     let params: any = {};
     this.authService.currentUser$.subscribe(user => {
       if (user) {
-        this.currentUser.userId = localStorage.getItem(this.PROFILE_ID_KEY);;
+        this.currentUser.userId = this.authService.getProfileId();
         this.currentUser.role = user?.role;
       }
       if (user?.role === 'RESTAURANT' || user?.role === "FARMER") {
