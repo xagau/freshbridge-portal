@@ -1,31 +1,19 @@
 <!-- chat.component.html -->
 <div class="chat-container flex flex-col">
-    <div class="flex justify-end mb-4">
-        <p-button icon="pi pi-history" class="p-button-rounded p-button-text w-30 h-30" label="Chat History"
-            (click)="sidebarVisible = true"></p-button>
-    </div>
-    <p-sidebar [(visible)]="sidebarVisible" position="right" [style]="{width: '300px'}">
-        <div class="sidebar-header">
-            <h3>Chat History</h3>
-            <button pButton icon="pi pi-plus" class="p-button-rounded p-button-text" (click)="startNewChat()"></button>
-        </div>
-        <div class="conversation-list">
-            <div *ngFor="let conv of conversations" class="conversation-item"
-                [class.active]="activeConversation?.conversationId === conv.conversationId"
-                (click)="loadConversation(conv.conversationId)">
-                {{ conv.title }}
-            </div>
-        </div>
-    </p-sidebar>
-
-    <div class="chat-wrapper" [ngClass]="{ 'centered': !activeConversation }">
+    <div class="chat-wrapper" [ngClass]="{ centered: messages.length === 0 }">
         <div class="chat-header">
-            <h1 class="chat-title">{{ activeConversation?.title || 'Talk to your data!' }}</h1>
+            <h1 class="chat-title">Chat History</h1>
         </div>
 
-        <p-scrollPanel *ngIf="activeConversation" class="chat-window">
+        <p-scrollPanel #scrollPanel class="chat-window">
             <div *ngFor="let msg of messages" class="chat-message" [ngClass]="msg.role">
-                <p-card [ngClass]="msg.role === 'user' ? 'user-bubble' : 'bot-bubble'">
+                <!-- Conversation header -->
+                <div *ngIf="msg.isConversationHeader" class="conversation-header">
+                    <div class="conversation-title" [innerHTML]="msg.content"></div>
+                </div>
+
+                <!-- Regular message -->
+                <p-card *ngIf="!msg.isConversationHeader" [ngClass]="msg.role === 'user' ? 'user-bubble' : 'bot-bubble'">
                     <div class="message-content" [innerHTML]="msg.content | formatText"></div>
                     <div *ngIf="msg.role === 'assistant'" class="message-meta">
                         <!-- <small *ngIf="msg.contextData.contextUsed !== undefined">
