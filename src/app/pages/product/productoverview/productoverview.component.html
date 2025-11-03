@@ -59,12 +59,14 @@
             <a pButton (click)="goToProductlist()" class="p-button font-bold w-full my-5" severity="danger">
                 Go to Product list
             </a>
-            <a pButton (click)="goToProductUpdate()" class="p-button font-bold w-full my-5" severity="danger">
-                Edit product
-            </a>
-            <a pButton (click)="deleteProduct()" class="p-button font-bold w-full my-5" severity="danger">
-                Delete product
-            </a>
+            <div class="grid grid-cols-2 gap-2 w-full">
+                <a pButton (click)="goToProductUpdate()" class="p-button font-bold w-full my-5" severity="danger">
+                    Edit product
+                </a>
+                <a pButton (click)="deleteProduct()" class="p-button font-bold w-full my-5" severity="danger">
+                    Delete product
+                </a>
+            </div>
         </div>
     </div>
 
