@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ChipModule } from 'primeng/chip';
 import { EditorModule } from 'primeng/editor';
@@ -16,7 +16,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '@/auth/auth.service';
 @Component({
-    selector: 'app-product-create',
+    selector: 'app-product-update',
     standalone: true,
     imports: [
         CommonModule,
@@ -33,9 +33,9 @@ import { AuthService } from '@/auth/auth.service';
         ToastModule
     ],
     providers: [MessageService, ProductService, AuthService],
-    templateUrl: './product-create.component.html',
+    templateUrl: './product-update.component.html',
 })
-export class ProductCreateComponent implements OnInit {
+export class ProductUpdateComponent implements OnInit {
     product: Partial<Product> = {
         name: '',
         description: '',
@@ -45,12 +45,12 @@ export class ProductCreateComponent implements OnInit {
         imageUrls: [],  // Now an array
         harvestDate: new Date().toISOString().split('T')[0]
     };
-
     unitOptions = ['kg', 'g', 'lb', 'oz', 'piece', 'bunch'];
     loading = false;
     selectedFiles: File[] = [];
     previewUrls: (string | ArrayBuffer)[] = [];
     maxImages = 4;
+    imageUrls: string[] = [];
 
     // Store the current farmer ID
     // currentFarmerId: number | null = null;
@@ -59,7 +59,8 @@ export class ProductCreateComponent implements OnInit {
         private productService: ProductService,
         private messageService: MessageService,
         private router: Router,
-        private authService: AuthService
+        private authService: AuthService,
+        private route: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -83,6 +84,88 @@ export class ProductCreateComponent implements OnInit {
             });
             this.router.navigate(['/product-management']);
         }
+
+        this.route.params.subscribe(params => {
+            const productId = params['id'];
+            console.log('Product ID from URL:', productId);
+
+            // You can now use this productId to fetch product details
+            this.product.id = productId;
+
+            // If you need to fetch product details from a service:
+            this.productService.getProduct(productId).subscribe({
+                next: (product) => {
+                    this.product = product;
+                    this.product.harvestDate = new Date(this.product.harvestDate??'').toISOString().split('T')[0];
+                    console.log("product", this.product);
+
+                    this.imageUrls = this.product.imageUrls || [];
+                    console.log("imageUrls", this.imageUrls);
+                    
+                    this.convertImageUrlsToPreviewUrls(this.imageUrls);
+
+                },
+                error: (err) => {
+                    console.error('Failed to fetch product details:', err);
+                    // Handle error, maybe show a message to the user
+                }
+            });
+        });
+    }
+
+    /**
+     * Converts network image URLs to File objects and data source URLs for preview
+     * @param imageUrls Array of network image URLs
+     */
+    private convertImageUrlsToPreviewUrls(imageUrls: string[]) {
+        this.previewUrls = []; // Clear existing previews
+        this.selectedFiles = []; // Clear existing files
+        
+        imageUrls.forEach((url, index) => {
+            // Check if the URL is already a full URL or just a path
+            const fullUrl = url.startsWith('http') 
+                ? url 
+                : `https://api.freshbridge.ca/api/v1/farm-products/${url}`;
+            
+            console.log("Fetching image from:", fullUrl);
+            
+            fetch(fullUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Extract filename from URL or create a default one
+                    const urlParts = url.split('/');
+                    const filename = urlParts[urlParts.length - 1] || `image-${index}.jpg`;
+                    
+                    // Convert blob to File object
+                    const file = new File([blob], filename, { type: blob.type });
+                    this.selectedFiles.push(file);
+                    console.log("selectedFiles", this.selectedFiles);
+                    
+                    console.log("Added file to selectedFiles:", file.name);
+                    
+                    // Create preview URL
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        this.previewUrls.push(reader.result as string);
+                        console.log("previewUrls count:", this.previewUrls.length);
+                    };
+                    reader.readAsDataURL(file);
+                })
+                .catch(error => {
+                    console.error('Failed to load image from URL:', fullUrl, error);
+                    // Optionally add a placeholder or show an error message
+                    this.messageService.add({
+                        severity: 'warn',
+                        summary: 'Warning',
+                        detail: 'Failed to load one or more images'
+                    });
+                });
+        });
     }
 
     onSubmit() {
@@ -104,7 +187,7 @@ export class ProductCreateComponent implements OnInit {
             return;
         }
 
-        const productToCreate: Product = {
+        const productToUpdate: Product = {
             ...this.product,
             price: Number(this.product.price),
             quantityAvailable: Number(this.product.quantityAvailable),
@@ -112,19 +195,21 @@ export class ProductCreateComponent implements OnInit {
             harvestDateStr: this.product.harvestDate || new Date().toISOString().split('T')[0]
         } as Product;
 
-        // First create the product
-        this.productService.createProduct(productToCreate).subscribe({
-            next: (createdProduct) => {
+        // First update the product
+        this.productService.updateProduct(this.product.id ?? 0, productToUpdate).subscribe({
+            next: (updatedProduct) => {
                 // If there's an image to upload, do it after product creation
+                console.log(updatedProduct);
+                
                 if (this.selectedFiles) {
-                    this.uploadImages(createdProduct.id);
+                    this.uploadImages(updatedProduct.id);
                 } else {
                     this.onSuccess();
                 }
             },
             error: (err) => {
-                this.handleError('Failed to create product');
-                this.loading = false;
+                this.loading
+                this.handleError('Failed to update product');
             }
         });
     }
@@ -137,18 +222,17 @@ export class ProductCreateComponent implements OnInit {
                 this.onSuccess();
             },
             error: (err) => {
-                this.handleError('Product created but image upload failed');
+                this.handleError('Product updated but image upload failed');
                 this.loading = false;
             }
         });
     }
 
     private onSuccess() {
-        this.resetForm();
         this.messageService.add({
             severity: 'success',
             summary: 'Success',
-            detail: 'Product created successfully'
+            detail: 'Product updated successfully'
         });
         this.loading = false;
     }
@@ -203,6 +287,8 @@ export class ProductCreateComponent implements OnInit {
             const reader = new FileReader();
             reader.onload = () => {
                 this.previewUrls.push(reader.result as string);
+                console.log(this.previewUrls);
+                
             };
             reader.readAsDataURL(file);
         }
@@ -219,7 +305,7 @@ export class ProductCreateComponent implements OnInit {
     }
 
     onCancel() {
-        this.router.navigate(['/products']);
+        this.router.navigate(['/product-management']);
     }
 
     private resetForm() {

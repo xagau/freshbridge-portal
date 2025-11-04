@@ -220,6 +220,30 @@ export class ProductOverview implements OnInit {
         this.router.navigate(['product-management']);
     }
 
+    goToProductUpdate() {
+        this.router.navigate(['product-management/update', this.product.id]);
+    }
+
+    deleteProduct() {
+        this.productService.deleteProduct(this.product.id).subscribe({
+            next: (response) => {
+                this.router.navigate(['/product-management']);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Product deleted successfully'
+                });
+            },
+            error: (err) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to delete product'
+                });
+            }
+        });
+    }
+
 
     setDefaultImage(event: Event) {
         const img = event.target as HTMLImageElement;

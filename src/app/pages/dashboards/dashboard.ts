@@ -5,13 +5,15 @@ import { MiniStatCardWidget } from '@/pages/dashboards/components/ministatcardwi
 import { OrderByRestaurantWidget } from '@/pages/dashboards/components/orderbyrestaurantwidget';
 import { GoogleLikeCalendarComponent } from '@/pages/dashboards/components/calendar/calendarwidget';
 import { DashboardDataService } from '@/service/dashboard-data.service';
+import { BannerWidget } from '@/pages/dashboards/components/bannerwidget';
 
 @Component({
     selector: 'app-ecommerce-dashboard',
     standalone: true,
-    imports: [RestaurantRevenueWidget, MiniStatCardWidget, OrderByRestaurantWidget, GoogleLikeCalendarComponent],
+    imports: [RestaurantRevenueWidget, MiniStatCardWidget, OrderByRestaurantWidget, GoogleLikeCalendarComponent, BannerWidget],
     template: `<section class="flex flex-col gap-7">
         <div class="flex flex-wrap gap-7">
+            <banner-widget />
             <mini-stat-card-widget />
         </div>
         <app-google-like-calendar></app-google-like-calendar>
