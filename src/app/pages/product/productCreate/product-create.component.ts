@@ -40,13 +40,21 @@ export class ProductCreateComponent implements OnInit {
         name: '',
         description: '',
         price: 0,
-        unit: 'kg',
+        unit: 'Kilogram (kg)',
         quantityAvailable: 0,
         imageUrls: [],  // Now an array
         harvestDate: new Date().toISOString().split('T')[0]
     };
 
-    unitOptions = ['kg', 'g', 'lb', 'oz', 'piece', 'bunch'];
+    unitOptions = ['Each',
+        'Pound (lb)',
+        'Kilogram (kg)',
+        'Carton',
+        'Case',
+        'Tray',
+        'Box',
+        'Lug',
+        'Pallet'];
     loading = false;
     selectedFiles: File[] = [];
     previewUrls: (string | ArrayBuffer)[] = [];
