@@ -12,7 +12,7 @@ import { AuthService } from '@/auth/auth.service';
     host: {
         class: 'flex w-full flex-wrap gap-7'
     },
-    providers: [AppShipmentView],
+    providers: [AppShipmentView], 
 })
 export class BannerWidget implements OnInit {
 
@@ -23,14 +23,15 @@ export class BannerWidget implements OnInit {
     ngOnInit() {
         const email = this.authService.currentUserValue?.email;
         console.log("email", email);
+        this.isTestUser.set(true);
 
-        if (email == 'testuser@gmail.com' || email == 'kevin.sambirsky@gmail.com') {
-            this.isTestUser.set(true);
-            console.log("isTestUser", this.isTestUser);
-            
-        } else {
-            this.isTestUser.set(false);
-        }
+        // if (email == 'testuser@gmail.com' || email == 'kevin.sambirsky@gmail.com') {
+        //     this.isTestUser.set(true);
+        //     console.log("isTestUser", this.isTestUser);
+
+        // } else {
+        //     this.isTestUser.set(false);
+        // }
     }
 
 }
