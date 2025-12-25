@@ -101,6 +101,7 @@ export class ProductOverview implements OnInit {
                     console.log("product", this.product);
 
                     this.images = this.product.imageUrls
+                    console.log("images", this.images);
                 },
                 error: (err) => {
                     console.error('Failed to fetch product details:', err);

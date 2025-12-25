@@ -63,7 +63,7 @@ export class Login {
                 this.loading = false;
             },
             error: (error) => {
-
+                console.log("error:", error);
                 this.error = '';
                 this.messageService.add({
                     severity: 'error',
