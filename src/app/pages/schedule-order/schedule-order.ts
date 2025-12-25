@@ -558,8 +558,8 @@ export class ScheduleRepeatOrder {
                         detail: 'Order created successfully',
                         life: 3000
                     });
-                    this.reset();
                     this.isSubmitting = false;
+                    this.reset();
                 },
                 error: (err) => {
                     this.messageService.add({
