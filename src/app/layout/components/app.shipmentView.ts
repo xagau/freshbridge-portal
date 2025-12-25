@@ -27,7 +27,7 @@ import { lastValueFrom } from 'rxjs';
         TimelineModule
     ],
     template: ` 
-    <p-drawer header="Shipment Details" [(visible)]="visible" position="right" styleClass="layout-rightmenu !w-full sm:!w-[36rem]">
+    <p-drawer header="Shipment Details" [(visible)]="visible" position="right" styleClass="layout-rightmenu !w-full sm:!w-[36rem]" (onHide)="onDrawerHide()">
         @if (loading) {
             <div class="flex items-center justify-center h-full">
                 <p-progressSpinner></p-progressSpinner>
@@ -69,7 +69,7 @@ import { lastValueFrom } from 'rxjs';
                 <p-divider class="!my-6" />
 
                 <h2 class="title-h7 text-left">Items in Shipment</h2>
-                @if (shipmentItems()) {
+                @if (shipmentItems().length > 0) {
                     <div class="mt-4">
                         <div class="overflow-auto">
                             <table class="w-full">
@@ -135,6 +135,7 @@ export class AppShipmentView implements OnInit {
     @Output() closed = new EventEmitter<void>();
 
     onDrawerHide() {
+        this.visible = false;
         this.visibleChange.emit(false);
         this.closed.emit();
     }
@@ -153,16 +154,14 @@ export class AppShipmentView implements OnInit {
                 estimatedDelivery: shipment.estimatedDeliveryDate || shipment.estimatedDelivery
             });
 
-            // Convert Observable to Promise and await it
-            const items = await lastValueFrom(this.shipmentService.getShipmentItems(shipment.id));
-            console.log(items);
-
-            this.shipmentItems.set(items || []);
+            // Convert Observable to Promise and await it, that is [] or error, set [] and then set text "No items found in this shipment." and then set loading to false
+            const items = await lastValueFrom(this.shipmentService.getShipmentItems(shipment.id)).then(items => items || []).catch(() => []);
+            this.shipmentItems.set(items);
+            this.loading = false;
+            this.cdRef.detectChanges();
             this.visible = true;
         } catch (error) {
-            console.error('Error loading shipment items:', error);
             this.shipmentItems.set([]);
-        } finally {
             this.loading = false;
             this.cdRef.detectChanges();
         }

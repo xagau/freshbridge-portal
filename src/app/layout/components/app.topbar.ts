@@ -30,7 +30,7 @@ interface NotificationsBars {
     imports: [RouterModule, ToastModule, CommonModule, StyleClassModule, AppBreadcrumb, InputTextModule, ButtonModule, IconFieldModule, InputIconModule, RippleModule, BadgeModule, OverlayBadgeModule, AvatarModule],
     template: `<div class="layout-topbar">
         <div class="topbar-left">
-            <a tabindex="0" #menubutton type="button" class="menu-button" (click)="onMenuButtonClick()">
+            <a tabindex="0" #menubutton type="button" class="menu-button" (click)="onBackPreviousPage()">
                 <i class="pi pi-chevron-left"></i>
             </a>
             <img class="horizontal-logo" src="/images/logo-white.png" alt="fresh-bridge-layout" />
@@ -219,6 +219,10 @@ export class AppTopbar implements OnInit {
     //         });
     //     });
     // }
+    
+    onBackPreviousPage() {
+        window.history.back();
+    }
 
     ngOnDestroy() {
         if (this.notificationSubscription) {

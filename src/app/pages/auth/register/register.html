@@ -79,8 +79,9 @@
                                     </span>Terms and Conditions
                                 </label>
                             </div>
-                        </div>
-                        <button type="submit" class="body-button w-full" [disabled]="registerForm.invalid || loading">
+                        </div>  
+                        <button type="submit" class="body-button w-full " [disabled]="registerForm.invalid || loading" 
+                        [style.background-color]="registerForm.invalid || loading ? 'var(--p-primary-200)' : 'var(--p-primary-500)'">
                             <span *ngIf="!loading">Register</span>
                             <span *ngIf="loading">Registering...</span>
                         </button>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -15,6 +15,7 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 import { OrdersService } from '@/service/orders.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { AuthService } from '@/auth/auth.service';
 @Component({
     selector: 'app-schedule-repeat-order-dialog',
     standalone: true,
@@ -210,10 +211,11 @@ import { ToastModule } from 'primeng/toast';
             </div>
         </p-dialog>
     `,
-    providers: [MessageService, OrdersService]
+    providers: [MessageService, OrdersService, AuthService]
 })
 export class ScheduleRepeatOrderDialog {
     visible: boolean = false;
+    authService = inject(AuthService);
     constructor(
         private ordersService: OrdersService,
         private messageService: MessageService,
@@ -287,9 +289,10 @@ export class ScheduleRepeatOrderDialog {
     addressSuggestions: string[] = [];
 
     // Example IDs, replace with actual logic as needed
-    restaurantId = 1;
-    farmerId = 1;
-    userId = 1;
+    // restaurantId = 1;
+    // farmerId = 1;
+
+    userId = this.authService.currentUserValue?.id ?? 0;
 
     onAddressInput(event: Event) {
         const input = event.target as HTMLInputElement;
@@ -366,7 +369,7 @@ export class ScheduleRepeatOrderDialog {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Failed to load products',
+                    detail: 'Failed to create order',
                     life: 3000
                 });
             }

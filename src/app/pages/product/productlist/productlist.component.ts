@@ -178,7 +178,7 @@ export class ProductList {
 
     setDefaultImage(event: Event) {
         const img = event.target as HTMLImageElement;
-        img.src = 'https://www.dobies.co.uk/product_images/CUCU-mh-14400-A.jpg';
+        img.src = 'images/product/simple.png';
         img.classList.add('default-image');
     }
 

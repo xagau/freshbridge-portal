@@ -78,15 +78,18 @@ export class AuthService {
             catchError(error => {
                 console.error('Login error:', error);
                 let errorMessage = 'Login failed';
-
-                if (error.error && error.error.message) {
-                    errorMessage = error.error.message;
-                } else if (error.status === 401) {
+                if (error.status === 403) {
+                    // when user is not registered, write a message to the user to register
+                    errorMessage = 'User is not registered. Please register to continue';
+                }
+                else if (error.status === 401) {
                     errorMessage = 'Invalid username or password';
                 } else if (error.status === 0) {
                     errorMessage = 'Unable to connect to server';
                 }
-
+                else if (error.error && error.error.message) {
+                    errorMessage = error.error.message;
+                }
                 return throwError(() => new Error(errorMessage));
             })
         );
@@ -332,8 +335,8 @@ export class AuthService {
 
         return this.http.post(`${environment.apiUrl}auth/send-verification`, { contact: email_phone }).pipe(
             catchError(error => {
-                console.error('Verification code error:', error);
-                return throwError(() => new Error('Failed to send verification code'));
+                console.error('Verification code error:', error.error);
+                return throwError(() => new Error(error.error.error || 'Failed to send verification code'));
             })
         );
     }

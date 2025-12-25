@@ -101,6 +101,7 @@ export class ProductOverview implements OnInit {
                     console.log("product", this.product);
 
                     this.images = this.product.imageUrls
+                    console.log("images", this.images);
                 },
                 error: (err) => {
                     console.error('Failed to fetch product details:', err);
@@ -248,7 +249,7 @@ export class ProductOverview implements OnInit {
     setDefaultImage(event: Event) {
         const img = event.target as HTMLImageElement;
         // Set your default image path here
-        img.src = 'https://www.dobies.co.uk/product_images/CUCU-mh-14400-A.jpg';
+        img.src = 'images/product/simple.png';
 
         // Optional: Add a CSS class to style broken images differently
         img.classList.add('default-image');

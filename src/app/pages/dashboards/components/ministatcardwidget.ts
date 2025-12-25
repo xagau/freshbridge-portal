@@ -260,8 +260,11 @@ export class MiniStatCardWidget implements OnInit {
     currentShipment: any = null;
     viewShipment(shipment: any) {
         // Always create a new object reference to trigger change detection
-        this.currentShipment = { ...shipment };
+        if (shipment)
+            this.currentShipment = { ...shipment };
+        console.log(this.showShipmentView);
         this.showShipmentView = true;
+        
     }
 
     onShipmentViewClosed() {
