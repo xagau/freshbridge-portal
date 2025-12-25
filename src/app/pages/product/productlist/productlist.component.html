@@ -52,7 +52,7 @@
                         <span class="bg-surface-0 dark:bg-surface-900 text-surface-900 dark:text-surface-0 shadow px-4 py-2 absolute rounded-3xl" style="left: 1rem; top: 1rem">
                             {{ product.unit }}
                         </span>
-                        <img [src]="environment.apiUrl + 'farm-products/' + product.imageUrls[0]" (error)="setDefaultImage($event)" class="w-full" style="height: 200px; object-fit: cover" />
+                        <img [src]="environment.apiUrl + 'farm-products/' + product.imageUrls[0]" (error)="setDefaultImage($event)" class="w-full" style="height: 270px; object-fit: cover" />
                     </div>
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ product.name }}</span>

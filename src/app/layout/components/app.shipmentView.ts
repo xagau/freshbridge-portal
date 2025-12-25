@@ -9,8 +9,10 @@ import { CommonModule } from '@angular/common';
 import { ShipmentService } from '@/service/shipment.service';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TimelineModule } from 'primeng/timeline';
+import { OrdersService } from '@/service/orders.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
+import { Order } from '@/model/order.model';
 
 @Component({
     selector: 'app-shipment-view',
@@ -24,8 +26,9 @@ import { lastValueFrom } from 'rxjs';
         ButtonModule,
         CommonModule,
         ProgressSpinnerModule,
-        TimelineModule
+        TimelineModule,
     ],
+    providers: [OrdersService],
     template: ` 
     <p-drawer header="Shipment Details" [(visible)]="visible" position="right" styleClass="layout-rightmenu !w-full sm:!w-[36rem]" (onHide)="onDrawerHide()">
         @if (loading) {
@@ -82,10 +85,11 @@ import { lastValueFrom } from 'rxjs';
                                 </thead>
                                 <tbody>
                                     @for (item of shipmentItems(); track item.id) {
+                                        
                                         <tr class="border-b border-gray-200">
-                                            <td class="py-2 px-4">{{ item.orderItem?.productName || 'Unknown Product' }}</td>
-                                            <td class="py-2 px-4">{{ item.orderItem?.quantity }}</td>
-                                            <td class="py-2 px-4">{{ item.orderItem?.subtotal | currency }}</td>
+                                            <td class="py-2 px-4">{{ item.productName || 'Unknown Product' }}</td>
+                                            <td class="py-2 px-4">{{ item.quantity }}</td>
+                                            <td class="py-2 px-4">{{ item.subtotal | currency }}</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -129,7 +133,8 @@ export class AppShipmentView implements OnInit {
     loading = false;
 
     constructor(private cdRef: ChangeDetectorRef,
-        private shipmentService: ShipmentService
+        private shipmentService: ShipmentService,
+        private ordersService: OrdersService
     ) { }
 
     @Output() closed = new EventEmitter<void>();
@@ -153,10 +158,12 @@ export class AppShipmentView implements OnInit {
                 orderId: shipment.farmerOrder?.id || shipment.orderId,
                 estimatedDelivery: shipment.estimatedDeliveryDate || shipment.estimatedDelivery
             });
-
+            console.log(shipment.orderId);
+            
             // Convert Observable to Promise and await it, that is [] or error, set [] and then set text "No items found in this shipment." and then set loading to false
-            const items = await lastValueFrom(this.shipmentService.getShipmentItems(shipment.id)).then(items => items || []).catch(() => []);
-            this.shipmentItems.set(items);
+            const items = await lastValueFrom(this.ordersService.getOrderById(shipment.orderId)).then(items => items as Order).catch(() => []);
+            this.shipmentItems.set((items as Order)?.items || []);
+            console.log("shipmentItems", this.shipmentItems());
             this.loading = false;
             this.cdRef.detectChanges();
             this.visible = true;
