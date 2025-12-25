@@ -115,20 +115,22 @@ export class Register {
                 next: (response) => {
                     console.log(response);
                     this.showVerification = true;
-                },
-                error: (error) => {
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to send verification code'
-                    });
-                }
+                    },
+                    error: (error) => {
+                        console.error(error);
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: error || 'Failed to send verification code'
+                        });
+                        this.loading = false;
+                    }
             });
-        } catch (error) {
+        } catch (error: any) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Failed to send verification code'
+                detail: error.message ||  'Failed to send verification code'
             });
         } finally {
             this.loading = false;
