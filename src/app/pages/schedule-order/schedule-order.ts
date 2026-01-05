@@ -47,8 +47,8 @@ import { AuthService } from '@/auth/auth.service';
                         type="text"
                         class="p-inputtext w-full"
                         placeholder="Start typing address..."
-                        [(ngModel)]="deliveryAddress"
-                        (input)="onAddressInput($event)"
+                        [ngModel]="deliveryAddress"
+                        (ngModelChange)="onDeliveryAddressChange($event)"
                         autocomplete="off"
                         [class.p-invalid]="!deliveryAddress || deliveryAddress.trim().length < 10"
                     />
@@ -316,9 +316,9 @@ export class ScheduleRepeatOrder {
     }
 
 
-    onAddressInput(event: Event) {
-        const input = event.target as HTMLInputElement;
-        const query = input?.value ?? '';
+    onDeliveryAddressChange(value: string) {
+        this.deliveryAddress = value;
+        const query = value ?? '';
         // Clear suggestions if query is too short
         if (!query) {
             this.addressSuggestions = [];
