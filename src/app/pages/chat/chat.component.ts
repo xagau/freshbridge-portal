@@ -1,5 +1,6 @@
 // chat.component.ts
-import { Component, inject, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, AfterViewChecked, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -28,11 +29,32 @@ import { AuthService } from '@/auth/auth.service';
     templateUrl: './chat.component.html',
     styleUrls: ['./chat.component.scss']
 })
-export class ChatComponent implements AfterViewChecked {
+export class ChatComponent implements AfterViewChecked, OnInit {
     @ViewChild('scrollPanel') scrollPanel: any;
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
 
     ngAfterViewChecked(): void {
         this.scrollToBottom();
+    }
+
+    ngOnInit(): void {
+        // Check for query parameter 'q' and populate input field
+        this.route.queryParams.subscribe(params => {
+            if (params['q']) {
+                this.input = params['q'];
+                // Optionally auto-send the message or just populate the input
+                // Uncomment the line below if you want to auto-send:
+                // setTimeout(() => this.sendMessage(), 100);
+                
+                // Clear the query parameter from URL after reading it
+                this.router.navigate([], {
+                    relativeTo: this.route,
+                    queryParams: {},
+                    replaceUrl: true
+                });
+            }
+        });
     }
 
     private scrollToBottom(): void {

@@ -47,8 +47,8 @@ interface NotificationsBars {
                     </span>
                 </li>
                 <li class="right-sidebar-item">
-                    <a class="right-sidebar-button" (click)="toggleSearchBar()">
-                        <i class="pi pi-search"></i>
+                    <a class="right-sidebar-button" (click)="toggleSearchBar()" title="Fresh Select - AI Search">
+                        <i class="pi pi-sparkles"></i>
                     </a>
                 </li>
                 <li class="right-sidebar-item">
