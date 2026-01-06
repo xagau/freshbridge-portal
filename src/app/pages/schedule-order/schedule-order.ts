@@ -16,6 +16,7 @@ import { OrdersService } from '@/service/orders.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '@/auth/auth.service';
+import { AddressService } from '@/service/address.service';
 
 @Component({
     selector: 'app-schedule-repeat-order',
@@ -243,10 +244,24 @@ export class ScheduleRepeatOrder {
         private ordersService: OrdersService,
         private messageService: MessageService,
         private authService: AuthService,
-        private http: HttpClient
+        private http: HttpClient,
+        private addressService: AddressService
     ) {
         this.startDate = new Date();
         this.minStartDate = new Date();
+        // Pre-populate delivery address
+        this.loadDeliveryAddress();
+    }
+    
+    loadDeliveryAddress() {
+        const savedAddress = this.addressService.getAddress();
+        if (savedAddress) {
+            // Use full address if available, otherwise construct from parts
+            this.deliveryAddress = savedAddress.address || 
+                [savedAddress.street, savedAddress.city, savedAddress.state, savedAddress.zipCode]
+                    .filter(Boolean)
+                    .join(', ') || '';
+        }
     }
 
     // 📅 Start Date
@@ -339,6 +354,8 @@ export class ScheduleRepeatOrder {
     selectAddress(address: string) {
         this.deliveryAddress = address;
         this.addressSuggestions = [];
+        // Save selected address
+        this.addressService.updateAddress({ address: address });
     }
 
     getScheduleSummary(): string {

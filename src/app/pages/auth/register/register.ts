@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { InputOtpModule } from 'primeng/inputotp';
+import { AddressService } from '@/service/address.service';
 
 @Component({
     selector: 'app-register',
@@ -61,14 +62,19 @@ export class Register {
         private router: Router,
         private fb: FormBuilder,
         private authService: AuthService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private addressService: AddressService
     ) {
+        // Pre-populate address
+        const savedAddress = this.addressService.getAddress();
+        const prefillAddress = savedAddress?.address || savedAddress?.street || '';
+        
         this.registerForm = this.fb.group({
             username: ['', Validators.required],
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required, Validators.minLength(6)]],
             fullName: ['', Validators.required],
-            address: ['', Validators.required],
+            address: [prefillAddress, Validators.required],
             phoneNumber: ['', Validators.required],
             userType: ['', Validators.required],
             terms: [false, Validators.requiredTrue],
@@ -97,6 +103,13 @@ export class Register {
                 detail: 'Please fill all required fields and accept the terms'
             });
             return;
+        }
+        
+        // Save address to service for future pre-population
+        if (this.registerForm.value.address) {
+            this.addressService.updateAddress({
+                address: this.registerForm.value.address
+            });
         }
 
         // Add + prefix to phone number if not present

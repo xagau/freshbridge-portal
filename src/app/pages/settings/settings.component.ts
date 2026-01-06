@@ -10,6 +10,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { RippleModule } from 'primeng/ripple';
 import { DividerModule } from 'primeng/divider';
+import { AddressService } from '@/service/address.service';
 
 @Component({
     selector: 'settings-user',
@@ -43,12 +44,12 @@ import { DividerModule } from 'primeng/divider';
                     </div>
                   
                     <div class="mb-6 col-span-12 md:col-span-6">
-                        <label for="city" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Address </label>
-                        <input id="city" type="text" pInputText fluid />
+                        <label for="address" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Address </label>
+                        <input id="address" type="text" pInputText fluid [(ngModel)]="userAddress.address" (blur)="saveAddress()" />
                     </div>
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="state" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> State </label>
-                        <input id="state" type="text" pInputText fluid />
+                        <input id="state" type="text" pInputText fluid [(ngModel)]="userAddress.state" (blur)="saveAddress()" />
                     </div>
                     <div class="mb-6 col-span-12">
                         <label for="website" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Website </label>
@@ -116,6 +117,11 @@ export class SettingsUser implements OnInit {
     type: any[] = [];
     accountTypes: any[] = [];
     
+    userAddress: any = {
+        address: '',
+        state: ''
+    };
+    
     bankingInfo: any = {
         bankName: '',
         accountHolderName: '',
@@ -125,6 +131,8 @@ export class SettingsUser implements OnInit {
         iban: '',
         bankAddress: ''
     };
+    
+    constructor(private addressService: AddressService) {}
     
     ngOnInit() {
         this.type = [
@@ -139,5 +147,23 @@ export class SettingsUser implements OnInit {
             { name: 'Business Checking', code: 'business_checking' },
             { name: 'Business Savings', code: 'business_savings' }
         ];
+        
+        // Load pre-populated address
+        this.loadAddress();
+    }
+    
+    loadAddress() {
+        const savedAddress = this.addressService.getAddress();
+        if (savedAddress) {
+            this.userAddress.address = savedAddress.address || savedAddress.street || '';
+            this.userAddress.state = savedAddress.state || '';
+        }
+    }
+    
+    saveAddress() {
+        this.addressService.updateAddress({
+            address: this.userAddress.address,
+            state: this.userAddress.state
+        });
     }
 }

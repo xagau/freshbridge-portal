@@ -16,6 +16,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { AddressService } from '@/service/address.service';
 
 
 @Component({
@@ -52,7 +53,8 @@ export class RestaurantManagementComponent {
     constructor(
         private restaurantService: RestaurantService,
         private messageService: MessageService,
-        private confirmationService: ConfirmationService
+        private confirmationService: ConfirmationService,
+        private addressService: AddressService
     ) { }
 
     ngOnInit() {
@@ -82,6 +84,11 @@ export class RestaurantManagementComponent {
     openNew() {
         this.restaurant = {} as Restaurant;
         this.submitted = false;
+        // Pre-populate address
+        const savedAddress = this.addressService.getAddress();
+        if (savedAddress) {
+            this.restaurant.address = savedAddress.address || savedAddress.street || '';
+        }
         this.restaurantDialog = true;
     }
 
