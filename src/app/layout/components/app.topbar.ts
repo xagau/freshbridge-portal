@@ -51,9 +51,9 @@ interface NotificationsBars {
                         <i class="pi pi-sparkles"></i>
                     </a>
                 </li>
-                <li class="right-sidebar-item">
+                <!-- <li class="right-sidebar-item">
                     <button class="app-config-button" (click)="onConfigButtonClick()"><i class="pi pi-cog"></i></button>
-                </li>
+                </li> -->
                 <li class="right-sidebar-item static sm:relative">
                     <a class="right-sidebar-button relative z-50" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveActiveClass="animate-fadeout" leaveToClass="hidden" [hideOnOutsideClick]="true">
                         <span class="w-2 h-2 rounded-full bg-red-500 absolute top-2 right-2.5"></span>
