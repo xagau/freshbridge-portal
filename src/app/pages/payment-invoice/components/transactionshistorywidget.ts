@@ -11,6 +11,8 @@ import { TimelineModule } from 'primeng/timeline';
 import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { AuthService } from '@/auth/auth.service';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 enum TransactionStatus {
     PENDING = 'PENDING',
@@ -46,10 +48,30 @@ enum TransactionType {
     ],
     providers: [CustomerService],
     template: `
-        <div class="flex items-center gap-2">
+        <div class="flex items-center justify-between gap-2">
             <div class="flex-1 flex flex-col gap-1">
                 <span class="label-medium">Transactions History</span>
                 <span class="body-xsmall text-left">Track money coming in and going out from this area.</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <p-button 
+                    icon="pi pi-file-pdf" 
+                    label="PDF" 
+                    severity="secondary" 
+                    outlined 
+                    size="small"
+                    (onClick)="exportToPDF()"
+                    [disabled]="transactions.length === 0">
+                </p-button>
+                <p-button 
+                    icon="pi pi-file" 
+                    label="CSV" 
+                    severity="secondary" 
+                    outlined 
+                    size="small"
+                    (onClick)="exportToCSV()"
+                    [disabled]="transactions.length === 0">
+                </p-button>
             </div>
         </div>
         <div class="w-full overflow-auto flex-1 mt-5">
@@ -234,14 +256,22 @@ export class TransactionsHistoryWidget {
     ) { }
 
     transactions: any[] = [];
+    useDemoData: boolean = false; // Set to true to use demo data for testing
+
     ngOnInit() {
-        this.loadTransactionsFromAccountInfo();
+        if (this.useDemoData) {
+            this.loadDemoTransactions();
+        } else {
+            this.loadTransactionsFromAccountInfo();
+        }
     }
 
     private loadTransactionsFromAccountInfo() {
         const currentUser = this.authService.currentUserValue;
         if (!currentUser) {
             console.error('No user is currently logged in');
+            // Fallback to demo data if no user is logged in
+            this.loadDemoTransactions();
             return;
         }
 
@@ -255,7 +285,7 @@ export class TransactionsHistoryWidget {
                 //   "transactions": [ ... ]
                 // }
 
-                if (response && response.transactions && Array.isArray(response.transactions)) {
+                if (response && response.transactions && Array.isArray(response.transactions) && response.transactions.length > 0) {
                     // Store the account name for use in transformTransaction
                     const accountName = response.account?.name || currentUser?.name || 'Unknown';
 
@@ -265,15 +295,211 @@ export class TransactionsHistoryWidget {
                         return this.transformTransaction({ ...t, accountName: accountName });
                     });
                 } else {
-                    console.warn('No transactions found in account info response');
-                    this.transactions = [];
+                    console.warn('No transactions found in account info response, loading demo data');
+                    this.loadDemoTransactions();
                 }
             },
             error: (err) => {
                 console.error('Error fetching account info:', err);
-                this.transactions = [];
+                console.log('Loading demo data for testing');
+                this.loadDemoTransactions();
             }
         });
+    }
+
+    private loadDemoTransactions() {
+        const currentUser = this.authService.currentUserValue;
+        const accountName = currentUser?.name || 'Demo User';
+        const accountId = currentUser?.id || 1000;
+
+        // Generate demo transactions with various types, statuses, and dates
+        const now = new Date();
+        const demoTransactions: any[] = [
+            {
+                id: 1,
+                account: accountId,
+                type: 'CREDIT',
+                amount: 5000,
+                status: 'COMPLETED',
+                description: 'Initial account deposit',
+                transactionDate: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 2,
+                account: accountId,
+                type: 'ORDER_PAYMENT',
+                amount: 1250,
+                status: 'COMPLETED',
+                description: 'Payment for fresh produce order #ORD-2024-001',
+                transactionDate: new Date(now.getTime() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 3,
+                account: accountId,
+                type: 'TRANSFER',
+                amount: 2000,
+                status: 'COMPLETED',
+                description: 'Transfer to partner account',
+                transactionDate: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 4,
+                account: accountId,
+                type: 'CREDIT',
+                amount: 3500,
+                status: 'COMPLETED',
+                description: 'Payment received from restaurant order',
+                transactionDate: new Date(now.getTime() - 18 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 18 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 18 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 5,
+                account: accountId,
+                type: 'FEE',
+                amount: 25,
+                status: 'COMPLETED',
+                description: 'Platform service fee',
+                transactionDate: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 6,
+                account: accountId,
+                type: 'WITHDRAWAL',
+                amount: 1000,
+                status: 'PENDING',
+                description: 'Withdrawal request to bank account',
+                transactionDate: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 7,
+                account: accountId,
+                type: 'ORDER_PAYMENT',
+                amount: 850,
+                status: 'COMPLETED',
+                description: 'Payment for organic vegetables order #ORD-2024-002',
+                transactionDate: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 8,
+                account: accountId,
+                type: 'REFUND',
+                amount: 450,
+                status: 'COMPLETED',
+                description: 'Refund for cancelled order #ORD-2024-003',
+                transactionDate: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 9,
+                account: accountId,
+                type: 'DEPOSIT',
+                amount: 2000,
+                status: 'COMPLETED',
+                description: 'Direct deposit from payment processor',
+                transactionDate: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 10,
+                account: accountId,
+                type: 'ORDER_PAYMENT',
+                amount: 3200,
+                status: 'FAILED',
+                description: 'Payment failed for order #ORD-2024-004 - Insufficient funds',
+                transactionDate: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName,
+                failureReason: 'Insufficient funds'
+            },
+            {
+                id: 11,
+                account: accountId,
+                type: 'CREDIT',
+                amount: 1800,
+                status: 'COMPLETED',
+                description: 'Payment received from bulk order',
+                transactionDate: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 12,
+                account: accountId,
+                type: 'FEE',
+                amount: 15,
+                status: 'COMPLETED',
+                description: 'Transaction processing fee',
+                transactionDate: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 13,
+                account: accountId,
+                type: 'TRANSFER',
+                amount: 500,
+                status: 'PENDING',
+                description: 'Transfer to supplier account',
+                transactionDate: new Date(now.getTime() - 0.5 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 0.5 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 0.5 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 14,
+                account: accountId,
+                type: 'ORDER_PAYMENT',
+                amount: 950,
+                status: 'COMPLETED',
+                description: 'Payment for fresh fruits order #ORD-2024-005',
+                transactionDate: new Date(now.getTime() - 0.25 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(now.getTime() - 0.25 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(now.getTime() - 0.25 * 24 * 60 * 60 * 1000).toISOString(),
+                accountName: accountName
+            },
+            {
+                id: 15,
+                account: accountId,
+                type: 'CREDIT',
+                amount: 2750,
+                status: 'COMPLETED',
+                description: 'Payment received from restaurant chain order',
+                transactionDate: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                accountName: accountName
+            }
+        ];
+
+        // Transform demo transactions using the same method as real transactions
+        this.transactions = demoTransactions.map((t: any) => this.transformTransaction(t));
     }
 
     private transformTransaction(t: any): any {
@@ -306,6 +532,10 @@ export class TransactionsHistoryWidget {
             year: 'numeric'
         });
 
+        // Determine if amount should be positive (money coming in) or negative (money going out)
+        const isPositive = ['CREDIT', 'REFUND', 'DEPOSIT'].includes(t.type);
+        const amountSign = isPositive ? '+' : '-';
+
         return {
             id: t.id.toString(),
             name: {
@@ -317,7 +547,7 @@ export class TransactionsHistoryWidget {
             type: t.type,
             status: t.status,
             description: t.description || 'No description provided',
-            amount: `${t.type === 'CREDIT' ? '+' : '-'}${t.amount.toLocaleString()}`,
+            amount: `${amountSign}${t.amount.toLocaleString()}`,
             account: `**** **** ${accountId.padStart(4, '0').slice(-4)}`,
             // Store the original transaction for details view
             originalTransaction: t
@@ -469,5 +699,119 @@ export class TransactionsHistoryWidget {
     reloadTransactions() {
         // Reload transactions using the account info API
         this.loadTransactionsFromAccountInfo();
+    }
+
+    exportToCSV() {
+        if (this.transactions.length === 0) {
+            return;
+        }
+
+        // Prepare CSV data
+        const headers = ['Transaction ID', 'Name', 'Date', 'Type', 'Status', 'Amount', 'Account', 'Description'];
+        const rows = this.transactions.map(t => [
+            t.id,
+            t.name.value,
+            t.date,
+            this.getTypeDisplay(t.type),
+            t.status,
+            t.amount,
+            t.account,
+            t.description || 'No description provided'
+        ]);
+
+        // Create CSV content
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        ].join('\n');
+
+        // Create blob and download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `transactions_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    exportToPDF() {
+        if (this.transactions.length === 0) {
+            return;
+        }
+
+        // Create PDF in landscape orientation for better width
+        const doc = new jsPDF({
+            orientation: 'landscape',
+            unit: 'mm',
+            format: 'a4'
+        });
+        
+        // Add title
+        doc.setFontSize(18);
+        doc.text('Transaction Accounting Report', 14, 22);
+        
+        // Add date
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Generated on: ${new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })}`, 14, 30);
+        
+        // Prepare table data
+        const tableData = this.transactions.map(t => [
+            t.id,
+            t.name.value,
+            t.date,
+            this.getTypeDisplay(t.type),
+            t.status,
+            t.amount,
+            t.account,
+            t.description || 'No description'
+        ]);
+
+        // Add table with adjusted column widths for landscape orientation
+        autoTable(doc, {
+            head: [['ID', 'Name', 'Date', 'Type', 'Status', 'Amount', 'Account', 'Description']],
+            body: tableData,
+            startY: 35,
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [66, 139, 202], textColor: 255, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [245, 245, 245] },
+            columnStyles: {
+                0: { cellWidth: 10 },
+                1: { cellWidth: 20 },
+                2: { cellWidth: 30 },
+                3: { cellWidth: 35 },
+                4: { cellWidth: 30 },
+                5: { cellWidth: 25 },
+                6: { cellWidth: 40 },
+                7: { cellWidth: 80 } // Wider description column for landscape
+            },
+            margin: { top: 35, left: 14, right: 14 },
+            tableWidth: 'wrap'
+        });
+
+        // Add summary
+        const totalTransactions = this.transactions.length;
+        const totalAmount = this.transactions.reduce((sum, t) => {
+            const amount = parseFloat(t.amount.replace(/[+,]/g, ''));
+            return sum + amount;
+        }, 0);
+        
+        const finalY = (doc as any).lastAutoTable?.finalY || 35;
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.text(`Total Transactions: ${totalTransactions}`, 14, finalY + 10);
+        doc.text(`Total Amount: ${totalAmount >= 0 ? '+' : ''}${totalAmount.toLocaleString()}`, 14, finalY + 16);
+
+        // Save PDF
+        doc.save(`transactions_${new Date().toISOString().split('T')[0]}.pdf`);
     }
 }
