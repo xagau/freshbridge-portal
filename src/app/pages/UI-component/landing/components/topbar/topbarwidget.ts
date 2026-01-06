@@ -36,6 +36,7 @@ export class TopbarWidget {
     isuser = false; // <-- Initialize the variable
     navs = [
         { name: 'features', label: 'Features', to: '/features' },
+        { name: 'terms-and-conditions', label: 'Terms and Conditions', to: '/terms-and-conditions' },
         { name: 'pricing', label: 'Pricing', to: '/pricing' },
         { name: 'contact', label: 'Contact', to: '/contact' }
     ];
