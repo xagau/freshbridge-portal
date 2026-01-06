@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
 import { InputText } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
@@ -7,11 +9,12 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { ButtonModule } from 'primeng/button';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { RippleModule } from 'primeng/ripple';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
     selector: 'settings-user',
     standalone: true,
-    imports: [Select, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule],
+    imports: [CommonModule, FormsModule, Select, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule, DividerModule],
     template: `<div class="card">
         <span class="text-surface-900 dark:text-surface-0 text-xl font-bold mb-6 block">Settings</span>
         <div class="grid grid-cols-12 gap-4">
@@ -56,22 +59,85 @@ import { RippleModule } from 'primeng/ripple';
                             <input id="website" type="text" pInputText fluid />
                         </p-inputgroup>
                     </div>
+                    
                     <div class="col-span-12">
-                        <button pButton pRipple label="Create User" class="w-auto mt-3"></button>
+                        <p-divider />
+                    </div>
+                    
+                    <div class="col-span-12">
+                        <span class="text-surface-900 dark:text-surface-0 text-lg font-bold mb-4 block">Banking Information</span>
+                    </div>
+                    
+                    <div class="mb-6 col-span-12 md:col-span-6">
+                        <label for="bankName" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Bank Name </label>
+                        <input id="bankName" type="text" pInputText fluid [(ngModel)]="bankingInfo.bankName" />
+                    </div>
+                    
+                    <div class="mb-6 col-span-12 md:col-span-6">
+                        <label for="accountHolderName" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Account Holder Name </label>
+                        <input id="accountHolderName" type="text" pInputText fluid [(ngModel)]="bankingInfo.accountHolderName" />
+                    </div>
+                    
+                    <div class="mb-6 col-span-12 md:col-span-6">
+                        <label for="accountNumber" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Account Number </label>
+                        <input id="accountNumber" type="text" pInputText fluid [(ngModel)]="bankingInfo.accountNumber" />
+                    </div>
+                    
+                    <div class="mb-6 col-span-12 md:col-span-6">
+                        <label for="accountType" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Account Type </label>
+                        <p-select [options]="accountTypes" optionLabel="name" optionValue="code" placeholder="Select Account Type" class="w-full" [(ngModel)]="bankingInfo.accountType" />
+                    </div>
+                    
+                    <div class="mb-6 col-span-12 md:col-span-6">
+                        <label for="routingNumber" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Routing Number / SWIFT Code </label>
+                        <input id="routingNumber" type="text" pInputText fluid [(ngModel)]="bankingInfo.routingNumber" />
+                    </div>
+                    
+                    <div class="mb-6 col-span-12 md:col-span-6">
+                        <label for="iban" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> IBAN (Optional) </label>
+                        <input id="iban" type="text" pInputText fluid [(ngModel)]="bankingInfo.iban" />
+                    </div>
+                    
+                    <div class="mb-6 col-span-12">
+                        <label for="bankAddress" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Bank Address </label>
+                        <input pTextarea id="bankAddress" type="text" rows="3" [autoResize]="true" fluid [(ngModel)]="bankingInfo.bankAddress" />
+                    </div>
+                    
+                    <div class="col-span-12">
+                        <button pButton pRipple label="Save Settings" class="w-auto mt-3"></button>
                     </div>
                 </div>
             </div>
         </div>
     </div> `
 })
-export class SettingsUser {
+export class SettingsUser implements OnInit {
     countries: any[] = [];
     type: any[] = [];
+    accountTypes: any[] = [];
+    
+    bankingInfo: any = {
+        bankName: '',
+        accountHolderName: '',
+        accountNumber: '',
+        accountType: '',
+        routingNumber: '',
+        iban: '',
+        bankAddress: ''
+    };
+    
     ngOnInit() {
         this.type = [
             { name: 'Farmer', code: 'farmer' },
             { name: 'Food Buyer', code: ' food_buyer' },
             { name: 'Guest', code: 'guest' }
+        ];
+        
+        this.accountTypes = [
+            { name: 'Checking', code: 'checking' },
+            { name: 'Savings', code: 'savings' },
+            { name: 'Business Checking', code: 'business_checking' },
+            { name: 'Business Savings', code: 'business_savings' }
         ];
     }
 }
