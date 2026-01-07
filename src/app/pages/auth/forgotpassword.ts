@@ -38,7 +38,7 @@ import { Location } from '@angular/common';
                 </div>
                 <div class="hidden lg:flex h-full py-20">
                     <div class="h-full w-full lg:max-w-[32.5rem] xl:max-w-[60.5rem] mx-auto flex items-center justify-center shadow-[0px_1px_2px_0px_rgba(18,18,23,0.05)] rounded-3xl border border-surface overflow-hidden">
-                        <app-lazy-image-widget class="w-auto h-full object-contain object-left" src="/images/landing/auth-image.svg" alt="Auth Image" />
+                        <app-lazy-image-widget class="w-auto h-full object-contain object-left" src="/images/landing/auth-image.png" alt="Auth Image" />
                     </div>
                 </div>
             </div>

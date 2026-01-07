@@ -2,7 +2,9 @@
     header="Delivery Details">
     <ng-container *ngIf="order">
         <div *ngIf="order" class="flex flex-col gap-1 p-4 text-lg">
+            <h4 class="text-xl font-bold">Order Owner: {{ order.restaurant.name }}</h4>
             <div class="flex justify-between mb-3 gap-3">
+
                 <h3 class="text-xl font-bold">Order #{{ order.id }}</h3>
 
                 <div class="mb-3">
@@ -42,7 +44,7 @@
 
             <div class="flex gap-2 flex-wrap justify-center">
                 <p-button label="View Full Order" severity="info" />
-                <p-button label="Contact Support" severity="primary" />
+                <a pButton target="_blank" href="/contact" class="p-button p-button-primary">Contact Support</a>
             </div>
         </div>
     </ng-container>

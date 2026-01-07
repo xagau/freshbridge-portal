@@ -62,7 +62,8 @@ export class FooterWidget {
         { to: '/landing/', label: 'Product' },
         { to: '/landing/contact', label: 'Contact' },
         { to: '/auth/login', label: 'Login' },
-        { to: '/auth/register', label: 'Register' }
+        { to: '/auth/register', label: 'Register' },
+        { to: '/terms-and-conditions', label: 'Terms & Conditions' }
     ];
 
     socials = [

@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
 import { InputText } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
@@ -7,11 +9,12 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { ButtonModule } from 'primeng/button';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { RippleModule } from 'primeng/ripple';
+import { AddressService } from '@/service/address.service';
 
 @Component({
     selector: 'user-create',
     standalone: true,
-    imports: [Select, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule],
+    imports: [CommonModule, FormsModule, Select, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule],
     template: `<div class="card">
         <span class="text-surface-900 dark:text-surface-0 text-xl font-bold mb-6 block">Create User</span>
         <div class="grid grid-cols-12 gap-4">
@@ -44,11 +47,11 @@ import { RippleModule } from 'primeng/ripple';
                   
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="city" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> City </label>
-                        <input id="city" type="text" pInputText fluid />
+                        <input id="city" type="text" pInputText fluid [(ngModel)]="userAddress.city" (blur)="saveAddress()" />
                     </div>
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="state" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> State </label>
-                        <input id="state" type="text" pInputText fluid />
+                        <input id="state" type="text" pInputText fluid [(ngModel)]="userAddress.state" (blur)="saveAddress()" />
                     </div>
                     <div class="mb-6 col-span-12">
                         <label for="website" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Website </label>
@@ -67,9 +70,17 @@ import { RippleModule } from 'primeng/ripple';
         </div>
     </div> `
 })
-export class UserCreate {
+export class UserCreate implements OnInit {
     countries: any[] = [];
     type: any[] = [];
+    
+    userAddress: any = {
+        city: '',
+        state: ''
+    };
+    
+    constructor(private addressService: AddressService) {}
+    
     ngOnInit() {
         this.countries = [
             { name: 'Australia', code: 'AU' },
@@ -88,6 +99,24 @@ export class UserCreate {
             { name: 'Food Buyer', code: ' food_buyer' },
             { name: 'Guest', code: 'guest' }
         ];
+        
+        // Load pre-populated address
+        this.loadAddress();
+    }
+    
+    loadAddress() {
+        const savedAddress = this.addressService.getAddress();
+        if (savedAddress) {
+            this.userAddress.city = savedAddress.city || '';
+            this.userAddress.state = savedAddress.state || '';
+        }
+    }
+    
+    saveAddress() {
+        this.addressService.updateAddress({
+            city: this.userAddress.city,
+            state: this.userAddress.state
+        });
     }
 
 }

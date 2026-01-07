@@ -16,6 +16,7 @@ import { OrdersService } from '@/service/orders.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '@/auth/auth.service';
+import { AddressService } from '@/service/address.service';
 
 @Component({
     selector: 'app-schedule-repeat-order',
@@ -47,8 +48,8 @@ import { AuthService } from '@/auth/auth.service';
                         type="text"
                         class="p-inputtext w-full"
                         placeholder="Start typing address..."
-                        [(ngModel)]="deliveryAddress"
-                        (input)="onAddressInput($event)"
+                        [ngModel]="deliveryAddress"
+                        (ngModelChange)="onDeliveryAddressChange($event)"
                         autocomplete="off"
                         [class.p-invalid]="!deliveryAddress || deliveryAddress.trim().length < 10"
                     />
@@ -228,8 +229,7 @@ import { AuthService } from '@/auth/auth.service';
                         pRipple 
                         type="button" 
                         label="Cancel" 
-                        class="p-button-outlined"
-                        [disabled]="isSubmitting">
+                        class="p-button-outlined">
                     </button>
                 </div>
             </div>
@@ -243,10 +243,24 @@ export class ScheduleRepeatOrder {
         private ordersService: OrdersService,
         private messageService: MessageService,
         private authService: AuthService,
-        private http: HttpClient
+        private http: HttpClient,
+        private addressService: AddressService
     ) {
         this.startDate = new Date();
         this.minStartDate = new Date();
+        // Pre-populate delivery address
+        this.loadDeliveryAddress();
+    }
+    
+    loadDeliveryAddress() {
+        const savedAddress = this.addressService.getAddress();
+        if (savedAddress) {
+            // Use full address if available, otherwise construct from parts
+            this.deliveryAddress = savedAddress.address || 
+                [savedAddress.street, savedAddress.city, savedAddress.state, savedAddress.zipCode]
+                    .filter(Boolean)
+                    .join(', ') || '';
+        }
     }
 
     // 📅 Start Date
@@ -316,9 +330,9 @@ export class ScheduleRepeatOrder {
     }
 
 
-    onAddressInput(event: Event) {
-        const input = event.target as HTMLInputElement;
-        const query = input?.value ?? '';
+    onDeliveryAddressChange(value: string) {
+        this.deliveryAddress = value;
+        const query = value ?? '';
         // Clear suggestions if query is too short
         if (!query) {
             this.addressSuggestions = [];
@@ -339,6 +353,8 @@ export class ScheduleRepeatOrder {
     selectAddress(address: string) {
         this.deliveryAddress = address;
         this.addressSuggestions = [];
+        // Save selected address
+        this.addressService.updateAddress({ address: address });
     }
 
     getScheduleSummary(): string {

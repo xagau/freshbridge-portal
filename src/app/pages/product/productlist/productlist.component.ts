@@ -178,7 +178,7 @@ export class ProductList {
 
     setDefaultImage(event: Event) {
         const img = event.target as HTMLImageElement;
-        img.src = 'images/product/simple.png';
+        img.src = 'images/product/simple2.png';
         img.classList.add('default-image');
     }
 

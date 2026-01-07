@@ -32,6 +32,10 @@ export const appRoutes: Routes = [
             {
                 path: 'contact',
                 loadComponent: () => import('@/pages/UI-component/landing/contactpage').then((c) => c.ContactPage)
+            },
+            {
+                path: 'terms-and-conditions',
+                loadComponent: () => import('@/pages/UI-component/terms-and-conditions/terms-and-conditions').then((c) => c.TermsAndConditions)
             }
         ]
     },

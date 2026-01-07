@@ -26,4 +26,16 @@
         font-size: 0.875rem;
         color: var(--text-muted-color);
     }
+
+    .footer-link {
+        font-size: 0.875rem;
+        color: var(--text-muted-color);
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+    }
 }
