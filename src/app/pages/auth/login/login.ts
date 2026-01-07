@@ -23,6 +23,7 @@ import { MessageService } from 'primeng/api';
 export class Login {
     loginForm: FormGroup;
     currentYear: number = new Date().getFullYear();
+    showPassword: boolean = false;
 
     constructor(
         private fb: FormBuilder,
@@ -39,6 +40,10 @@ export class Login {
     }
     loading = false;
     error = '';
+    
+    togglePasswordVisibility(): void {
+        this.showPassword = !this.showPassword;
+    }
     onSubmit(): void {
         if (this.loginForm.invalid) return;
 

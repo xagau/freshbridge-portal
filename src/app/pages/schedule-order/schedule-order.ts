@@ -229,8 +229,7 @@ import { AddressService } from '@/service/address.service';
                         pRipple 
                         type="button" 
                         label="Cancel" 
-                        class="p-button-outlined"
-                        [disabled]="isSubmitting">
+                        class="p-button-outlined">
                     </button>
                 </div>
             </div>

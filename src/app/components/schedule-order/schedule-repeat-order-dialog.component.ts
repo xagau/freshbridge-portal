@@ -206,7 +206,7 @@ import { AuthService } from '@/auth/auth.service';
                 <!-- ✅ Save / Cancel Buttons -->
                 <div class="col-span-12 flex justify-end gap-4 mt-4">
                     <button pButton pRipple type="button" label="Save Recurring Order" class="p-button-primary" (click)="saveOrder()"></button>
-                    <button pButton pRipple type="button" label="Cancel" class="p-button-outlined"></button>
+                    <button pButton pRipple type="button" label="Cancel" class="p-button-outlined" (click)="onCancel()"></button>
                 </div>
             </div>
         </p-dialog>
