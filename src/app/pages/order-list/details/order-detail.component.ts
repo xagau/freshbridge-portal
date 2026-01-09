@@ -248,13 +248,13 @@ export class OrderDetailComponent implements OnChanges, AfterViewInit, OnDestroy
             this.order.status !== 'COMPLETED' &&
             this.order.status !== 'CANCELLED';
 
-        console.log('Can mark as complete:', {
-            hasOrder: !!this.order,
-            isCourier: this.isCourier(),
-            currentUserRole: this.currentUser?.role,
-            orderStatus: this.order?.status,
-            canComplete
-        });
+        // console.log('Can mark as complete:', {
+        //     hasOrder: !!this.order,
+        //     isCourier: this.isCourier(),
+        //     currentUserRole: this.currentUser?.role,
+        //     orderStatus: this.order?.status,
+        //     canComplete
+        // });
 
         return canComplete;
     }
@@ -285,6 +285,47 @@ export class OrderDetailComponent implements OnChanges, AfterViewInit, OnDestroy
                     detail: 'Failed to update order status'
                 });
                 console.error('Error updating order status:', error);
+            }
+        });
+    }
+
+    isRestaurantOwner(): boolean {
+        if (this.currentUser?.role !== 'RESTAURANT' || !this.order) return false;
+        return true;
+    }
+
+    canCancelOrder(): boolean {
+        
+        if (!this.isRestaurantOwner() || !this.order) return false;
+        // Can cancel if order is not already cancelled, completed, or delivered
+        return this.order.status !== 'CANCELLED' &&
+            this.order.status !== 'COMPLETED' &&
+            this.order.status !== 'DELIVERED';
+    }
+
+    cancelOrder() {
+        if (!this.order || !this.canCancelOrder()) return;
+
+        this.loading = true;
+        this.ordersSvc.updateStatus(this.orderId, 'CANCELLED').subscribe({
+            next: () => {
+                this.loading = false;
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Order cancelled successfully'
+                });
+                this.load();
+                this.updated.emit();
+            },
+            error: (error) => {
+                this.loading = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to cancel order'
+                });
+                console.error('Error cancelling order:', error);
             }
         });
     }

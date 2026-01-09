@@ -55,5 +55,10 @@
         <p-button label="Mark as Complete" severity="success" [loading]="loading" (onClick)="markAsComplete()"></p-button>
     </div>
 
+    <div class="ml-3 mb-2 flex items-center gap-2" *ngIf="canCancelOrder()">
+        <h4 class="text-xl font-bold">Restaurant Actions</h4>
+        <p-button label="Cancel Order" severity="danger" [loading]="loading" (onClick)="cancelOrder()"></p-button>
+    </div>
+
     <p-toast></p-toast>
 </div>

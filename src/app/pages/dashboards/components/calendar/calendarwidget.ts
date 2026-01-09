@@ -56,7 +56,7 @@ export class GoogleLikeCalendarComponent implements OnInit {
                     // For one-time orders, use expectedDeliveryDate if available, otherwise orderDate
                     const eventDate = order.expectedDeliveryDate ?
                         new Date(order.expectedDeliveryDate) :
-                        new Date(order.orderDate);
+                        new Date(order.startDate);
                     this.addEventIfInMonth(order, eventDate);
                 }
                 else if (order.frequency === 'WEEKLY') {
@@ -186,6 +186,7 @@ export class GoogleLikeCalendarComponent implements OnInit {
             case 'COMPLETED':
                 return '#28a745';
             case 'REJECTED':
+                return '#dc3545';
             case 'CANCELLED':
                 return '#dc3545';
             default:
