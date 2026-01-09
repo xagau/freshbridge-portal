@@ -17,6 +17,7 @@ import { environment } from '../../../../environments/environment';
 import { Order } from '@/model/order.model'; // Make sure this import exists
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '@/auth/auth.service';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
     selector: 'app-product-overview',
@@ -32,7 +33,8 @@ import { AuthService } from '@/auth/auth.service';
         MultiSelectModule,
         DropdownModule,
         CalendarModule,
-        ToastModule
+        ToastModule,
+        ProgressSpinnerModule
     ],
     providers: [OrdersService, MessageService, ProductService, AuthService],
     templateUrl: './productoverview.component.html',
@@ -48,6 +50,7 @@ export class ProductOverview implements OnInit {
     selectedImageIndex: number = 0;
     quantity: number = 1;
     showOrderDialog: boolean = false;
+    loading: boolean = true;
     constructor(
         private router: Router,
         private messageService: MessageService,
@@ -95,6 +98,7 @@ export class ProductOverview implements OnInit {
             this.product.id = productId;
 
             // If you need to fetch product details from a service:
+            this.loading = true;
             this.productService.getProduct(productId).subscribe({
                 next: (product) => {
                     this.product = product;
@@ -102,9 +106,11 @@ export class ProductOverview implements OnInit {
 
                     this.images = this.product.imageUrls
                     console.log("images", this.images);
+                    this.loading = false;
                 },
                 error: (err) => {
                     console.error('Failed to fetch product details:', err);
+                    this.loading = false;
                     // Handle error, maybe show a message to the user
                 }
             });

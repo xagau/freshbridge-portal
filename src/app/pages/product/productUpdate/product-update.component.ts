@@ -15,6 +15,7 @@ import { ProductService, Product } from '@/service/product.service';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '@/auth/auth.service';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 @Component({
     selector: 'app-product-update',
     standalone: true,
@@ -30,7 +31,8 @@ import { AuthService } from '@/auth/auth.service';
         RippleModule,
         ChipModule,
         TextareaModule,
-        ToastModule
+        ToastModule,
+        ProgressSpinnerModule
     ],
     providers: [MessageService, ProductService, AuthService],
     templateUrl: './product-update.component.html',
@@ -74,7 +76,7 @@ export class ProductUpdateComponent implements OnInit {
     ngOnInit() {
         // Get the current user's role
         const userRole = this.authService.currentUserValue?.role;
-
+        this.loading = true;
         // If the user is a farmer, get their farmer ID
         if (userRole === 'FARMER') {
             this.userId = this.authService.getProfileId();
@@ -105,17 +107,14 @@ export class ProductUpdateComponent implements OnInit {
                 next: (product) => {
                     this.product = product;
                     this.product.harvestDate = new Date(this.product.harvestDate??'').toISOString().split('T')[0];
-                    console.log("product", this.product);
-
                     this.imageUrls = this.product.imageUrls || [];
-                    console.log("imageUrls", this.imageUrls);
-                    
                     this.convertImageUrlsToPreviewUrls(this.imageUrls);
-
+                    this.loading = false;
                 },
                 error: (err) => {
                     console.error('Failed to fetch product details:', err);
                     // Handle error, maybe show a message to the user
+                    this.loading = false;
                 }
             });
         });
