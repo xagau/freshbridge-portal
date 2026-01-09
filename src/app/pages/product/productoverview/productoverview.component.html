@@ -59,7 +59,7 @@
             <a pButton (click)="goToProductlist()" class="p-button font-bold w-full my-5" severity="danger">
                 Go to Product list
             </a>
-            <div class="grid grid-cols-2 gap-2 w-full">
+            <div class="grid grid-cols-2 gap-2 w-full" *ngIf="isProductOwner()">
                 <a pButton (click)="goToProductUpdate()" class="p-button font-bold w-full my-5" severity="danger">
                     Edit product
                 </a>

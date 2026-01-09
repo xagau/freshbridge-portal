@@ -114,6 +114,8 @@ export class ProductOverview implements OnInit {
 
         this.farmerId = this.authService.getProfileId() || 1;
 
+        console.log("this.farmerId", this.farmerId);
+        
         this.orderService.listByRole({ userId: this.farmerId }).subscribe({
             next: (orders: Order[]) => {
                 // Map orders to dropdown format with summary
@@ -168,6 +170,23 @@ export class ProductOverview implements OnInit {
     }
     restaurantId = 1;
     farmerId = 1;
+    
+    isProductOwner(): boolean {
+        const currentUser = this.authService.currentUserValue;
+        if (!currentUser || !this.product) return false;
+        
+        // Admin can edit/delete any product
+        if (currentUser.role === 'ADMIN') return true;
+        
+        // Farmer can only edit/delete their own products
+        if (currentUser.role === 'FARMER') {
+            const currentFarmerId = this.authService.getProfileId();
+            return currentFarmerId !== null && this.product.farmerId === currentFarmerId;
+        }
+        
+        return false;
+    }
+    
     addToOrder() {
         const orderItem = {
             productId: this.product.id,
