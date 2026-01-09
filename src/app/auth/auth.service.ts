@@ -16,6 +16,7 @@ interface LoginResponse {
         farmerId?: number;
         restaurantId?: number;
     };
+    error: string;
 }
 
 
@@ -64,6 +65,11 @@ export class AuthService {
             password
         }).pipe(
             tap((response) => {
+                console.log("response:", response);
+                if (response.error) {
+                    throw new Error(response.error);
+                    
+                } 
                 this.storeAuthData(
                     response.token,
                     response.authUser.user,
@@ -75,21 +81,10 @@ export class AuthService {
 
             }),
             map(response => response.authUser.user),
+            
             catchError(error => {
                 console.error('Login error:', error);
-                let errorMessage = 'Login failed';
-                if (error.status === 403) {
-                    // when user is not registered, write a message to the user to register
-                    errorMessage = 'User is not registered. Please register to continue';
-                }
-                else if (error.status === 401) {
-                    errorMessage = 'Invalid username or password';
-                } else if (error.status === 0) {
-                    errorMessage = 'Unable to connect to server';
-                }
-                else if (error.error && error.error.message) {
-                    errorMessage = error.error.message;
-                }
+                let errorMessage = error.message;
                 return throwError(() => new Error(errorMessage));
             })
         );
