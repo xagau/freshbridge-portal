@@ -218,7 +218,7 @@ export class AppShipmentView implements OnInit {
             'CANCELLED': {
                 display: 'Cancelled',
                 icon: 'pi pi-times-circle',
-                color: '#607D8B',
+                color: '#F44336',
                 note: shipment.cancellationReason || 'Shipment was cancelled'
             }
         };
@@ -235,25 +235,33 @@ export class AppShipmentView implements OnInit {
         const errorStatuses: StatusKey[] = ['DELIVERY_FAILED', 'RETURNED', 'CANCELLED'];
 
         const currentStatus = shipment.status as StatusKey;
-        const currentIndex = statusOrder.includes(currentStatus)
-            ? statusOrder.indexOf(currentStatus)
-            : statusOrder.length - 1; // If not in main flow, show all main steps
+        const isCancelled = currentStatus === 'CANCELLED';
+        
+        // If cancelled, all icons should be grey, otherwise use normal logic
+        const currentIndex = isCancelled 
+            ? -1 // Set to -1 so all icons are grey
+            : (statusOrder.includes(currentStatus)
+                ? statusOrder.indexOf(currentStatus)
+                : statusOrder.length - 1); // If not in main flow, show all main steps
 
         // Create timeline events for the main flow
-        const events = statusOrder.map((status, index) => ({
+        // If cancelled, all icons are grey (#E0E0E0), otherwise use normal color logic
+        const events: Array<{ status: string; icon: string; color: string; date: string; note?: string }> = statusOrder.map((status, index) => ({
             status: statusMap[status]?.display || status,
             icon: statusMap[status]?.icon || 'pi pi-info-circle',
-            color: index <= currentIndex ? (statusMap[status]?.color || '#4CAF50') : '#E0E0E0',
+            color: isCancelled ? '#E0E0E0' : (index <= currentIndex ? (statusMap[status]?.color || '#4CAF50') : '#E0E0E0'),
             date: shipment.estimatedDelivery ? new Date(shipment.estimatedDelivery).toLocaleDateString() : 'N/A'
         }));
 
-        // Add error status if applicable
-        if (errorStatuses.includes(currentStatus)) {
+        // Add error status if applicable (DELIVERY_FAILED, RETURNED, or CANCELLED)
+        if (currentStatus === 'DELIVERY_FAILED' || currentStatus === 'RETURNED' || currentStatus === 'CANCELLED') {
             events.push({
                 status: statusMap[currentStatus].display,
                 icon: statusMap[currentStatus].icon,
-                color: statusMap[currentStatus].color,
+                // If cancelled, use red color (#F44336), otherwise use the status color
+                color: isCancelled ? '#F44336' : statusMap[currentStatus].color,
                 date: shipment.updatedAt ? new Date(shipment.updatedAt).toLocaleDateString() : 'N/A',
+                note: statusMap[currentStatus].note
             });
         }
 
