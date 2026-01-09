@@ -67,10 +67,13 @@ export class OrderListComponent implements OnInit {
   handleScheduleSave(event: any) {
     // Handle the saved schedule data
     console.log('Schedule saved:', event);
+    // Reload the table after saving schedule
+    this.fetch();
   }
 
   handleScheduleCancel() {
     // Handle cancel if needed
+    this.fetch();
   }
 
   changeStatus(event: Event, order: any, status: string) {
