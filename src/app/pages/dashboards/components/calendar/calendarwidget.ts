@@ -186,6 +186,7 @@ export class GoogleLikeCalendarComponent implements OnInit {
             case 'COMPLETED':
                 return '#28a745';
             case 'REJECTED':
+                return '#dc3545';
             case 'CANCELLED':
                 return '#dc3545';
             default:
