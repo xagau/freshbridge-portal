@@ -316,6 +316,7 @@ export class ScheduleRepeatOrderDialog {
 
     onCancel() {
         this.onCancelEvent.emit();
+        this.reset();
         this.hide();
     }
 
