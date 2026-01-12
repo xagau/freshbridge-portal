@@ -34,8 +34,8 @@
         </div>
     </div>
 
-    <div *ngIf="loading()" class="flex justify-content-center align-items-center" style="height: 200px">
-        <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" fill="var(--surface-ground)" animationDuration=".5s"> </p-progressSpinner>
+    <div *ngIf="loading()" class="flex justify-center items-center" style="height: 200px">
+        <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"> </p-progressSpinner>
     </div>
 
     <div class="grid grid-cols-12 gap-4" *ngIf="!loading()">

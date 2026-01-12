@@ -1,0 +1,13 @@
+/* set css css for table of contents */
+.table-of-contents-link {
+    @apply text-primary-600 dark:text-primary-400 hover:underline cursor-pointer text-sm;
+}
+.table-of-contents-link:hover {
+    @apply text-primary-600 dark:text-primary-400 hover:underline cursor-pointer text-sm;
+}
+.table-of-contents-link:active {
+    @apply text-primary-600 dark:text-primary-400 hover:underline cursor-pointer text-sm;
+}
+.table-of-contents-link:focus {
+    @apply text-primary-600 dark:text-primary-400 hover:underline cursor-pointer text-sm;
+}

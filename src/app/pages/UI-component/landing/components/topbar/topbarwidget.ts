@@ -29,6 +29,9 @@ export class TopbarWidget {
 
     authService = inject(AuthService); // <-- Add this line
 
+    private lastScrollTop: number = 0;
+    isNavVisible: boolean = true;
+
     isAuthenticated() {
         return this.authService.isAuthenticated;
     }
@@ -84,5 +87,26 @@ export class TopbarWidget {
         if (isOutsideClicked) {
             this.openMobileMenu = false;
         }
+    }
+
+    @HostListener('window:scroll', [])
+    onWindowScroll() {
+        const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Show nav when at the top
+        if (currentScrollTop < 10) {
+            this.isNavVisible = true;
+        } else {
+            // Hide when scrolling down, show when scrolling up
+            if (currentScrollTop > this.lastScrollTop) {
+                // Scrolling down
+                this.isNavVisible = false;
+            } else {
+                // Scrolling up
+                this.isNavVisible = true;
+            }
+        }
+        
+        this.lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
     }
 }

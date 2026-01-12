@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { addDays, addMonths, format, getDaysInMonth, getMonth, getYear, isSameDay, isSameMonth, isToday, lastDayOfMonth, startOfMonth, subMonths } from 'date-fns';
 import { OrdersService } from '@/service/orders.service';
 import { AuthService } from '@/auth/auth.service';
@@ -11,7 +12,7 @@ import { DashboardDataService } from '@/service/dashboard-data.service';
 @Component({
     selector: 'app-google-like-calendar',
     standalone: true,
-    imports: [CommonModule, ButtonModule, OrderDetailsModalComponent],
+    imports: [CommonModule, ButtonModule, OrderDetailsModalComponent, ProgressSpinnerModule],
     templateUrl: './calendarwindget.html',
     styleUrls: ['./calendar.component.scss']
 })
@@ -22,6 +23,7 @@ export class GoogleLikeCalendarComponent implements OnInit {
     weeks: Date[][] = [];
     events: any[] = [];
     selectedOrder: Order | null = null;
+    loadingOrder: boolean = false;
 
     weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     currentUser: any = { userId: 0, role: "" };
@@ -196,8 +198,16 @@ export class GoogleLikeCalendarComponent implements OnInit {
 
     onEventClick(event: any) {
         if (event.orderId) {
-            this.orderService.getOrderById(event.orderId).subscribe(order => {
-                this.selectedOrder = order;
+            this.loadingOrder = true;
+            this.orderService.getOrderById(event.orderId).subscribe({
+                next: (order) => {
+                    this.selectedOrder = order;
+                    this.loadingOrder = false;
+                },
+                error: (error) => {
+                    console.error('Error loading order:', error);
+                    this.loadingOrder = false;
+                }
             });
         }
     }
