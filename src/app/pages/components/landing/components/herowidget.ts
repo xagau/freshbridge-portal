@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, Input } from '@angular/core';
 import { HorizontalGridWidget } from './horizontalgridwidget';
-import { LazyImageWidget } from '@/pages/UI-component/landing/components/lazyimagewidget';
-import { CustomersLogoWidget } from '@/pages/UI-component/landing/components/customerslogowidget';
+import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
+import { CustomersLogoWidget } from '@/pages/components/landing/components/customerslogowidget';
 import { LayoutService } from '@/layout/service/layout.service';
 import { RouterLink } from '@angular/router';
 

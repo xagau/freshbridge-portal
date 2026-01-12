@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { InputTextModule } from 'primeng/inputtext';
-import { LazyImageWidget } from '@/pages/UI-component/landing/components/lazyimagewidget';
-import { LogoWidget } from '@/pages/UI-component/landing/components/logowidget';
+import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
+import { LogoWidget } from '@/pages/components/landing/components/logowidget';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';

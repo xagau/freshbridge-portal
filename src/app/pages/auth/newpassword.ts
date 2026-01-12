@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
-import { LogoWidget } from '@/pages/UI-component/landing/components/logowidget';
-import { LazyImageWidget } from '@/pages/UI-component/landing/components/lazyimagewidget';
+import { LogoWidget } from '@/pages/components/landing/components/logowidget';
+import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
 
 @Component({
     selector: 'app-new-password',

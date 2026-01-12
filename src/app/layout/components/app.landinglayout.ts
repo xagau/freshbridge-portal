@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FooterWidget } from '@/pages/UI-component/landing/components/footerwidget';
-import { TopbarWidget } from '@/pages/UI-component/landing/components/topbar/topbarwidget';
+import { FooterWidget } from '@/pages/components/landing/components/footerwidget';
+import { TopbarWidget } from '@/pages/components/landing/components/topbar/topbarwidget';
 
 @Component({
     selector: 'app-landing-layout',

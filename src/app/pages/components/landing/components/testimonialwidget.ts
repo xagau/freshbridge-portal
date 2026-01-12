@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { TestimonialCardWidget } from '@/pages/UI-component/landing/components/testimonialcardwidget';
+import { TestimonialCardWidget } from '@/pages/components/landing/components/testimonialcardwidget';
 
 @Component({
     selector: 'app-testimonial-widget',

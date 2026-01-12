@@ -1,9 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
 import { LayoutService } from '@/layout/service/layout.service';
 import { RouterLink } from '@angular/router';
-import { LogoWidget } from '@/pages/UI-component/landing/components/logowidget';
+import { LogoWidget } from '@/pages/components/landing/components/logowidget';
 import { InputTextModule } from 'primeng/inputtext';
-import { LazyImageWidget } from '@/pages/UI-component/landing/components/lazyimagewidget';
+import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({

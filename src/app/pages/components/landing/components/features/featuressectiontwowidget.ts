@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { LayoutService } from '@/layout/service/layout.service';
-import { LazyImageWidget } from '@/pages/UI-component/landing/components/lazyimagewidget';
+import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
 
 @Component({
     selector: 'app-features-section-two-widget',

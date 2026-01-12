@@ -8,7 +8,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
-import { LogoWidget } from '@/pages/UI-component/landing/components/logowidget';
+import { LogoWidget } from '@/pages/components/landing/components/logowidget';
 
 @Component({
     selector: 'app-profile-completion',

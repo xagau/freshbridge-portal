@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { Empty } from './UI-component/empty/empty';
-import { Faq } from './UI-component/faq/faq';
-import { ContactUs } from './UI-component/contactus/contactus';
-import { TermsAndConditions } from './UI-component/terms-and-conditions/terms-and-conditions';
+import { Empty } from './components/empty/empty';
+import { Faq } from './components/faq/faq';
+import { ContactUs } from './components/contactus/contactus';
+import { TermsAndConditions } from './components/terms-and-conditions/terms-and-conditions';
 
 export default [
     { path: 'empty', component: Empty, data: { breadcrumb: 'Empty' } },

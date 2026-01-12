@@ -2,7 +2,7 @@ import { Component, ElementRef, HostListener, inject, Input, ViewChild } from '@
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
-import { LogoWidget } from '@/pages/UI-component/landing/components/logowidget';
+import { LogoWidget } from '@/pages/components/landing/components/logowidget';
 import { AuthService } from '@/auth/auth.service'; 
 import { AvatarModule } from 'primeng/avatar';
 import { StyleClassModule } from 'primeng/styleclass';

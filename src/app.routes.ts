@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { AppLayout } from '@/layout/components/app.layout';
-import { Notfound } from '@/pages/UI-component/notfound/notfound';
+import { Notfound } from '@/pages/components/notfound/notfound';
 import { LandingLayout } from '@/layout/components/app.landinglayout';
 import { AuthLayout } from '@/layout/components/app.authlayout';
 import { AuthGuard } from '@/auth/auth.guard';
@@ -19,23 +19,23 @@ export const appRoutes: Routes = [
         children: [
             {
                 path: '',
-                loadComponent: () => import('@/pages/UI-component/landing/landingpage').then((c) => c.LandingPage)
+                loadComponent: () => import('@/pages/components/landing/landingpage').then((c) => c.LandingPage)
             },
             {
                 path: 'features',
-                loadComponent: () => import('@/pages/UI-component/landing/featurespage').then((c) => c.FeaturesPage)
+                loadComponent: () => import('@/pages/components/landing/featurespage').then((c) => c.FeaturesPage)
             },
             {
                 path: 'pricing',
-                loadComponent: () => import('@/pages/UI-component/landing/pricingpage').then((c) => c.PricingPage)
+                loadComponent: () => import('@/pages/components/landing/pricingpage').then((c) => c.PricingPage)
             },
             {
                 path: 'contact',
-                loadComponent: () => import('@/pages/UI-component/landing/contactpage').then((c) => c.ContactPage)
+                loadComponent: () => import('@/pages/components/landing/contactpage').then((c) => c.ContactPage)
             },
             {
                 path: 'terms-and-conditions',
-                loadComponent: () => import('@/pages/UI-component/terms-and-conditions/terms-and-conditions').then((c) => c.TermsAndConditions)
+                loadComponent: () => import('@/pages/components/terms-and-conditions/terms-and-conditions').then((c) => c.TermsAndConditions)
             }
         ]
     },
@@ -140,11 +140,11 @@ export const appRoutes: Routes = [
             },
             {
                 path: 'oops',
-                loadComponent: () => import('@/pages/UI-component/oops/oops').then((c) => c.Oops)
+                loadComponent: () => import('@/pages/components/oops/oops').then((c) => c.Oops)
             },
             {
                 path: 'error',
-                loadComponent: () => import('@/pages/UI-component/notfound/notfound').then((c) => c.Notfound)
+                loadComponent: () => import('@/pages/components/notfound/notfound').then((c) => c.Notfound)
             },
             {
                 path: 'callback',

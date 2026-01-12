@@ -6,7 +6,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
 // import { AppleWidget } from '@/pages/auth/components/applewidget';
 import { GoogleWidget } from '@/pages/auth/components/googlewidget';
-import { LogoWidget } from '@/pages/UI-component/landing/components/logowidget';
+import { LogoWidget } from '@/pages/components/landing/components/logowidget';
 import { AuthService } from '@/auth/auth.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';

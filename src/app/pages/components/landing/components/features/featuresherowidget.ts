@@ -1,9 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
 import { LayoutService } from '@/layout/service/layout.service';
-import { HorizontalGridWidget } from '@/pages/UI-component/landing/components/horizontalgridwidget';
-import { LazyImageWidget } from '@/pages/UI-component/landing/components/lazyimagewidget';
+import { HorizontalGridWidget } from '@/pages/components/landing/components/horizontalgridwidget';
+import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
 import { RouterLink } from '@angular/router';
-import { CustomersLogoWidget } from '@/pages/UI-component/landing/components/customerslogowidget';
+import { CustomersLogoWidget } from '@/pages/components/landing/components/customerslogowidget';
 
 @Component({
     selector: 'app-features-hero-widget',

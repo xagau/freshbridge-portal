@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ContactHeroWidget } from '@/pages/UI-component/landing/components/contact/contactherowidget';
+import { ContactHeroWidget } from '@/pages/components/landing/components/contact/contactherowidget';
 import { AppConfigurator } from '@/layout/components/app.configurator';
 import { LayoutService } from '@/layout/service/layout.service';
 

@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { CtaWidget } from '@/pages/UI-component/landing/components/ctawidget';
-import { PricingCompareWidget } from '@/pages/UI-component/landing/components/pricing/pricingcomparewidget';
-import { TestimonialWidget } from '@/pages/UI-component/landing/components/testimonialwidget';
-import { PricingHeroWidget } from '@/pages/UI-component/landing/components/pricing/pricingherowidget';
+import { CtaWidget } from '@/pages/components/landing/components/ctawidget';
+import { PricingCompareWidget } from '@/pages/components/landing/components/pricing/pricingcomparewidget';
+import { TestimonialWidget } from '@/pages/components/landing/components/testimonialwidget';
+import { PricingHeroWidget } from '@/pages/components/landing/components/pricing/pricingherowidget';
 import { AppConfigurator } from '@/layout/components/app.configurator';
 import { LayoutService } from '@/layout/service/layout.service';
 

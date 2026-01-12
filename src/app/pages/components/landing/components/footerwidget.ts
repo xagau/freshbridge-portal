@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { LogoWidget } from '@/pages/UI-component/landing/components/logowidget';
+import { LogoWidget } from '@/pages/components/landing/components/logowidget';
 import { RouterModule } from '@angular/router';
 
 @Component({

@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { TextareaModule } from 'primeng/textarea';
-import { HorizontalGridWidget } from '@/pages/UI-component/landing/components/horizontalgridwidget';
-import { CustomersLogoWidget } from '@/pages/UI-component/landing/components/customerslogowidget';
+import { HorizontalGridWidget } from '@/pages/components/landing/components/horizontalgridwidget';
+import { CustomersLogoWidget } from '@/pages/components/landing/components/customerslogowidget';
 
 @Component({
     selector: 'app-contact-hero-widget',

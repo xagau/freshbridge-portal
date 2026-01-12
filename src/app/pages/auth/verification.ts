@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { InputOtpModule } from 'primeng/inputotp';
-import { LogoWidget } from '@/pages/UI-component/landing/components/logowidget';
-import { LazyImageWidget } from '@/pages/UI-component/landing/components/lazyimagewidget';
+import { LogoWidget } from '@/pages/components/landing/components/logowidget';
+import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
 
 @Component({
     selector: 'app-verification',

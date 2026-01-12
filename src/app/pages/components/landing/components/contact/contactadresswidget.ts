@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LazyImageWidget } from '@/pages/UI-component/landing/components/lazyimagewidget';
+import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
 
 @Component({
     selector: 'app-contact-adress-widget',

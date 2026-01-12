@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { LazyImageWidget } from '@/pages/UI-component/landing/components/lazyimagewidget';
+import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
 import { LayoutService } from '@/layout/service/layout.service';
 import { RouterLink } from '@angular/router';
 
