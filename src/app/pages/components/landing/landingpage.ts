@@ -2,7 +2,7 @@ import { HeroWidget } from '@/pages/components/landing/components/herowidget';
 import { Component, inject } from '@angular/core';
 import { SectionOneWidget } from '@/pages/components/landing/components/sectiononewidget';
 import { SectionTwoWidget } from '@/pages/components/landing/components/sectiontwowidget';
-import { SectionThreeWidget } from '@/pages/components/landing/components/sectionthreewidget';
+// import { SectionThreeWidget } from '@/pages/components/landing/components/sectionthreewidget';
 import { CtaWidget } from '@/pages/components/landing/components/ctawidget';
 import { TestimonialWidget } from '@/pages/components/landing/components/testimonialwidget';
 import { FaqWidget } from '@/pages/components/landing/components/faqwidget';
@@ -12,11 +12,11 @@ import { LayoutService } from '@/layout/service/layout.service';
 @Component({
     selector: 'app-landing-page',
     standalone: true,
-    imports: [HeroWidget, SectionOneWidget, SectionTwoWidget, SectionThreeWidget, CtaWidget, TestimonialWidget, FaqWidget, AppConfigurator],
+    imports: [HeroWidget, SectionOneWidget, SectionTwoWidget, CtaWidget, TestimonialWidget, FaqWidget, AppConfigurator],
     template: `<app-hero-widget />
         <app-section-one-widget />
         <app-section-two-widget />
-        <app-section-three-widget />
+        <!-- <app-section-three-widget /> -->
         <app-cta-widget />
         <app-testimonial-widget />
         <app-faq-widget />
