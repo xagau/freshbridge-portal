@@ -45,9 +45,13 @@ export class Login {
         this.showPassword = !this.showPassword;
     }
     onSubmit(): void {
-        if (this.loginForm.invalid) return;
-
         this.loading = true;
+        
+        if (this.loginForm.invalid) {
+            this.loading = false;
+            return;
+        }
+
         this.error = '';
 
         const { email, password } = this.loginForm.value;

@@ -38,7 +38,10 @@
                             <a routerLink="/auth/forgot-password"
                                 class="body-small text-primary-500 hover:underline">Forgot password?</a>
                         </div>
-                        <button type="submit" class="body-button w-full">Login</button>
+                        <button type="submit" class="body-button w-full" [disabled]="loading">
+                            <span *ngIf="loading">Loading...</span>
+                            <span *ngIf="!loading">Login</span>
+                        </button>
                     </form>
                     <div class="mt-8 body-small text-center lg:text-left">Not registered? <a routerLink="/auth/register"
                             class="text-primary-500 hover:underline">Create an Account</a></div>
