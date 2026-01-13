@@ -69,6 +69,22 @@ import { AddressService } from '@/service/address.service';
                         <span class="text-surface-900 dark:text-surface-0 text-lg font-bold mb-4 block">Banking Information</span>
                     </div>
                     
+                    <div class="col-span-12 mb-6">
+                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3">
+                            <i class="pi pi-info-circle text-blue-600 dark:text-blue-400 text-xl mt-0.5 flex-shrink-0"></i>
+                            <div class="flex-1">
+                                <h4 class="text-blue-900 dark:text-blue-100 font-semibold mb-2">Banking Information Disclaimer</h4>
+                                <p class="text-blue-800 dark:text-blue-200 text-sm leading-relaxed">
+                                    Please ensure that all banking information provided is accurate and up-to-date. 
+                                    FreshBridge uses bank-level encryption to protect your financial data. 
+                                    By submitting your banking information, you acknowledge that you are authorized to provide 
+                                    these details and that they will be used solely for payment processing purposes. 
+                                    We are not responsible for any errors resulting from incorrect information provided.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="bankName" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Bank Name </label>
                         <input id="bankName" type="text" pInputText fluid [(ngModel)]="bankingInfo.bankName" />
