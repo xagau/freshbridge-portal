@@ -30,9 +30,14 @@ interface NotificationsBars {
     imports: [RouterModule, ToastModule, CommonModule, StyleClassModule, AppBreadcrumb, InputTextModule, ButtonModule, IconFieldModule, InputIconModule, RippleModule, BadgeModule, OverlayBadgeModule, AvatarModule],
     template: `<div class="layout-topbar">
         <div class="topbar-left">
-            <a tabindex="0" #menubutton type="button" class="menu-button" (click)="onBackPreviousPage()">
-                <i class="pi pi-chevron-left"></i>
-            </a>
+            <div class="flex items-center gap-2">
+                <a tabindex="0" #menubutton type="button" class="menu-button" (click)="onMenuButtonClick()">
+                    <i class="pi pi-bars"></i>
+                </a>
+                <a tabindex="0" #backbutton type="button"  (click)="onBackPreviousPage()">
+                    <i class="pi pi-chevron-left"></i>
+                </a>
+            </div>
             <img class="horizontal-logo" src="/images/logo-white.png" alt="fresh-bridge-layout" />
             <span class="topbar-separator"></span>
             <div app-breadcrumb></div>
