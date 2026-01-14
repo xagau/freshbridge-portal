@@ -7,6 +7,7 @@ import { DropdownModule } from 'primeng/dropdown';
 // import { AppleWidget } from '@/pages/auth/components/applewidget';
 import { GoogleWidget } from '@/pages/auth/components/googlewidget';
 import { LogoWidget } from '@/pages/components/landing/components/logowidget';
+import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
 import { AuthService } from '@/auth/auth.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -20,6 +21,7 @@ import { AddressService } from '@/service/address.service';
     standalone: true,
     imports: [
         LogoWidget,
+        LazyImageWidget,
         GoogleWidget,
         // AppleWidget,
         FormsModule,
