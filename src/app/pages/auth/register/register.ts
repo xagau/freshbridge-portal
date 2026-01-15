@@ -45,6 +45,7 @@ export class Register {
     showVerification = false;
     verificationCode = '';
     emailForVerification = '';
+    showPassword: boolean = false;
 
 
     userTypes = [
@@ -95,6 +96,10 @@ export class Register {
             vehicleRegistrationNumber: [''],
             licenseNumber: ['']
         });
+    }
+
+    togglePasswordVisibility(): void {
+        this.showPassword = !this.showPassword;
     }
 
     async onSubmit() {

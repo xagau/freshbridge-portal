@@ -70,6 +70,9 @@ export class AuthService {
                     throw new Error(response.error);
                     
                 } 
+                console.log("response.authUser.user:", response.authUser.user);
+                console.log("response.authUser.farmerId:", response.authUser.farmerId);
+                console.log("response.authUser.restaurantId:", response.authUser.restaurantId);
                 this.storeAuthData(
                     response.token,
                     response.authUser.user,
@@ -176,6 +179,12 @@ export class AuthService {
         return userData ? JSON.parse(userData).id : null;
     }
 
+    public getProfileFarmerId(): number | null {
+        return localStorage.getItem(this.PROFILE_ID_KEY) ? parseInt(localStorage.getItem(this.PROFILE_ID_KEY) || '0') : null;
+    }
+    public getProfileRestaurantId(): number | null {
+        return localStorage.getItem(this.PROFILE_ID_KEY) ? parseInt(localStorage.getItem(this.PROFILE_ID_KEY) || '0') : null;
+    }
     public getProfileType(): 'farmer' | 'restaurant' | null {
         return localStorage.getItem(this.PROFILE_TYPE_KEY) as any;
     }

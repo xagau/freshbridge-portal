@@ -59,6 +59,8 @@ export class ProductList {
     ngOnInit() {
         // Set user role flags
         const userRole = this.authService.currentUserValue?.role;
+        console.log("userRole:", userRole);
+        
         this.isAdmin.set(userRole === 'ADMIN');
         this.isFarmer.set(userRole === 'FARMER');
         this.isRestaurant.set(userRole === 'RESTAURANT');
