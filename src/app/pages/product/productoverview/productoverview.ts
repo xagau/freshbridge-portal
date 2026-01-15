@@ -186,7 +186,7 @@ export class ProductOverview implements OnInit {
         
         // Farmer can only edit/delete their own products
         if (currentUser.role === 'FARMER') {
-            const currentFarmerId = this.authService.getProfileId();
+            const currentFarmerId = this.authService.getProfileFarmerId();
             return currentFarmerId !== null && this.product.farmerId === currentFarmerId;
         }
         

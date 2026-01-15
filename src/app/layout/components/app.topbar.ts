@@ -199,14 +199,14 @@ export class AppTopbar implements OnInit {
 
         this.authService.currentUser$.subscribe(user => {
             if (user) {
-                this.userId = user?.userId;
+                this.userId = user.id;
                 this.userEmail.set(user?.email || '');
                 this.userRole.set(user?.role || '');
-            }
-        })
 
-        this.loadNotifications();
-        // this.setupWebSocket();
+                console.log("user:", user);
+                this.loadNotifications(user.id || 0);
+            }
+        });
     }
 
     logout() {
@@ -237,8 +237,9 @@ export class AppTopbar implements OnInit {
         }
     }
 
-    loadNotifications() {
-        this.notificationService.getRecentNotification(this.userId).subscribe(list => {
+    loadNotifications(userId: number) {
+        this.notificationService.getRecentNotification(userId).subscribe(list => {
+            console.log("list:", list);
             this.notificationsList.set(list);
         });
     }
