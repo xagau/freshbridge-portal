@@ -51,7 +51,7 @@ export class Register {
     userTypes = [
         { label: 'Farmer', value: 'FARMER' },
         { label: 'Restaurant', value: 'RESTAURANT' },
-        { label: 'Courier', value: 'COURIER' }
+        // { label: 'Courier', value: 'COURIER' }
     ];
 
     farmTypes = [

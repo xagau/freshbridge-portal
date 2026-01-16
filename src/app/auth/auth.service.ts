@@ -67,7 +67,7 @@ export class AuthService {
             tap((response) => {
                 console.log("response:", response);
                 if (response.error) {
-                    throw new Error(response.error);
+                    throw new Error(response.error); 
                     
                 } 
                 console.log("response.authUser.user:", response.authUser.user);
