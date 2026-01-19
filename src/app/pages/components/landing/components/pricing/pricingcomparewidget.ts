@@ -56,10 +56,10 @@ export class PricingCompareWidget {
     plans = ['Community (Free)', 'Connected (Recommended)', 'Enterprise'];
 
     planDetails = [
-        { plan: 'Pricing Model', ingredients: ['Farm Listed (0% fees)', 'Farm Listed (0% fees)', 'Farm Listed (0% fees)'] },
+        { plan: 'Pricing Model', ingredients: ['Merchant Listed (0% fees)', 'Merchant Listed (0% fees)', 'Merchant Listed (0% fees)'] },
         { plan: 'Dynamic Pricing Engine', ingredients: ['_yes', '_yes', '_yes'] },
         { plan: 'Compliance & Food Safety', ingredients: ['_yes', '_yes', '_yes'] },
-        { plan: 'Farm Direct Shipping', ingredients: ['_yes', '_yes', '_yes'] },
+        { plan: 'Merchant Direct Shipping', ingredients: ['_yes', '_yes', '_yes'] },
         { plan: 'FreshBridge-Managed Logistics', ingredients: ['_yes', '🚚 Priority Scheduling', 'SLA-Based Scheduling'] },
         { plan: 'Real-Time Inventory', ingredients: ['_yes', '_yes', 'Multi-location Sync'] },
         { plan: 'Invoice & Payment Integration', ingredients: ['_yes', '_yes', '_yes'] },

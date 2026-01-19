@@ -33,7 +33,7 @@ export class ShipmentSelectDialogComponent implements OnChanges, OnInit {
     private map?: L.Map;
     private orderRouteLayer?: L.Polyline;
     private shipmentRouteLayer?: L.Polyline;
-    private farmMarker?: L.Marker;
+    private merchantMarker?: L.Marker;
     private deliveryMarker?: L.Marker;
     private courierMarker?: L.Marker;
 
@@ -89,12 +89,12 @@ export class ShipmentSelectDialogComponent implements OnChanges, OnInit {
                 }
             });
         } else {
-            // Farmers and Restaurants get orders
+            // Merchants and Buyers get orders
             let params: any = {};
-            if (this.currentUser.role === 'RESTAURANT') {
-                params.restaurantId = this.currentUser.userId;
-            } else if (this.currentUser.role === 'FARMER') {
-                params.farmerId = this.currentUser.userId;
+            if (this.currentUser.role === 'BUYER') {
+                params.buyerId = this.currentUser.userId;
+            } else if (this.currentUser.role === 'MERCHANT') {
+                params.merchantId = this.currentUser.userId;
             }
 
             this.ordersService.listByRole(params).subscribe({
@@ -122,23 +122,23 @@ export class ShipmentSelectDialogComponent implements OnChanges, OnInit {
         }
 
         // Default locations (Toronto)
-        const farmLocation = L.latLng(43.6532, -79.3832); // Restaurant location
+        const merchantLocation = L.latLng(43.6532, -79.3832); // Buyer location
         const deliveryLocation = L.latLng(43.6510, -79.3470); // Customer location
 
-        this.map = L.map('map').setView(farmLocation, 13);
+        this.map = L.map('map').setView(merchantLocation, 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(this.map);
 
-        // Add farm/restaurant marker
-        this.farmMarker = L.marker(farmLocation, {
+        // Add merchant/buyer marker
+        this.merchantMarker = L.marker(merchantLocation, {
             icon: L.icon({
                 iconUrl: '/images/map/farmer.jpg',
                 iconSize: [32, 32],
                 iconAnchor: [16, 32]
             })
-        }).addTo(this.map).bindPopup('<b>Restaurant</b>');
+        }).addTo(this.map).bindPopup('<b>Buyer</b>');
 
         // Add delivery marker (customer location)
         this.deliveryMarker = L.marker(deliveryLocation, {
@@ -149,12 +149,12 @@ export class ShipmentSelectDialogComponent implements OnChanges, OnInit {
             })
         }).addTo(this.map).bindPopup('<b>Customer Location</b>');
 
-        // Draw order route (green) - from restaurant to customer
-        this.drawRoute(farmLocation, deliveryLocation, '#10B981', 'order');
+        // Draw order route (green) - from buyer to customer
+        this.drawRoute(merchantLocation, deliveryLocation, '#10B981', 'order');
     }
 
     updateShipmentRoute() {
-        if (!this.map || !this.selectedShipment || !this.farmMarker) return;
+        if (!this.map || !this.selectedShipment || !this.merchantMarker) return;
 
         // Get courier's current location from selected shipment
         const courierLocation = L.latLng(
@@ -175,8 +175,8 @@ export class ShipmentSelectDialogComponent implements OnChanges, OnInit {
             }).addTo(this.map).bindPopup('<b>Courier Location</b>');
         }
 
-        // Draw shipment route (blue) - from courier to restaurant
-        this.drawRoute(courierLocation, this.farmMarker.getLatLng(), '#3B82F6', 'shipment');
+        // Draw shipment route (blue) - from courier to buyer
+        this.drawRoute(courierLocation, this.merchantMarker.getLatLng(), '#3B82F6', 'shipment');
     }
 
     drawRoute(start: L.LatLng, end: L.LatLng, color: string, routeType: 'order' | 'shipment') {
@@ -230,8 +230,8 @@ export class ShipmentSelectDialogComponent implements OnChanges, OnInit {
             bounds.extend(this.shipmentRouteLayer.getBounds());
             hasBounds = true;
         }
-        if (this.farmMarker) {
-            bounds.extend(this.farmMarker.getLatLng());
+        if (this.merchantMarker) {
+            bounds.extend(this.merchantMarker.getLatLng());
             hasBounds = true;
         }
         if (this.deliveryMarker) {
@@ -255,9 +255,9 @@ export class ShipmentSelectDialogComponent implements OnChanges, OnInit {
             this.shipmentRouteLayer.remove();
             this.shipmentRouteLayer = undefined;
         }
-        if (this.farmMarker) {
-            this.farmMarker.remove();
-            this.farmMarker = undefined;
+        if (this.merchantMarker) {
+            this.merchantMarker.remove();
+            this.merchantMarker = undefined;
         }
         if (this.deliveryMarker) {
             this.deliveryMarker.remove();

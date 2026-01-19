@@ -60,37 +60,37 @@ export class AppMenu implements OnInit, OnDestroy {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-warehouse',
                         routerLink: ['/dashboard'],
-                        roles: ['FARMER', 'RESTAURANT']
+                        roles: ['MERCHANT', 'BUYER']
                     },
                     {
                         label: 'FreshSelect',
                         icon: 'pi pi-fw pi-list',
                         routerLink: ['/freshselect'],
-                        roles: ['FARMER', 'RESTAURANT', 'ADMIN', 'COURIER']
+                        roles: ['MERCHANT', 'BUYER', 'ADMIN', 'COURIER']
                     },
                     {
                         label: 'Orders & Fulfillment',
                         icon: 'pi pi-fw pi-file-check',
                         routerLink: ['/order-management'],
-                        roles: ['FARMER', 'RESTAURANT', 'COURIER']
+                        roles: ['MERCHANT', 'BUYER', 'COURIER']
                     },
                     {
                         label: 'Product Listings',
                         icon: 'pi pi-fw pi-list',
                         routerLink: ['/product-management'],
-                        roles: ['FARMER', 'RESTAURANT']
+                        roles: ['MERCHANT', 'BUYER']
                     },
                     {
                         label: 'Payments & Invoices',
                         icon: 'pi pi-fw pi-credit-card',
                         routerLink: ['pi/transfer-history'],
-                        roles: ['FARMER', 'RESTAURANT']
+                        roles: ['MERCHANT', 'BUYER']
                     },
                     {
                         label: 'Schedule Order',
                         icon: 'pi pi-fw pi-credit-card',
                         routerLink: ['schedule-order'],
-                        roles: ['ADMIN', 'RESTAURANT']
+                        roles: ['ADMIN', 'BUYER']
                     }
                 ]
             },
@@ -113,15 +113,15 @@ export class AppMenu implements OnInit, OnDestroy {
                 icon: 'pi pi-fw pi-wallet',
                 items: [
                     {
-                        label: 'Farmers Management',
+                        label: 'Merchants Management',
                         icon: 'pi pi-fw pi-users',
-                        routerLink: ['farmers-management'],
+                        routerLink: ['merchants-management'],
                         roles: ['ADMIN']
                     },
                     {
-                        label: 'Restaurant Management',
+                        label: 'Buyers Management',
                         icon: 'pi pi-fw pi-users',
-                        routerLink: ['restaurant-management'],
+                        routerLink: ['buyers-management'],
                         roles: ['ADMIN']
                     },
                     {

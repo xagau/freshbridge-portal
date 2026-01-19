@@ -1,10 +1,10 @@
-// farm-product.service.ts
+// merchant-product.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 
-export interface FarmProduct {
+export interface MerchantProduct {
     id: number;
     name: string;
     description?: string;
@@ -13,7 +13,7 @@ export interface FarmProduct {
     quantityAvailable: number;
     imageUrl?: string;
     harvestDate?: string;
-    farmer?: {
+    merchant?: {
         id: number;
         firstName: string;
         lastName: string;
@@ -23,33 +23,33 @@ export interface FarmProduct {
 @Injectable({
     providedIn: 'root'
 })
-export class FarmProductService {
-    private apiUrl = `${environment.apiUrl}/farm-products`;
+export class MerchantProductService {
+    private apiUrl = `${environment.apiUrl}/merchant-products`;
 
     constructor(private http: HttpClient) { }
 
     /**
-     * Get all farm products with optional filters
+     * Get all merchant products with optional filters
      */
     getProducts(params?: {
-        farmerId?: number;
+        merchantId?: number;
         name?: string;
-    }): Observable<FarmProduct[]> {
-        return this.http.get<FarmProduct[]>(this.apiUrl, { params });
+    }): Observable<MerchantProduct[]> {
+        return this.http.get<MerchantProduct[]>(this.apiUrl, { params });
     }
 
     /**
      * Get a single product by ID
      */
-    getProduct(productId: number): Observable<FarmProduct> {
-        return this.http.get<FarmProduct>(`${this.apiUrl}/${productId}`);
+    getProduct(productId: number): Observable<MerchantProduct> {
+        return this.http.get<MerchantProduct>(`${this.apiUrl}/${productId}`);
     }
 
     /**
-     * Create a new farm product
+     * Create a new merchant product
      */
     createProduct(productData: {
-        farmerId: number;
+        merchantId: number;
         name: string;
         description?: string;
         price: number;
@@ -57,8 +57,8 @@ export class FarmProductService {
         quantityAvailable: number;
         imageUrl?: string;
         harvestDate?: string;
-    }): Observable<FarmProduct> {
-        return this.http.post<FarmProduct>(this.apiUrl, productData);
+    }): Observable<MerchantProduct> {
+        return this.http.post<MerchantProduct>(this.apiUrl, productData);
     }
 
     /**
@@ -75,7 +75,7 @@ export class FarmProductService {
             imageUrl?: string;
             harvestDate?: string;
         }
-    ): Observable<FarmProduct> {
+    ): Observable<MerchantProduct> {
         // Convert updates to query parameters
         const params = new URLSearchParams();
         for (const [key, value] of Object.entries(updates)) {
@@ -84,7 +84,7 @@ export class FarmProductService {
             }
         }
 
-        return this.http.put<FarmProduct>(`${this.apiUrl}/${productId}?${params.toString()}`, {});
+        return this.http.put<MerchantProduct>(`${this.apiUrl}/${productId}?${params.toString()}`, {});
     }
 
     /**
@@ -97,14 +97,14 @@ export class FarmProductService {
     /**
      * Get popular products (sorted by quantity available)
      */
-    getPopularProducts(limit: number = 5): Observable<FarmProduct[]> {
-        return this.http.get<FarmProduct[]>(`${this.apiUrl}?sort=quantityAvailable,desc&limit=${limit}`);
+    getPopularProducts(limit: number = 5): Observable<MerchantProduct[]> {
+        return this.http.get<MerchantProduct[]>(`${this.apiUrl}?sort=quantityAvailable,desc&limit=${limit}`);
     }
 
     /**
      * Get products with highest savings (calculated as price * quantity)
      */
-    getTopSavingsProducts(limit: number = 5): Observable<FarmProduct[]> {
-        return this.http.get<FarmProduct[]>(`${this.apiUrl}?sort=price,desc&limit=${limit}`);
+    getTopSavingsProducts(limit: number = 5): Observable<MerchantProduct[]> {
+        return this.http.get<MerchantProduct[]>(`${this.apiUrl}?sort=price,desc&limit=${limit}`);
     }
 }

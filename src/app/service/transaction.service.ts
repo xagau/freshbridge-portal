@@ -5,8 +5,8 @@ import { environment } from '../../environments/environment';
 
 export interface Order {
     id: number;
-    restaurant: number;
-    farmer: number;
+    buyer: number;
+    merchant: number;
     orderDate: string;
     status: string;
     items: number[];

@@ -5,32 +5,32 @@
         <div>
             <div class="text-surface-900 dark:text-surface-0 font-medium text-4xl mb-2">
                 <!-- Dynamic title based on user role -->
-                <span *ngIf="isAdmin()">All Farm Products</span>
-                <span *ngIf="isFarmer()">Your Farm Products</span>
-                <span *ngIf="isRestaurant()">Available Products</span>
+                <span *ngIf="isAdmin()">All Products</span>
+                <span *ngIf="isMerchant()">Your Products</span>
+                <span *ngIf="isBuyer()">Available Products</span>
             </div>
             <p class="mt-0 p-0 mb-4 text-surface-700 dark:text-surface-100 text-2xl">
                 <!-- Dynamic subtitle based on user role -->
-                <span *ngIf="isAdmin()">Manage all products across farms</span>
-                <span *ngIf="isFarmer()">Manage your farm's product catalog (Farmer ID: {{ currentUserId() }})</span>
-                <span *ngIf="isRestaurant()">Browse products from local farms</span>
+                <span *ngIf="isAdmin()">Manage all products across merchants</span>
+                <span *ngIf="isMerchant()">Manage your product catalog (Merchant ID: {{ currentUserId() }})</span>
+                <span *ngIf="isBuyer()">Browse products from local merchants</span>
             </p>
         </div>
         <div class="flex gap-2">
-            <!-- Only show farm filter toggle for admin users -->
-            <p-button *ngIf="isAdmin()" (onClick)="toggleFarmFilter()" [label]="showFarmFilter() ? 'Hide Farm Filter' : 'Filter by Farm'" severity="secondary" />
+            <!-- Only show merchant filter toggle for admin users -->
+            <p-button *ngIf="isAdmin()" (onClick)="toggleMerchantFilter()" [label]="showMerchantFilter() ? 'Hide Merchant Filter' : 'Filter by Merchant'" severity="secondary" />
 
-            <!-- Only show create button for farmers and admins -->
-            <p-button *ngIf="isFarmer() || isAdmin()" (onClick)="createNewProject()" label="Create New Product" severity="info" />
+            <!-- Only show create button for merchants and admins -->
+            <p-button *ngIf="isMerchant() || isAdmin()" (onClick)="createNewProject()" label="Create New Product" severity="info" />
         </div>
     </div>
 
-    <!-- Farm Filter Section - Only visible for admin users when toggled -->
-    <div *ngIf="showFarmFilter() && isAdmin()" class="mb-6 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg">
-        <h3 class="text-xl font-medium mb-4">Filter by Farm</h3>
+    <!-- Merchant Filter Section - Only visible for admin users when toggled -->
+    <div *ngIf="showMerchantFilter() && isAdmin()" class="mb-6 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg">
+        <h3 class="text-xl font-medium mb-4">Filter by Merchant</h3>
         <div class="flex flex-wrap gap-2">
-            <p-button *ngFor="let farm of farms()" [label]="farm.firstName + ' ' + farm.lastName" [severity]="selectedFarmId() === farm.id ? 'primary' : 'info'" (onClick)="filterByFarm(farm.id)"></p-button>
-            <p-button label="All Farms" severity="info" (onClick)="clearFarmFilter()"></p-button>
+            <p-button *ngFor="let merchant of merchants()" [label]="merchant.firstName + ' ' + merchant.lastName" [severity]="selectedMerchantId() === merchant.id ? 'primary' : 'info'" (onClick)="filterByMerchant(merchant.id)"></p-button>
+            <p-button label="All Merchants" severity="info" (onClick)="clearMerchantFilter()"></p-button>
         </div>
     </div>
 
@@ -42,17 +42,17 @@
         <div class="col-span-12 md:col-span-6 lg:col-span-4" *ngFor="let product of filteredProducts()">
             <div class="p-2" (click)="goToProduct(product)" style="cursor: pointer">
                 <div class="shadow p-6 bg-surface-0 dark:bg-surface-900 rounded hover:bg-surface-300 hover:scale-[1.1] duration-300">
-                    <!-- Farm Banner -->
-                    <div *ngIf="product.farmer" class="flex items-center mb-3">
-                        <img [src]="environment.apiUrl + 'farms/' + product.farmer.logoUrl" (error)="setDefaultFarmImage($event)" class="w-8 h-8 rounded-full mr-2 object-cover" />
-                        <span class="text-sm text-surface-600 dark:text-surface-300">{{ product.farmer.name }}</span>
+                    <!-- Merchant Banner -->
+                    <div *ngIf="product.merchant" class="flex items-center mb-3">
+                        <img [src]="environment.apiUrl + 'merchants/' + product.merchant.logoUrl" (error)="setDefaultMerchantImage($event)" class="w-8 h-8 rounded-full mr-2 object-cover" />
+                        <span class="text-sm text-surface-600 dark:text-surface-300">{{ product.merchant.name }}</span>
                     </div>
 
                     <div class="relative mb-4">
                         <span class="bg-surface-0 dark:bg-surface-900 text-surface-900 dark:text-surface-0 shadow px-4 py-2 absolute rounded-3xl" style="left: 1rem; top: 1rem">
                             {{ product.unit }}
                         </span>
-                        <img [src]="environment.apiUrl + 'farm-products/' + product.imageUrls[0]" (error)="setDefaultImage($event)" class="w-full" style="height: 270px; object-fit: cover" />
+                        <img [src]="environment.apiUrl + 'merchant-products/' + product.imageUrls[0]" (error)="setDefaultImage($event)" class="w-full" style="height: 270px; object-fit: cover" />
                     </div>
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ product.name }}</span>
@@ -67,8 +67,8 @@
                         <span class="text-sm text-surface-500">Available: {{ product.quantityAvailable }}</span>
                     </div>
                     <!-- <div class="mt-2">
-                        <p-button label="View Farm Products" icon="pi pi-home" severity="secondary" size="small"
-                            (onClick)="viewFarmProducts($event, product.farmerId)"></p-button>
+                        <p-button label="View Merchant Products" icon="pi pi-home" severity="secondary" size="small"
+                            (onClick)="viewMerchantProducts($event, product.merchantId)"></p-button>
                     </div> -->
                 </div>
             </div>

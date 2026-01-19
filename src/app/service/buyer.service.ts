@@ -1,10 +1,10 @@
-// restaurant.service.ts
+// buyer.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment'; // Adjust the path as necessary
 
-export interface Restaurant {
+export interface Buyer {
   id: number;
   name: string;
   address: string;
@@ -19,8 +19,8 @@ export interface Restaurant {
 @Injectable({
   providedIn: 'root'
 })
-export class RestaurantService {
-  private apiUrl = environment.apiUrl + "restaurants";
+export class BuyerService {
+  private apiUrl = environment.apiUrl + "buyers";
   private authCredentials = {
     username: 'admin',
     password: '6f4acf41-b6ad-483f-bc35-abe48b9fd58a'
@@ -36,19 +36,19 @@ export class RestaurantService {
     });
   }
 
-  getRestaurants(): Observable<Restaurant[]> {
-    return this.http.get<Restaurant[]>(this.apiUrl, { headers: this.getAuthHeaders() });
+  getBuyers(): Observable<Buyer[]> {
+    return this.http.get<Buyer[]>(this.apiUrl, { headers: this.getAuthHeaders() });
   }
 
-  createRestaurant(restaurant: Restaurant): Observable<Restaurant> {
-    return this.http.post<Restaurant>(this.apiUrl, restaurant, { headers: this.getAuthHeaders() });
+  createBuyer(buyer: Buyer): Observable<Buyer> {
+    return this.http.post<Buyer>(this.apiUrl, buyer, { headers: this.getAuthHeaders() });
   }
 
-  updateRestaurant(id: number, restaurant: Restaurant): Observable<Restaurant> {
-    return this.http.post<Restaurant>(`${this.apiUrl}/${id}`, restaurant, { headers: this.getAuthHeaders() });
+  updateBuyer(id: number, buyer: Buyer): Observable<Buyer> {
+    return this.http.post<Buyer>(`${this.apiUrl}/${id}`, buyer, { headers: this.getAuthHeaders() });
   }
 
-  deleteRestaurant(id: number): Observable<void> {
+  deleteBuyer(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
 }

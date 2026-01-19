@@ -123,7 +123,7 @@ export class SectionThreeWidget {
 
     details = [
         {
-            subtitle: 'For Farmers',
+            subtitle: 'For Merchants',
             icon: '/images/landing/icons/icon-1.svg',
             features: [
                 'Instant access to local demand across Ontario.',
@@ -137,7 +137,7 @@ export class SectionThreeWidget {
             subtitle: 'For Buyers',
             icon: '/images/landing/icons/icon-2.svg',
             features: [
-                'Fresh, local produce from verified Canadian farms.',
+                'Fresh, local produce from verified Canadian merchants.',
                 'Transparent pricing, real-time availability.',
                 'One-click ordering and repeat deliveries.',
                 'Consolidated invoicing and seamless delivery.',

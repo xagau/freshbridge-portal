@@ -17,7 +17,7 @@ interface DailyData {
     spending: number;
 }
 
-interface RestaurantData {
+interface BuyerData {
     id: number;
     name: string;
     revenue: number;
@@ -32,11 +32,11 @@ interface ChartDataPoint {
 }
 
 @Component({
-    selector: 'order-by-restaurant-widget',
+    selector: 'order-by-buyer-widget',
     standalone: true,
     imports: [CommonModule, TagModule, DividerModule, ButtonModule, MeterChart],
     template: ` <div class="flex items-center justify-between">
-            <span class="label-medium text-surface-950 dark:text-surface-0">{{ currentUser.role === 'FARMER' ? 'Daily Revenue from Sales' : currentUser.role === 'RESTAURANT' ? 'Daily Revenue and Expenses' : 'Daily Revenue and Sales' }}</span>
+            <span class="label-medium text-surface-950 dark:text-surface-0">{{ currentUser.role === 'MERCHANT' ? 'Daily Revenue from Sales' : currentUser.role === 'BUYER' ? 'Daily Revenue and Expenses' : 'Daily Revenue and Sales' }}</span>
             <button pButton severity="secondary" outlined class="!text-surface-950 dark:!text-surface-0 !px-2 !py-1.5 !rounded-lg !label-xsmall"><span pButtonLabel>See All</span><i class="pi pi-chevron-right !text-xs"></i></button>
         </div>
         <div class="flex items-center gap-3.5 mt-4">
@@ -52,8 +52,8 @@ interface ChartDataPoint {
         <div class="mt-6 flex flex-col">
             <div class="flex items-center gap-3.5 mb-2">
                 <span class="flex-1 body-small text-left text-surface-950 dark:text-surface-0 font-semibold">Daily Summary</span>
-                <span class="label-small text-surface-950 dark:text-surface-0 font-semibold">{{ currentUser.role === 'FARMER' ? 'Sales' : 'Revenue' }}</span>
-                <span class="label-small text-surface-500 font-semibold">{{ currentUser.role === 'FARMER' ? 'Spending' : 'Expenses' }}</span>
+                <span class="label-small text-surface-950 dark:text-surface-0 font-semibold">{{ currentUser.role === 'MERCHANT' ? 'Sales' : 'Revenue' }}</span>
+                <span class="label-small text-surface-500 font-semibold">{{ currentUser.role === 'MERCHANT' ? 'Spending' : 'Expenses' }}</span>
             </div>
             @for (day of dailyData; track trackByFn(); let idx = $index) {
                 <div *ngIf="day.revenue" class="flex items-center gap-3.5">
@@ -68,11 +68,11 @@ interface ChartDataPoint {
         class: 'card !mb-0 flex-1 min-w-80 !p-6 border border-surface rounded-2xl'
     }
 })
-export class OrderByRestaurantWidget implements OnInit {
+export class OrderByBuyerWidget implements OnInit {
     protected readonly trackByFn = trackByFn;
     currentUser: any = {
         userId: 0,
-        role: "FARMER"
+        role: "MERCHANT"
     };
 
     layoutService = inject(LayoutService);
@@ -84,7 +84,7 @@ export class OrderByRestaurantWidget implements OnInit {
     _computedData = signal<number[]>([]);
 
     dailyData: DailyData[] = [];
-    restaurantData: RestaurantData[] = [];
+    buyerData: BuyerData[] = [];
     totalRevenue: number = 0;
     totalSpending: number = 0;
     growthPercentage: number = 0;

@@ -19,16 +19,16 @@ export class OrdersService {
     // Get orders by role with filters
     listByRole(params: {
         userId?: number | null,
-        restaurantId?: number | null,
-        farmerId?: number | null,
+        buyerId?: number | null,
+        merchantId?: number | null,
         isCourier?: boolean | null,
         status?: string | null
     }): Observable<Order[]> {
         // Remove null or undefined params
         const httpParams: any = {};
         if (params.userId != null) httpParams.userId = params.userId.toString();
-        if (params.restaurantId != null) httpParams.restaurantId = params.restaurantId.toString();
-        if (params.farmerId != null) httpParams.farmerId = params.farmerId.toString();
+        if (params.buyerId != null) httpParams.buyerId = params.buyerId.toString();
+        if (params.merchantId != null) httpParams.merchantId = params.merchantId.toString();
         if (params.status != null) httpParams.status = params.status;
 
         return this.http.get<Order[]>(this.API + (params.isCourier ? "/all" : ""), {
@@ -79,17 +79,17 @@ export class OrdersService {
         });
     }
 
-    // Get order summary for a restaurant
-    getRestaurantOrderSummary(restaurantId: number): Observable<any> {
+    // Get order summary for a buyer
+    getBuyerOrderSummary(buyerId: number): Observable<any> {
         return this.http.get<any>(
-            `${environment.apiUrl}restaurants/${restaurantId}/orders/summary`
+            `${environment.apiUrl}buyers/${buyerId}/orders/summary`
         );
     }
 
     // Get orders by date range
-    getOrdersByDateRange(restaurantId: number, startDate: Date, endDate: Date): Observable<Order[]> {
+    getOrdersByDateRange(buyerId: number, startDate: Date, endDate: Date): Observable<Order[]> {
         return this.http.get<Order[]>(
-            `${environment.apiUrl}restaurants/${restaurantId}/orders/date-range`,
+            `${environment.apiUrl}buyers/${buyerId}/orders/date-range`,
             {
                 params: {
                     startDate: startDate.toISOString(),

@@ -1,5 +1,5 @@
 // interfaces/user.interface.ts
-export type UserRole = 'ADMIN' | 'USER' | 'FARMER' | 'RESTAURANT' | 'COURIER';
+export type UserRole = 'ADMIN' | 'USER' | 'MERCHANT' | 'BUYER' | 'COURIER';
 
 export interface UserPreferences {
     theme: string;
@@ -17,14 +17,14 @@ export interface User {
 
 export interface Account {
     id: number;
-    farmer?: {
+    merchant?: {
         id: number;
         firstName: string;
         lastName: string;
         email: string;
         phoneNumber: string;
-        farmEstablishedDate: string;
-        farmType: string;
+        merchantEstablishedDate: string;
+        merchantType: string;
         passwordHash: string;
         ssoProvider: string | null;
         ssoId: string | null;
@@ -41,7 +41,7 @@ export interface Account {
         certificationDate: string;
         products: number[];
     };
-    restaurant?: any;
+    buyer?: any;
     balance: number;
     availableBalance: number;
     accountNumber: string;

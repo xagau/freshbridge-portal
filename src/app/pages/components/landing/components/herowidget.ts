@@ -19,7 +19,7 @@ import { RouterLink } from '@angular/router';
                         Canada’s Local Food Marketplace <br />
                         <span class="text-primary-600">with Innovative Ideas</span>
                     </h1>
-                    <p class="body-small lg:body-medium mt-4 lg:mt-6 max-w-lg">FreshBridge connects Canadian farms with restaurants, grocers, and institutions — streamlining trade, logistics, and payment in a trusted online ecosystem.</p>
+                    <p class="body-small lg:body-medium mt-4 lg:mt-6 max-w-lg">FreshBridge connects Canadian merchants with buyers, grocers, and institutions — streamlining trade, logistics, and payment in a trusted online ecosystem.</p>
                     <a routerLink="/auth/register" class="body-button mt-6 lg:mt-8">Join Now</a>
                 </div>
                 <div class="mb-20 lg:mb-28">

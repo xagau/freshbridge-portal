@@ -13,8 +13,8 @@ interface LoginResponse {
     token: string;
     authUser: {
         user: User;
-        farmerId?: number;
-        restaurantId?: number;
+        merchantId?: number;
+        buyerId?: number;
     };
     error: string;
 }
@@ -71,13 +71,13 @@ export class AuthService {
                     
                 } 
                 console.log("response.authUser.user:", response.authUser.user);
-                console.log("response.authUser.farmerId:", response.authUser.farmerId);
-                console.log("response.authUser.restaurantId:", response.authUser.restaurantId);
+                console.log("response.authUser.merchantId:", response.authUser.merchantId);
+                console.log("response.authUser.buyerId:", response.authUser.buyerId);
                 this.storeAuthData(
                     response.token,
                     response.authUser.user,
-                    response.authUser.farmerId,
-                    response.authUser.restaurantId
+                    response.authUser.merchantId,
+                    response.authUser.buyerId
                 );
 
                 this.currentUserSubject.next(response.authUser.user);
@@ -96,17 +96,17 @@ export class AuthService {
     public storeAuthData(
         token: string,
         user: User,
-        farmerId?: number,
-        restaurantId?: number
+        merchantId?: number,
+        buyerId?: number
     ): void {
         localStorage.setItem(this.AUTH_TOKEN_KEY, token);
         localStorage.setItem(this.USER_DATA_KEY, JSON.stringify(user));
-        if (farmerId) {
-            localStorage.setItem(this.PROFILE_ID_KEY, farmerId.toString());
-            localStorage.setItem(this.PROFILE_TYPE_KEY, 'farmer');
-        } else if (restaurantId) {
-            localStorage.setItem(this.PROFILE_ID_KEY, restaurantId.toString());
-            localStorage.setItem(this.PROFILE_TYPE_KEY, 'restaurant');
+        if (merchantId) {
+            localStorage.setItem(this.PROFILE_ID_KEY, merchantId.toString());
+            localStorage.setItem(this.PROFILE_TYPE_KEY, 'merchant');
+        } else if (buyerId) {
+            localStorage.setItem(this.PROFILE_ID_KEY, buyerId.toString());
+            localStorage.setItem(this.PROFILE_TYPE_KEY, 'buyer');
         }
     }
 
@@ -179,13 +179,13 @@ export class AuthService {
         return userData ? JSON.parse(userData).id : null;
     }
 
-    public getProfileFarmerId(): number | null {
+    public getProfileMerchantId(): number | null {
         return localStorage.getItem(this.PROFILE_ID_KEY) ? parseInt(localStorage.getItem(this.PROFILE_ID_KEY) || '0') : null;
     }
-    public getProfileRestaurantId(): number | null {
+    public getProfileBuyerId(): number | null {
         return localStorage.getItem(this.PROFILE_ID_KEY) ? parseInt(localStorage.getItem(this.PROFILE_ID_KEY) || '0') : null;
     }
-    public getProfileType(): 'farmer' | 'restaurant' | null {
+    public getProfileType(): 'merchant' | 'buyer' | null {
         return localStorage.getItem(this.PROFILE_TYPE_KEY) as any;
     }
 
@@ -212,8 +212,8 @@ export class AuthService {
                 this.storeAuthData(
                     response.token,
                     response.authUser.user,
-                    response.authUser.farmerId,
-                    response.authUser.restaurantId
+                    response.authUser.merchantId,
+                    response.authUser.buyerId
                 );
                 this.currentUserSubject.next(response.authUser.user);
 
@@ -226,7 +226,7 @@ export class AuthService {
                     });
                 } else if (response.authUser.user.role === 'COURIER') {
                     this.router.navigate(['/order-management']);
-                } else if (response.authUser.user.role === 'FARMER' || response.authUser.user.role === 'RESTAURANT') {
+                } else if (response.authUser.user.role === 'MERCHANT' || response.authUser.user.role === 'BUYER') {
                     this.router.navigate(['/dashboard']);
                 } else {
                     this.router.navigate(['/dashboard']);
@@ -250,8 +250,8 @@ export class AuthService {
                         this.storeAuthData(
                             response.token,
                             response.authUser.user,
-                            response.authUser.farmerId,
-                            response.authUser.restaurantId
+                            response.authUser.merchantId,
+                            response.authUser.buyerId
                         );
                         this.currentUserSubject.next(response.authUser.user);
 
@@ -262,10 +262,10 @@ export class AuthService {
                                     type: response.authUser.user.role
                                 }
                             });
-                        } else if (response.authUser.farmerId) {
-                            this.router.navigate(['/farmer/dashboard']);
-                        } else if (response.authUser.restaurantId) {
-                            this.router.navigate(['/restaurant/dashboard']);
+                        } else if (response.authUser.merchantId) {
+                            this.router.navigate(['/merchant/dashboard']);
+                        } else if (response.authUser.buyerId) {
+                            this.router.navigate(['/buyer/dashboard']);
                         } else {
                             this.router.navigate(['/dashboard']);
                         }

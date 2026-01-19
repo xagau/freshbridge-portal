@@ -22,15 +22,15 @@
                             placeholder="Phone Number" />
 
                         <!-- Dynamic Fields Based on User Type -->
-                        <ng-container *ngIf="profileForm.get('userType')?.value === 'FARMER'">
-                            <input type="date" pInputText formControlName="farmEstablishedDate" class="w-full mt-4"
-                                placeholder="Farm Established Date" />
-                            <p-dropdown formControlName="farmType" [options]="[
+                        <ng-container *ngIf="profileForm.get('userType')?.value === 'MERCHANT'">
+                            <input type="date" pInputText formControlName="merchantEstablishedDate" class="w-full mt-4"
+                                placeholder="Merchant Established Date" />
+                            <p-dropdown formControlName="merchantType" [options]="[
                                     {label: 'Organic', value: 'ORGANIC'},
                                     {label: 'Conventional', value: 'CONVENTIONAL'},
                                     {label: 'Hydroponic', value: 'HYDROPONIC'},
                                     {label: 'Aquaponic', value: 'AQUAPONIC'}
-                                ]" optionLabel="label" optionValue="value" placeholder="Farm Type" class="w-full mt-4">
+                                ]" optionLabel="label" optionValue="value" placeholder="Merchant Type" class="w-full mt-4">
                             </p-dropdown>
                             <div class="flex items-center gap-2 mt-4">
                                 <p-checkbox binary="true" inputId="organicCertification"
@@ -39,9 +39,9 @@
                             </div>
                         </ng-container>
 
-                        <ng-container *ngIf="profileForm.get('userType')?.value === 'RESTAURANT'">
-                            <input type="text" pInputText formControlName="restaurantName" class="w-full mt-4"
-                                placeholder="Restaurant Name" />
+                        <ng-container *ngIf="profileForm.get('userType')?.value === 'BUYER'">
+                            <input type="text" pInputText formControlName="buyerName" class="w-full mt-4"
+                                placeholder="Buyer Name" />
                             <input type="text" pInputText formControlName="website" class="w-full mt-4"
                                 placeholder="Website" />
                         </ng-container>

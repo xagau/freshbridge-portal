@@ -49,7 +49,7 @@ export class OrderListComponent implements OnInit {
   currentOrder?: Order;
   currentUser: any = {
     userId: 0,
-    role: "FARMER"
+    role: "MERCHANT"
   };
   showShipmentDialog = false;
   constructor(
@@ -125,7 +125,7 @@ export class OrderListComponent implements OnInit {
         this.currentUser.userId = this.authService.getProfileId();
         this.currentUser.role = user?.role;
       }
-      if (user?.role === 'RESTAURANT' || user?.role === "FARMER") {
+      if (user?.role === 'BUYER' || user?.role === "MERCHANT") {
         params = {
           userId: this.currentUser.userId,
           status: this.selectedStatus !== 'ALL' ? this.selectedStatus : null

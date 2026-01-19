@@ -1,0 +1,145 @@
+<div class="card">
+    <p-toolbar styleClass="mb-12">
+        <ng-template #start>
+            <p-button label="New Merchant" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
+            <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="confirmDeleteSelected()"
+                [disabled]="!selectedMerchants || !selectedMerchants.length" />
+        </ng-template>
+
+        <ng-template #end>
+            <p-button label="Export" icon="pi pi-upload" severity="secondary" />
+        </ng-template>
+    </p-toolbar>
+
+    <p-table #dt [value]="merchants()" [rows]="10" [columns]="cols" [paginator]="true" [globalFilterFields]="['firstName', 'lastName', 'email', 'phoneNumber']"
+        [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="selectedMerchants" [rowHover]="true" dataKey="id"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} merchants" [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 20, 30]" [loading]="loading()">
+        <ng-template #caption>
+            <div class="flex items-center justify-between">
+                <h5 class="m-0">Manage Merchants</h5>
+                <p-iconfield>
+                    <p-inputicon styleClass="pi pi-search" />
+                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+                </p-iconfield>
+            </div>
+        </ng-template>
+        <ng-template #header>
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox />
+                </th>
+                <th style="min-width: 12rem" pSortableColumn="id">
+                    <span class="flex items-center gap-2">ID <p-sortIcon field="id" /></span>
+                </th>
+                <th style="min-width: 12rem" pSortableColumn="firstName">
+                    <span class="flex items-center gap-2">First Name <p-sortIcon field="firstName" /></span>
+                </th>
+                <th style="min-width: 12rem" pSortableColumn="lastName">
+                    <span class="flex items-center gap-2">Last Name <p-sortIcon field="lastName" /></span>
+                </th>
+                <th style="min-width: 12rem" pSortableColumn="email">
+                    <span class="flex items-center gap-2">Email <p-sortIcon field="email" /></span>
+                </th>
+                <th style="min-width: 10rem" pSortableColumn="phoneNumber">
+                    <span class="flex items-center gap-2">Phone <p-sortIcon field="phoneNumber" /></span>
+                </th>
+                <th style="min-width: 10rem" pSortableColumn="merchantType">
+                    <span class="flex items-center gap-2">Merchant Type <p-sortIcon field="merchantType" /></span>
+                </th>
+                <th style="min-width: 10rem" pSortableColumn="active">
+                    <span class="flex items-center gap-2">Active <p-sortIcon field="active" /></span>
+                </th>
+                <th style="min-width: 12rem"></th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-merchant>
+            <tr>
+                <td style="width: 3rem">
+                    <p-tableCheckbox [value]="merchant" />
+                </td>
+                <td style="min-width: 12rem">
+                    {{ merchant.id }}
+                </td>
+                <td style="min-width: 12rem">
+                    {{ merchant.firstName }}
+                </td>
+                <td style="min-width: 12rem">
+                    {{ merchant.lastName }}
+                </td>
+                <td style="min-width: 12rem">
+                    {{ merchant.email }}
+                </td>
+                <td style="min-width: 10rem">
+                    {{ merchant.phoneNumber }}
+                </td>
+                <td style="min-width: 10rem">
+                    {{ merchant.merchantType }}
+                </td>
+                <td style="min-width: 10rem">
+                    <p-tag [value]="merchant.active ? 'Active' : 'Inactive'" [severity]="getStatusSeverity(merchant.active)" />
+                </td>
+                <td style="min-width: 12rem gap-2">
+                    <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true" (click)="editMerchant(merchant)" />
+                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+                        (click)="deleteMerchant(merchant)" />
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="merchantDialog" [style]="{ width: '600px' }" header="Merchant Details" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-6">
+            <div>
+                <label for="firstName" class="block font-bold mb-4">First Name</label>
+                <input type="text" pInputText id="firstName" [(ngModel)]="merchant.firstName" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !merchant.firstName">First Name is required.</small>
+            </div>
+            <div>
+                <label for="lastName" class="block font-bold mb-4">Last Name</label>
+                <input type="text" pInputText id="lastName" [(ngModel)]="merchant.lastName" required fluid />
+                <small class="text-red-500" *ngIf="submitted && !merchant.lastName">Last Name is required.</small>
+            </div>
+            <div>
+                <label for="email" class="block font-bold mb-4">Email</label>
+                <input type="email" pInputText id="email" [(ngModel)]="merchant.email" required fluid />
+            </div>
+            <div>
+                <label for="phoneNumber" class="block font-bold mb-4">Phone Number</label>
+                <input type="text" pInputText id="phoneNumber" [(ngModel)]="merchant.phoneNumber" fluid />
+            </div>
+            <div>
+                <label for="merchantType" class="block font-bold mb-4">Merchant Type</label>
+                <p-dropdown id="merchantType" [(ngModel)]="merchant.merchantType" [options]="merchantTypes" optionLabel="label"
+                    optionValue="value" placeholder="Select Merchant Type" fluid />
+            </div>
+            <div>
+                <label for="merchantEstablishedDate" class="block font-bold mb-4">Established Date</label>
+                <p-calendar id="merchantEstablishedDate" [(ngModel)]="merchant.merchantEstablishedDate" dateFormat="yy-mm-dd" fluid />
+            </div>
+            <div>
+                <label for="communicationPreference" class="block font-bold mb-4">Communication Preference</label>
+                <p-dropdown id="communicationPreference" [(ngModel)]="merchant.communicationPreference" [options]="communicationPreferences"
+                    optionLabel="label" optionValue="value" placeholder="Select Preference" fluid />
+            </div>
+            <div class="flex items-center gap-2">
+                <p-checkbox binary="true" inputId="organicCertification" [(ngModel)]="merchant.organicCertification"></p-checkbox>
+                <label for="organicCertification" class="body-small">Organic Certification</label>
+            </div>
+            <div class="flex items-center gap-2">
+                <p-checkbox binary="true" inputId="active" [(ngModel)]="merchant.active"></p-checkbox>
+                <label for="active" class="body-small">Active</label>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
+        <p-button label="Save" icon="pi pi-check" (click)="saveMerchant()" />
+    </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }" />
+<p-toast />

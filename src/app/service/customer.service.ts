@@ -360,7 +360,7 @@ export class CustomerService {
                     name: 'Israel',
                     code: 'il'
                 },
-                company: 'Farmers Insurance Group',
+                company: 'Insurance Group',
                 date: '2017-12-21',
                 status: 'negotiation',
                 verified: true,
@@ -5346,7 +5346,7 @@ export class CustomerService {
                     name: 'Romania',
                     code: 'ro'
                 },
-                company: 'Plantation Restaurant',
+                company: 'Plantation Buyer',
                 date: '2020-09-14',
                 status: 'renewal',
                 verified: true,
@@ -5670,7 +5670,7 @@ export class CustomerService {
                     name: 'Austria',
                     code: 'at'
                 },
-                company: 'H A C Farm Lines Co Optv Assoc',
+                company: 'H A C Lines Co Optv Assoc',
                 date: '2017-02-17',
                 status: 'negotiation',
                 verified: true,

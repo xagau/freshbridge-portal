@@ -77,8 +77,8 @@ export class ProductOverview implements OnInit {
     };
     product: Product = {
         id: 0,
-        farmerId: 0,
-        farmer: { id: 0, firstName: '', lastName: '', email: '', phoneNumber: '' },
+        merchantId: 0,
+        merchant: { id: 0, firstName: '', lastName: '', email: '', phoneNumber: '' },
         name: "",
         description: "",
         price: 0,
@@ -116,13 +116,13 @@ export class ProductOverview implements OnInit {
             });
         });
 
-        // Fetch real orders for the restaurant (or user)
+        // Fetch real orders for the buyer (or user)
 
-        this.farmerId = this.authService.getProfileId() || 1;
+        this.merchantId = this.authService.getProfileId() || 1;
 
-        console.log("this.farmerId", this.farmerId);
+        console.log("this.merchantId", this.merchantId);
         
-        this.orderService.listByRole({ userId: this.farmerId }).subscribe({
+        this.orderService.listByRole({ userId: this.merchantId }).subscribe({
             next: (orders: Order[]) => {
                 // Map orders to dropdown format with summary
                 console.log(orders);
@@ -174,8 +174,8 @@ export class ProductOverview implements OnInit {
         this.showOrderDialog = false;
         this.router.navigate(['/schedule-order']);
     }
-    restaurantId = 1;
-    farmerId = 1;
+    buyerId = 1;
+    merchantId = 1;
     
     isProductOwner(): boolean {
         const currentUser = this.authService.currentUserValue;
@@ -184,10 +184,10 @@ export class ProductOverview implements OnInit {
         // Admin can edit/delete any product
         if (currentUser.role === 'ADMIN') return true;
         
-        // Farmer can only edit/delete their own products
-        if (currentUser.role === 'FARMER') {
-            const currentFarmerId = this.authService.getProfileFarmerId();
-            return currentFarmerId !== null && this.product.farmerId === currentFarmerId;
+        // Merchant can only edit/delete their own products
+        if (currentUser.role === 'MERCHANT') {
+            const currentMerchantId = this.authService.getProfileMerchantId();
+            return currentMerchantId !== null && this.product.merchantId === currentMerchantId;
         }
         
         return false;

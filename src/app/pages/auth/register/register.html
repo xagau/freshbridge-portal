@@ -44,12 +44,12 @@
                             optionValue="value" placeholder="Select User Type" class="w-full mt-4">
                         </p-dropdown>
 
-                        <!-- Farmer specific fields -->
-                        <div *ngIf="registerForm.get('userType')?.value === 'FARMER'">
-                            <input type="date" pInputText formControlName="farmEstablishedDate" class="w-full mt-4"
-                                placeholder="Farm Established Date" />
-                            <p-dropdown formControlName="farmType" [options]="farmTypes" optionLabel="label"
-                                optionValue="value" placeholder="Farm Type" class="w-full mt-4">
+                        <!-- Merchant specific fields -->
+                        <div *ngIf="registerForm.get('userType')?.value === 'MERCHANT'">
+                            <input type="date" pInputText formControlName="merchantEstablishedDate" class="w-full mt-4"
+                                placeholder="Merchant Established Date" />
+                            <p-dropdown formControlName="merchantType" [options]="merchantTypes" optionLabel="label"
+                                optionValue="value" placeholder="Merchant Type" class="w-full mt-4">
                             </p-dropdown>
                             <div class="flex items-center gap-2 mt-4">
                                 <p-checkbox binary="true" inputId="organicCertification" formControlName="organicCertification"></p-checkbox>
@@ -59,10 +59,10 @@
                             </div>
                         </div>
 
-                        <!-- Restaurant specific fields -->
-                        <div *ngIf="registerForm.get('userType')?.value === 'RESTAURANT'">
-                            <input type="text" pInputText formControlName="restaurantName" class="w-full mt-4"
-                                placeholder="Restaurant Name" />
+                        <!-- Buyer specific fields -->
+                        <div *ngIf="registerForm.get('userType')?.value === 'BUYER'">
+                            <input type="text" pInputText formControlName="buyerName" class="w-full mt-4"
+                                placeholder="Buyer Name" />
                             <input type="text" pInputText formControlName="website" class="w-full mt-4"
                                 placeholder="Website" />
                         </div>

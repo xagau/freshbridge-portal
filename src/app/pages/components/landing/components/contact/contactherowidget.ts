@@ -88,11 +88,11 @@ export class ContactHeroWidget {
     email = '';
     phone = '';
     message = '';
-    selectedSubject = 'Farmer';
+    selectedSubject = 'Merchant';
 
     subjects = [
-        { name: 'Farmer', key: 'farmers' },
-        { name: 'Buyer', key: 'buyer' }
+        { name: 'Merchant', key: 'merchants' },
+        { name: 'Buyer', key: 'buyers' }
     ];
 
     socials = [

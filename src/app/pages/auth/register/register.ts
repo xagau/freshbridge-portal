@@ -49,12 +49,12 @@ export class Register {
 
 
     userTypes = [
-        { label: 'Farmer', value: 'FARMER' },
-        { label: 'Restaurant', value: 'RESTAURANT' },
+        { label: 'Merchant', value: 'MERCHANT' },
+        { label: 'Buyer', value: 'BUYER' },
         // { label: 'Courier', value: 'COURIER' }
     ];
 
-    farmTypes = [
+    merchantTypes = [
         { label: 'Organic', value: 'ORGANIC' },
         { label: 'Conventional', value: 'CONVENTIONAL' },
         { label: 'Hydroponic', value: 'HYDROPONIC' },
@@ -82,13 +82,13 @@ export class Register {
             userType: ['', Validators.required],
             terms: [false, Validators.requiredTrue],
 
-            // Farmer specific
-            farmEstablishedDate: [''],
-            farmType: [''],
+            // Merchant specific
+            merchantEstablishedDate: [''],
+            merchantType: [''],
             organicCertification: [false],
 
-            // Restaurant specific
-            restaurantName: [''],
+            // Buyer specific
+            buyerName: [''],
             website: [''],
 
             // Courier specific

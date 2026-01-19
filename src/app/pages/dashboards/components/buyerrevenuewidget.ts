@@ -12,11 +12,11 @@ import { AuthService } from '@/auth/auth.service';
 import { DashboardDataService } from '@/service/dashboard-data.service';
 
 @Component({
-    selector: 'restaurant-revenue-widget',
+    selector: 'buyer-revenue-widget',
     standalone: true,
     imports: [CommonModule, ChartModule, TagModule, DividerModule, ButtonModule],
     template: `<div class="flex items-center justify-between">
-            <span class="label-medium text-surface-950 dark:text-surface-0">{{ currentUser.role === 'FARMER' ? 'Total GMV' : 'Total Revenue' }}</span>
+            <span class="label-medium text-surface-950 dark:text-surface-0">{{ currentUser.role === 'MERCHANT' ? 'Total GMV' : 'Total Revenue' }}</span>
             <button pButton severity="secondary" outlined class="!text-surface-950 dark:!text-surface-0 !px-2 !py-1.5 !rounded-lg !label-xsmall"><span pButtonLabel>See All</span><i class="pi pi-chevron-right !text-xs"></i></button>
         </div>
         <div class="flex items-center gap-3.5 mt-4">
@@ -70,7 +70,7 @@ import { DashboardDataService } from '@/service/dashboard-data.service';
         }
     `
 })
-export class RestaurantRevenueWidget implements OnInit {
+export class BuyerRevenueWidget implements OnInit {
     protected readonly trackByFn = trackByFn;
 
     layoutService = inject(LayoutService);
@@ -209,7 +209,7 @@ export class RestaurantRevenueWidget implements OnInit {
                 const newGmvTrendData = {
                     labels: labels,
                     datasets: [{
-                        label: this.currentUser.role === 'RESTAURANT' ? 'Revenue' : 'Sales',
+                        label: this.currentUser.role === 'BUYER' ? 'Revenue' : 'Sales',
                         data: data,
                         borderColor: '#42A5F5',
                         fill: false

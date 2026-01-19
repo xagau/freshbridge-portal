@@ -185,8 +185,8 @@ export class SettingsUser implements OnInit {
     
     ngOnInit() {
         this.type = [
-            { name: 'Farmer', code: 'farmer' },
-            { name: 'Food Buyer', code: 'food_buyer' },
+            { name: 'Merchant', code: 'merchant' },
+            { name: 'Buyer', code: 'buyer' },
             { name: 'Guest', code: 'guest' }
         ];
         

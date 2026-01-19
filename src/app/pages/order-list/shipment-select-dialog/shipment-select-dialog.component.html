@@ -10,11 +10,11 @@
                 <div class="map-legend">
                     <div class="legend-item">
                         <div class="color-box order-route"></div>
-                        <span>Order Route (Restaurant → Customer)</span>
+                        <span>Order Route (Buyer → Customer)</span>
                     </div>
                     <div class="legend-item">
                         <div class="color-box shipment-route"></div>
-                        <span>Shipment Route (Courier → Restaurant)</span>
+                        <span>Shipment Route (Courier → Buyer)</span>
                     </div>
                 </div>
             </div>
@@ -29,7 +29,7 @@
                         <div class="shipment-item">
                             <div class="tracking-number">{{ shipment.trackingNumber }}</div>
                             <div class="shipment-status">{{ shipment.status }}</div>
-                            <div class="shipment-distance" *ngIf="shipment.distance">{{ shipment.distance }} km to restaurant</div>
+                            <div class="shipment-distance" *ngIf="shipment.distance">{{ shipment.distance }} km to buyer</div>
                         </div>
                     </ng-template>
                 </p-dropdown>

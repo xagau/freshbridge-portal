@@ -11,8 +11,8 @@ export interface Order {
         unitPrice: number;
         subtotal: number;
     }[];
-    farmerId: number;
-    restaurantId: number;
+    merchantId: number;
+    buyerId: number;
     totalAmount: number;
     deliveryAddress: string;
     expectedDeliveryDate: string;

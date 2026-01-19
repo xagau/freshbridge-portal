@@ -125,7 +125,7 @@ export class MiniStatCardWidget implements OnInit {
                 next: (data: any) => {
                     this.shipments = data.map((shipment: any) => ({
                         id: shipment.id,
-                        orderId: shipment.farmerOrder?.id,
+                        orderId: shipment.merchantOrder?.id,
                         status: shipment.status,
                         estimatedDelivery: shipment.estimatedDeliveryDate,
                         trackingNumber: shipment.trackingNumber
@@ -135,7 +135,7 @@ export class MiniStatCardWidget implements OnInit {
                 error: () => this.loading.shipments = false
             });
         } else {
-            // Farmers and Restaurants get orders from the shared service
+            // Merchants and Buyers get orders from the shared service
             this.dashboardDataService.orders$.subscribe({
                 next: (data: any) => {
                     if (data && data.length > 0) {
@@ -244,10 +244,10 @@ export class MiniStatCardWidget implements OnInit {
         { label: 'Top 10', value: 'top10' }
     ];
 
-    farmOptions = [
-        { label: 'Farms', value: 'all' },
-        { label: 'Stone Acres', value: 'stone' },
-        { label: 'Green Fields', value: 'green' }
+    merchantOptions = [
+        { label: 'Merchants', value: 'all' },
+        { label: 'Merchant 1', value: 'merchant1' },
+        { label: 'Merchant 2', value: 'merchant2' }
     ];
 
     timePeriodOptions = [
