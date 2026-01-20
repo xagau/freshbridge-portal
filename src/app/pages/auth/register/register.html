@@ -22,8 +22,8 @@
                         <span class="flex-1 h-[1px] bg-surface-200 dark:bg-surface-800"></span>
                     </div>
                     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-                        <input type="text" pInputText formControlName="username" class="w-full"
-                            placeholder="Username" />
+                        <!-- <input type="text" pInputText formControlName="username" class="w-full"
+                            placeholder="Username" /> -->
                         <input type="text" pInputText formControlName="email" class="w-full mt-4" placeholder="Email" />
                         <div class="relative mt-4">
                             <input [type]="showPassword ? 'text' : 'password'" formControlName="password" pInputText class="w-full pr-10"
@@ -82,7 +82,8 @@
                                 <p-checkbox binary="true" inputId="terms" formControlName="terms"></p-checkbox>
                                 <label for="terms" class="body-small">
                                     <span class="label-small text-surface-950 dark:text-surface-0">I have read the
-                                    </span>Terms and Conditions
+                                    </span>
+                                    <a href="/terms-and-conditions" class="text-primary-500 hover:underline">Terms and Conditions</a>
                                 </label>
                             </div>
                         </div>  
