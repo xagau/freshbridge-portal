@@ -12,9 +12,10 @@ import { Location } from '@angular/common';
     imports: [InputTextModule, LazyImageWidget, LogoWidget, ReactiveFormsModule, RouterModule],
     standalone: true,
     template: `
-        <section class="min-h-screen flex items-center lg:items-start lg:py-20 justify-center animate-fadein animate-duration-300 animate-ease-in max-w-[100rem] mx-auto">
+        <section 
+    class="min-h-screen flex items-center lg:items-start lg:py-20 justify-center animate-fadein animate-duration-300 animate-ease-in max-w-[100rem] mx-auto bg-[url('/images/landing/auth-image.png')] bg-cover bg-center bg-no-repeat lg:bg-none">
             <div class="flex w-full h-full justify-center gap-12">
-                <div class="flex flex-col py-20 lg:min-w-[30rem]">
+                <div class="flex flex-col p-20 min-w-[20rem] lg:min-w-[40rem] bg-yellow-100 bg-opacity-70 rounded-3xl dark:bg-gray-800 xl:bg-transparent">
                     <a [routerLink]="['/']" class="flex items-center justify-center lg:justify-start mb-8">
                         <logo-widget />
                     </a>
@@ -38,7 +39,8 @@ import { Location } from '@angular/common';
                 </div>
                 <div class="hidden lg:flex h-full py-20">
                     <div class="h-full w-full lg:max-w-[32.5rem] xl:max-w-[60.5rem] mx-auto flex items-center justify-center shadow-[0px_1px_2px_0px_rgba(18,18,23,0.05)] rounded-3xl border border-surface overflow-hidden">
-                        <app-lazy-image-widget class="w-auto h-full object-contain object-left" src="/images/landing/auth-image.png" alt="Auth Image" />
+                        <app-lazy-image-widget className="w-auto h-[500px] xl:h-[650px]  object-contain object-left"
+                        src="/images/landing/auth-image.png" alt="Auth Image" />
                     </div>
                 </div>
             </div>
