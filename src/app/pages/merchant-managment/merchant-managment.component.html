@@ -1,145 +1,134 @@
 <div class="card">
-    <p-toolbar styleClass="mb-12">
-        <ng-template #start>
-            <p-button label="New Merchant" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
-            <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="confirmDeleteSelected()"
-                [disabled]="!selectedMerchants || !selectedMerchants.length" />
-        </ng-template>
-
-        <ng-template #end>
-            <p-button label="Export" icon="pi pi-upload" severity="secondary" />
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <p-button label="New Farmer" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
+            <p-button severity="danger" label="Delete" icon="pi pi-trash"
+                [disabled]="!selectedMerchants || selectedMerchants.length === 0" (onClick)="confirmDeleteSelected()" />
         </ng-template>
     </p-toolbar>
 
-    <p-table #dt [value]="merchants()" [rows]="10" [columns]="cols" [paginator]="true" [globalFilterFields]="['firstName', 'lastName', 'email', 'phoneNumber']"
-        [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="selectedMerchants" [rowHover]="true" dataKey="id"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} merchants" [showCurrentPageReport]="true"
-        [rowsPerPageOptions]="[10, 20, 30]" [loading]="loading()">
-        <ng-template #caption>
-            <div class="flex items-center justify-between">
-                <h5 class="m-0">Manage Merchants</h5>
-                <p-iconfield>
-                    <p-inputicon styleClass="pi pi-search" />
-                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
-                </p-iconfield>
-            </div>
-        </ng-template>
-        <ng-template #header>
-            <tr>
-                <th style="width: 3rem">
-                    <p-tableHeaderCheckbox />
-                </th>
-                <th style="min-width: 12rem" pSortableColumn="id">
-                    <span class="flex items-center gap-2">ID <p-sortIcon field="id" /></span>
-                </th>
-                <th style="min-width: 12rem" pSortableColumn="firstName">
-                    <span class="flex items-center gap-2">First Name <p-sortIcon field="firstName" /></span>
-                </th>
-                <th style="min-width: 12rem" pSortableColumn="lastName">
-                    <span class="flex items-center gap-2">Last Name <p-sortIcon field="lastName" /></span>
-                </th>
-                <th style="min-width: 12rem" pSortableColumn="email">
-                    <span class="flex items-center gap-2">Email <p-sortIcon field="email" /></span>
-                </th>
-                <th style="min-width: 10rem" pSortableColumn="phoneNumber">
-                    <span class="flex items-center gap-2">Phone <p-sortIcon field="phoneNumber" /></span>
-                </th>
-                <th style="min-width: 10rem" pSortableColumn="merchantType">
-                    <span class="flex items-center gap-2">Merchant Type <p-sortIcon field="merchantType" /></span>
-                </th>
-                <th style="min-width: 10rem" pSortableColumn="active">
-                    <span class="flex items-center gap-2">Active <p-sortIcon field="active" /></span>
-                </th>
-                <th style="min-width: 12rem"></th>
-            </tr>
-        </ng-template>
-        <ng-template #body let-merchant>
-            <tr>
-                <td style="width: 3rem">
-                    <p-tableCheckbox [value]="merchant" />
-                </td>
-                <td style="min-width: 12rem">
-                    {{ merchant.id }}
-                </td>
-                <td style="min-width: 12rem">
-                    {{ merchant.firstName }}
-                </td>
-                <td style="min-width: 12rem">
-                    {{ merchant.lastName }}
-                </td>
-                <td style="min-width: 12rem">
-                    {{ merchant.email }}
-                </td>
-                <td style="min-width: 10rem">
-                    {{ merchant.phoneNumber }}
-                </td>
-                <td style="min-width: 10rem">
-                    {{ merchant.merchantType }}
-                </td>
-                <td style="min-width: 10rem">
-                    <p-tag [value]="merchant.active ? 'Active' : 'Inactive'" [severity]="getStatusSeverity(merchant.active)" />
-                </td>
-                <td style="min-width: 12rem gap-2">
-                    <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true" (click)="editMerchant(merchant)" />
-                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
-                        (click)="deleteMerchant(merchant)" />
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
+    <div *ngIf="loading()" class="flex justify-center items-center" style="height: 200px;">
+        <p-progressSpinner fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+    </div>
+
+
+    <ng-container *ngIf="!loading()">
+        <p-table [value]="merchants()" [rows]="10" [paginator]="true"
+            [globalFilterFields]="['firstName','lastName','email','phoneNumber','merchantType']" [(selection)]="selectedMerchants" dataKey="id"
+            [rowHover]="true" styleClass="p-datatable-gridlines">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 3rem">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName"></p-sortIcon></th>
+                    <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
+                    <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                    <th pSortableColumn="phoneNumber">Phone <p-sortIcon field="phoneNumber"></p-sortIcon></th>
+                    <th pSortableColumn="merchantType">Merchant Type <p-sortIcon field="merchantType"></p-sortIcon></th>
+                    <th pSortableColumn="active">Status <p-sortIcon field="active"></p-sortIcon></th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-merchant>
+                <tr>
+                    <td>
+                        <p-tableCheckbox [value]="merchant"></p-tableCheckbox>
+                    </td>
+                    <td>{{merchant.id}}</td>
+                    <td>{{merchant.firstName}}</td>
+                    <td>{{merchant.lastName}}</td>
+                    <td>{{merchant.email}}</td>
+                    <td>{{merchant.phoneNumber}}</td>
+                    <td>{{merchant.merchantType}}</td>
+                    <td>
+                        <p-tag [value]="merchant.active ? 'Active' : 'Inactive'"
+                            [severity]="getStatusSeverity(merchant.active)"></p-tag>
+                    </td>
+                    <td>
+                        <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true"
+                            (click)="editMerchant(merchant)"></p-button>
+                        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+                            (click)="deleteMerchant(merchant)" class="ml-1"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-container>
 </div>
 
-<p-dialog [(visible)]="merchantDialog" [style]="{ width: '600px' }" header="Merchant Details" [modal]="true">
-    <ng-template #content>
-        <div class="flex flex-col gap-6">
-            <div>
-                <label for="firstName" class="block font-bold mb-4">First Name</label>
-                <input type="text" pInputText id="firstName" [(ngModel)]="merchant.firstName" required autofocus fluid />
-                <small class="text-red-500" *ngIf="submitted && !merchant.firstName">First Name is required.</small>
+<p-dialog [(visible)]="merchantDialog" [style]="{width: '600px'}" header="Merchant Details" [modal]="true">
+    <form (ngSubmit)="saveMerchant()">
+        <div class="grid p-fluid grid-cols-12 gap-6">
+            <div class="col-span-12 md:col-span-6">
+                <h4 for="firstName">First Name</h4>
+                <input type="text" pInputText id="firstName" [(ngModel)]="merchant.firstName" name="firstName" required />
             </div>
-            <div>
-                <label for="lastName" class="block font-bold mb-4">Last Name</label>
-                <input type="text" pInputText id="lastName" [(ngModel)]="merchant.lastName" required fluid />
-                <small class="text-red-500" *ngIf="submitted && !merchant.lastName">Last Name is required.</small>
+            <div class="col-span-12 md:col-span-6">
+                <h4 for="lastName">Last Name</h4>
+                <input type="text" pInputText id="lastName" [(ngModel)]="merchant.lastName" name="lastName" required />
             </div>
-            <div>
-                <label for="email" class="block font-bold mb-4">Email</label>
-                <input type="email" pInputText id="email" [(ngModel)]="merchant.email" required fluid />
+            <div class="col-span-12 md:col-span-6">
+                <h4 for="email">Email</h4>
+                <input type="email" pInputText id="email" [(ngModel)]="merchant.email" name="email" required />
             </div>
-            <div>
-                <label for="phoneNumber" class="block font-bold mb-4">Phone Number</label>
-                <input type="text" pInputText id="phoneNumber" [(ngModel)]="merchant.phoneNumber" fluid />
+            <div class="col-span-12 md:col-span-6">
+                <h4 for="phoneNumber">Phone</h4>
+                <input type="tel" pInputText id="phoneNumber" [(ngModel)]="merchant.phoneNumber" name="phoneNumber" />
             </div>
-            <div>
-                <label for="merchantType" class="block font-bold mb-4">Merchant Type</label>
-                <p-dropdown id="merchantType" [(ngModel)]="merchant.merchantType" [options]="merchantTypes" optionLabel="label"
-                    optionValue="value" placeholder="Select Merchant Type" fluid />
+            <div class="col-span-12 md:col-span-6">
+                <h4 for="merchantType">Merchant Type</h4>
+                <p-dropdown [options]="merchantTypes" [(ngModel)]="merchant.merchantType" name="merchantType" optionLabel="label"
+                    optionValue="value" placeholder="Select Farm Type"></p-dropdown>
             </div>
-            <div>
-                <label for="merchantEstablishedDate" class="block font-bold mb-4">Established Date</label>
-                <p-calendar id="merchantEstablishedDate" [(ngModel)]="merchant.merchantEstablishedDate" dateFormat="yy-mm-dd" fluid />
+            <div class="col-span-12 md:col-span-6">
+                <h4 for="merchantEstablishedDate">Merchant Established Date</h4>
+                <p-calendar [(ngModel)]="merchant.merchantEstablishedDate" name="merchantEstablishedDate" dateFormat="yy-mm-dd"
+                    [showIcon]="true"></p-calendar>
             </div>
-            <div>
-                <label for="communicationPreference" class="block font-bold mb-4">Communication Preference</label>
-                <p-dropdown id="communicationPreference" [(ngModel)]="merchant.communicationPreference" [options]="communicationPreferences"
-                    optionLabel="label" optionValue="value" placeholder="Select Preference" fluid />
+            <div class="col-span-12 md:col-span-6">
+                <h4 for="activeToggle">Status:</h4>
+                <p-toggleSwitch id="activeToggle" [(ngModel)]="merchant.active" name="active"
+                    [style]="{'width': '3.5rem'}">
+                    <ng-template #handle let-checked="checked">
+                        <i [ngClass]="['text-xs', 'pi', checked ? 'pi-check' : 'pi-times']"></i>
+                    </ng-template>
+                </p-toggleSwitch>
+                <span class="text-md ml-2">{{merchant.active ? 'Active' : 'Inactive'}}</span>
             </div>
-            <div class="flex items-center gap-2">
-                <p-checkbox binary="true" inputId="organicCertification" [(ngModel)]="merchant.organicCertification"></p-checkbox>
-                <label for="organicCertification" class="body-small">Organic Certification</label>
+            <div class="col-span-12 md:col-span-6">
+                <h4 for="communicationPreference">Communication Preference</h4>
+                <p-dropdown [options]="communicationPreferences" [(ngModel)]="merchant.communicationPreference"
+                    name="communicationPreference" optionLabel="label" optionValue="value"></p-dropdown>
             </div>
-            <div class="flex items-center gap-2">
-                <p-checkbox binary="true" inputId="active" [(ngModel)]="merchant.active"></p-checkbox>
-                <label for="active" class="body-small">Active</label>
+            <div class="col-span-12 md:col-span-6">
+                <h4 for="emergencyContactName">Emergency Contact Name</h4>
+                <input type="text" pInputText id="emergencyContactName" [(ngModel)]="merchant.emergencyContactName"
+                    name="emergencyContactName" />
+            </div>
+            <div class="col-span-12 md:col-span-6">
+                <h4 for="emergencyContactPhone">Emergency Contact Phone</h4>
+                <input type="tel" pInputText id="emergencyContactPhone" [(ngModel)]="merchant.emergencyContactPhone"
+                    name="emergencyContactPhone" />
+            </div>
+            <div class="col-span-12 md:col-span-6">
+                <h4>Organic Certification</h4>
+                <p-checkbox [binary]="true" [(ngModel)]="merchant.organicCertification"
+                    name="organicCertification"></p-checkbox>
+            </div>
+            <div class="col-span-12 md:col-span-6" *ngIf="merchant.organicCertification">
+                <h4 for="certificationDate">Certification Date</h4>
+                <p-calendar [(ngModel)]="merchant.certificationDate" name="certificationDate" dateFormat="yy-mm-dd"
+                    [showIcon]="true"></p-calendar>
             </div>
         </div>
-    </ng-template>
-
-    <ng-template #footer>
-        <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
-        <p-button label="Save" icon="pi pi-check" (click)="saveMerchant()" />
+    </form>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" icon="pi pi-times" (click)="hideDialog()" styleClass="p-button-text"></p-button>
+        <p-button label="Save" icon="pi pi-check" (click)="saveMerchant()"></p-button>
     </ng-template>
 </p-dialog>
 
-<p-confirmdialog [style]="{ width: '450px' }" />
-<p-toast />
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-toast></p-toast>

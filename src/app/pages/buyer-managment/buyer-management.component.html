@@ -1,132 +1,105 @@
 <div class="card">
-    <p-toolbar styleClass="mb-12">
-        <ng-template #start>
-            <p-button label="New Buyer" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
-            <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="confirmDeleteSelected()"
-                [disabled]="!selectedBuyers || !selectedBuyers.length" />
-        </ng-template>
-
-        <ng-template #end>
-            <p-button label="Export" icon="pi pi-upload" severity="secondary" />
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <p-button label="New Restaurant" icon="pi pi-plus" severity="secondary" class="mr-2"
+                (onClick)="openNew()" />
+            <p-button severity="danger" label="Delete" icon="pi pi-trash"
+                [disabled]="!selectedBuyers || selectedBuyers.length === 0"
+                (onClick)="confirmDeleteSelected()" />
         </ng-template>
     </p-toolbar>
 
-    <p-table #dt [value]="buyers()" [rows]="10" [columns]="cols" [paginator]="true" [globalFilterFields]="['name', 'email', 'phoneNumber', 'address']"
-        [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="selectedBuyers" [rowHover]="true" dataKey="id"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} buyers" [showCurrentPageReport]="true"
-        [rowsPerPageOptions]="[10, 20, 30]" [loading]="loading()">
-        <ng-template #caption>
-            <div class="flex items-center justify-between">
-                <h5 class="m-0">Manage Buyers</h5>
-                <p-iconfield>
-                    <p-inputicon styleClass="pi pi-search" />
-                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
-                </p-iconfield>
-            </div>
-        </ng-template>
-        <ng-template #header>
-            <tr>
-                <th style="width: 3rem">
-                    <p-tableHeaderCheckbox />
-                </th>
-                <th style="min-width: 12rem" pSortableColumn="id">
-                    <span class="flex items-center gap-2">ID <p-sortIcon field="id" /></span>
-                </th>
-                <th style="min-width: 12rem" pSortableColumn="name">
-                    <span class="flex items-center gap-2">Name <p-sortIcon field="name" /></span>
-                </th>
-                <th style="min-width: 12rem" pSortableColumn="email">
-                    <span class="flex items-center gap-2">Email <p-sortIcon field="email" /></span>
-                </th>
-                <th style="min-width: 10rem" pSortableColumn="phoneNumber">
-                    <span class="flex items-center gap-2">Phone <p-sortIcon field="phoneNumber" /></span>
-                </th>
-                <th style="min-width: 12rem" pSortableColumn="address">
-                    <span class="flex items-center gap-2">Address <p-sortIcon field="address" /></span>
-                </th>
-                <th style="min-width: 10rem" pSortableColumn="website">
-                    <span class="flex items-center gap-2">Website <p-sortIcon field="website" /></span>
-                </th>
-                <th style="min-width: 10rem" pSortableColumn="active">
-                    <span class="flex items-center gap-2">Active <p-sortIcon field="active" /></span>
-                </th>
-                <th style="min-width: 12rem"></th>
-            </tr>
-        </ng-template>
-        <ng-template #body let-buyer>
-            <tr>
-                <td style="width: 3rem">
-                    <p-tableCheckbox [value]="buyer" />
-                </td>
-                <td style="min-width: 12rem">
-                    {{ buyer.id }}
-                </td>
-                <td style="min-width: 12rem">
-                    {{ buyer.name }}
-                </td>
-                <td style="min-width: 12rem">
-                    {{ buyer.email }}
-                </td>
-                <td style="min-width: 10rem">
-                    {{ buyer.phoneNumber }}
-                </td>
-                <td style="min-width: 12rem">
-                    {{ buyer.address }}
-                </td>
-                <td style="min-width: 10rem">
-                    <a *ngIf="buyer.website" [href]="buyer.website" target="_blank" class="text-primary-500 hover:underline">{{ buyer.website }}</a>
-                    <span *ngIf="!buyer.website">-</span>
-                </td>
-                <td style="min-width: 10rem">
-                    <p-tag [value]="buyer.active ? 'Active' : 'Inactive'" [severity]="getStatusSeverity(buyer.active)" />
-                </td>
-                <td style="min-width: 12rem gap-2">
-                    <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true" (click)="editBuyer(buyer)" />
-                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
-                        (click)="deleteBuyer(buyer)" />
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
+
+    <div *ngIf="loading()" class="flex justify-center items-center" style="height: 200px;">
+        <p-progressSpinner fill="var(--surface-ground)" animationDuration=".5s">
+        </p-progressSpinner>
+    </div>
+
+    <ng-container *ngIf="!loading()">
+        <p-table [value]="buyers()" [rows]="10" [paginator]="true"
+            [globalFilterFields]="['name','email','phoneNumber']" [(selection)]="selectedBuyers" dataKey="id"
+            [rowHover]="true" styleClass="p-datatable-gridlines">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 3rem">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                    <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                    <th pSortableColumn="phoneNumber">Phone <p-sortIcon field="phoneNumber"></p-sortIcon></th>
+                    <th pSortableColumn="address">Address <p-sortIcon field="address"></p-sortIcon></th>
+                    <th pSortableColumn="website">Website <p-sortIcon field="website"></p-sortIcon></th>
+                    <th pSortableColumn="active">Status</th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-restaurant>
+                <tr>
+                    <td>
+                        <p-tableCheckbox [value]="restaurant"></p-tableCheckbox>
+                    </td>
+                    <td>{{restaurant.name}}</td>
+                    <td>{{restaurant.email}}</td>
+                    <td>{{restaurant.phoneNumber}}</td>
+                    <td>{{restaurant.address}}</td>
+                    <td>{{restaurant.website}}</td>
+                    <td>
+                        <p-tag [value]="restaurant.active ? 'Active' : 'Inactive'"
+                            [severity]="getStatusSeverity(restaurant.active)"></p-tag>
+                    </td>
+                    <td>
+                        <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true"
+                            (click)="editBuyer(buyer)"></p-button>
+                        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+                            (click)="deleteBuyer(buyer)" class="ml-1"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-container>
 </div>
 
-<p-dialog [(visible)]="buyerDialog" [style]="{ width: '600px' }" header="Buyer Details" [modal]="true">
-    <ng-template #content>
-        <div class="flex flex-col gap-6">
-            <div>
-                <label for="name" class="block font-bold mb-4">Name</label>
-                <input type="text" pInputText id="name" [(ngModel)]="buyer.name" required autofocus fluid />
-                <small class="text-red-500" *ngIf="submitted && !buyer.name">Name is required.</small>
+<p-dialog [(visible)]="buyerDialog" [style]="{width: '600px'}" header="Buyer Details" [modal]="true">
+    <form (ngSubmit)="saveBuyer()">
+        <div class="grid p-fluid grid-cols-12 gap-6 justify-center">
+            <div class="col-span-12 sm:col-span-6">
+                <h4 for="name">Name</h4>
+                <input type="text" pInputText id="name" [(ngModel)]="buyer.name" name="name" required />
             </div>
-            <div>
-                <label for="email" class="block font-bold mb-4">Email</label>
-                <input type="email" pInputText id="email" [(ngModel)]="buyer.email" required fluid />
-                <small class="text-red-500" *ngIf="submitted && !buyer.email">Email is required.</small>
+            <div class="col-span-12 sm:col-span-6">
+                <h4 for="address">Address</h4>
+                <input type="text" pInputText id="address" [(ngModel)]="buyer.address" name="address" required />
             </div>
-            <div>
-                <label for="phoneNumber" class="block font-bold mb-4">Phone Number</label>
-                <input type="text" pInputText id="phoneNumber" [(ngModel)]="buyer.phoneNumber" fluid />
+            <div class="col-span-12 sm:col-span-6">
+                <h4 for="phoneNumber">Phone</h4>
+                <input type="tel" pInputText id="phoneNumber" [(ngModel)]="buyer.phoneNumber" name="phoneNumber"
+                    required />
             </div>
-            <div>
-                <label for="address" class="block font-bold mb-4">Address</label>
-                <input type="text" pInputText id="address" [(ngModel)]="buyer.address" fluid />
+            <div class="col-span-12 sm:col-span-6">
+                <h4 for="email">Email</h4>
+                <input type="email" pInputText id="email" [(ngModel)]="buyer.email" name="email" required />
             </div>
-            <div>
-                <label for="website" class="block font-bold mb-4">Website</label>
-                <input type="url" pInputText id="website" [(ngModel)]="buyer.website" fluid />
+            <div class="col-span-12 sm:col-span-6">
+                <h4 for="website">Website</h4>
+                <input type="url" pInputText id="website" [(ngModel)]="buyer.website" name="website" />
             </div>
-            <div class="flex items-center gap-2">
-                <p-checkbox binary="true" inputId="active" [(ngModel)]="buyer.active"></p-checkbox>
-                <label for="active" class="body-small">Active</label>
+            <div class="flex align-items-center gap-2">
+                <label for="activeToggle">Status:</label>
+                <p-toggleSwitch id="activeToggle" [(ngModel)]="buyer.active" name="active"
+                    [style]="{'width': '3.5rem'}">
+                    <ng-template #handle let-checked="checked">
+                        <i [ngClass]="['text-xs', 'pi', checked ? 'pi-check' : 'pi-times']"></i>
+                    </ng-template>
+                </p-toggleSwitch>
+                <span class="text-sm ml-2">{{buyer.active ? 'Active' : 'Inactive'}}</span>
             </div>
         </div>
-    </ng-template>
-
-    <ng-template #footer>
-        <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
-        <p-button label="Save" icon="pi pi-check" (click)="saveBuyer()" />
+    </form>
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" icon="pi pi-times" (click)="hideDialog()" styleClass="p-button-text"></p-button>
+        <p-button label="Save" icon="pi pi-check" (click)="saveBuyer()"></p-button>
     </ng-template>
 </p-dialog>
 
-<p-confirmdialog [style]="{ width: '450px' }" />
-<p-toast />
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+<p-toast></p-toast>
