@@ -11,54 +11,67 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { RippleModule } from 'primeng/ripple';
 import { DividerModule } from 'primeng/divider';
 import { AddressService } from '@/service/address.service';
+import { AuthService } from '@/auth/auth.service';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'settings-user',
     standalone: true,
-    imports: [CommonModule, FormsModule, Select, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule, DividerModule],
+    imports: [CommonModule, FormsModule, Select, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule, DividerModule, ToastModule],
     template: `<div class="card">
-        <span class="text-surface-900 dark:text-surface-0 text-xl font-bold mb-6 block">Settings</span>
+        <div class="flex items-center justify-between mb-6">
+            <span class="text-surface-900 dark:text-surface-0 text-xl font-bold">Settings</span>
+            <button *ngIf="!isEditMode" pButton pRipple label="Edit" icon="pi pi-pencil" class="p-button-outlined" (click)="enterEditMode()"></button>
+        </div>
+        <p-toast></p-toast>
         <div class="grid grid-cols-12 gap-4">
-            
             <div class="col-span-12 lg:col-span-10">
                 <div class="grid grid-cols-12 gap-4">
                     <div class="mb-6 col-span-12">
                         <label for="nickname" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Nickname </label>
-                        <input id="nickname" type="text" pInputText fluid />
+                        <input *ngIf="isEditMode" id="nickname" type="text" pInputText fluid [(ngModel)]="settings.nickname" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.nickname || 'Not set' }}</div>
                     </div>
                     <div class="mb-6 col-span-12 flex flex-col items-start">
                         <label for="avatar" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block">Avatar</label>
-                        <p-fileupload mode="basic" name="avatar" url="./upload.php" accept="image/*" [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain" chooseLabel="Upload Image"></p-fileupload>
+                        <p-fileupload *ngIf="isEditMode" mode="basic" name="avatar" url="./upload.php" accept="image/*" [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain" chooseLabel="Upload Image"></p-fileupload>
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.avatar || 'No avatar uploaded' }}</div>
                     </div>
                     <div class="mb-6 col-span-12">
                         <label for="bio" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Bio </label>
-                        <input pTextarea id="bio" type="text" rows="5" [autoResize]="true" fluid />
+                        <input *ngIf="isEditMode" pTextarea id="bio" type="text" rows="5" [autoResize]="true" fluid [(ngModel)]="settings.bio" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2 whitespace-pre-line">{{ settings.bio || 'Not set' }}</div>
                     </div>
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="email" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Email </label>
-                        <input id="email" type="text" pInputText fluid />
+                        <input *ngIf="isEditMode" id="email" type="text" pInputText fluid [(ngModel)]="settings.email" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.email || 'Not set' }}</div>
                     </div>
-                     <div class="mb-6 col-span-12 md:col-span-6">
-                        <label for="country" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Role </label>
-                        <p-select [options]="type" optionLabel="name" placeholder="Select a Role" class="w-full md:w-56" />
+                    <div class="mb-6 col-span-12 md:col-span-6">
+                        <label for="role" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Role </label>
+                        <p-select *ngIf="isEditMode" [options]="type" optionLabel="name" optionValue="code" placeholder="Select a Role" class="w-full md:w-56" [(ngModel)]="settings.role" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ getRoleName(settings.role) || 'Not set' }}</div>
                     </div>
-                  
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="address" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Address </label>
-                        <input id="address" type="text" pInputText fluid [(ngModel)]="userAddress.address" (blur)="saveAddress()" />
+                        <input *ngIf="isEditMode" id="address" type="text" pInputText fluid [(ngModel)]="settings.address" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.address || 'Not set' }}</div>
                     </div>
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="state" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> State </label>
-                        <input id="state" type="text" pInputText fluid [(ngModel)]="userAddress.state" (blur)="saveAddress()" />
+                        <input *ngIf="isEditMode" id="state" type="text" pInputText fluid [(ngModel)]="settings.state" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.state || 'Not set' }}</div>
                     </div>
                     <div class="mb-6 col-span-12">
                         <label for="website" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Website </label>
-                        <p-inputgroup>
+                        <p-inputgroup *ngIf="isEditMode">
                             <p-inputgroup-addon>
                                 <span>www</span>
                             </p-inputgroup-addon>
-                            <input id="website" type="text" pInputText fluid />
+                            <input id="website" type="text" pInputText fluid [(ngModel)]="settings.website" />
                         </p-inputgroup>
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.website ? 'www.' + settings.website : 'Not set' }}</div>
                     </div>
                     
                     <div class="col-span-12">
@@ -87,58 +100,72 @@ import { AddressService } from '@/service/address.service';
                     
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="bankName" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Bank Name </label>
-                        <input id="bankName" type="text" pInputText fluid [(ngModel)]="bankingInfo.bankName" />
+                        <input *ngIf="isEditMode" id="bankName" type="text" pInputText fluid [(ngModel)]="settings.bankName" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.bankName || 'Not set' }}</div>
                     </div>
                     
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="accountHolderName" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Account Holder Name </label>
-                        <input id="accountHolderName" type="text" pInputText fluid [(ngModel)]="bankingInfo.accountHolderName" />
+                        <input *ngIf="isEditMode" id="accountHolderName" type="text" pInputText fluid [(ngModel)]="settings.accountHolderName" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.accountHolderName || 'Not set' }}</div>
                     </div>
                     
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="accountNumber" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Account Number </label>
-                        <input id="accountNumber" type="text" pInputText fluid [(ngModel)]="bankingInfo.accountNumber" />
+                        <input *ngIf="isEditMode" id="accountNumber" type="text" pInputText fluid [(ngModel)]="settings.accountNumber" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.accountNumber ? '••••••••' : 'Not set' }}</div>
                     </div>
                     
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="accountType" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Account Type </label>
-                        <p-select [options]="accountTypes" optionLabel="name" optionValue="code" placeholder="Select Account Type" class="w-full" [(ngModel)]="bankingInfo.accountType" />
+                        <p-select *ngIf="isEditMode" [options]="accountTypes" optionLabel="name" optionValue="code" placeholder="Select Account Type" class="w-full" [(ngModel)]="settings.accountType" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ getAccountTypeName(settings.accountType) || 'Not set' }}</div>
                     </div>
                     
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="routingNumber" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Routing Number / SWIFT Code </label>
-                        <input id="routingNumber" type="text" pInputText fluid [(ngModel)]="bankingInfo.routingNumber" />
+                        <input *ngIf="isEditMode" id="routingNumber" type="text" pInputText fluid [(ngModel)]="settings.routingNumber" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.routingNumber || 'Not set' }}</div>
                     </div>
                     
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="iban" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> IBAN (Optional) </label>
-                        <input id="iban" type="text" pInputText fluid [(ngModel)]="bankingInfo.iban" />
+                        <input *ngIf="isEditMode" id="iban" type="text" pInputText fluid [(ngModel)]="settings.iban" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.iban || 'Not set' }}</div>
                     </div>
                     
                     <div class="mb-6 col-span-12">
                         <label for="bankAddress" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Bank Address </label>
-                        <input pTextarea id="bankAddress" type="text" rows="3" [autoResize]="true" fluid [(ngModel)]="bankingInfo.bankAddress" />
+                        <input *ngIf="isEditMode" pTextarea id="bankAddress" type="text" rows="3" [autoResize]="true" fluid [(ngModel)]="settings.bankAddress" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2 whitespace-pre-line">{{ settings.bankAddress || 'Not set' }}</div>
                     </div>
                     
-                    <div class="col-span-12">
-                        <button pButton pRipple label="Save Settings" class="w-auto mt-3"></button>
+                    <div *ngIf="isEditMode" class="col-span-12 flex gap-3">
+                        <button pButton pRipple label="Save Settings" icon="pi pi-check" class="w-auto mt-3" (click)="saveSettings()" [disabled]="saving"></button>
+                        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-outlined w-auto mt-3" (click)="cancelEdit()" [disabled]="saving"></button>
                     </div>
                 </div>
             </div>
         </div>
-    </div> `
+    </div> `,
+    providers: [MessageService]
 })
 export class SettingsUser implements OnInit {
+    isEditMode: boolean = false;
+    saving: boolean = false;
     countries: any[] = [];
     type: any[] = [];
     accountTypes: any[] = [];
     
-    userAddress: any = {
+    settings: any = {
+        nickname: '',
+        avatar: '',
+        bio: '',
+        email: '',
+        role: '',
         address: '',
-        state: ''
-    };
-    
-    bankingInfo: any = {
+        state: '',
+        website: '',
         bankName: '',
         accountHolderName: '',
         accountNumber: '',
@@ -148,12 +175,18 @@ export class SettingsUser implements OnInit {
         bankAddress: ''
     };
     
-    constructor(private addressService: AddressService) {}
+    originalSettings: any = {};
+    
+    constructor(
+        private addressService: AddressService,
+        private authService: AuthService,
+        private messageService: MessageService
+    ) {}
     
     ngOnInit() {
         this.type = [
             { name: 'Farmer', code: 'farmer' },
-            { name: 'Food Buyer', code: ' food_buyer' },
+            { name: 'Food Buyer', code: 'food_buyer' },
             { name: 'Guest', code: 'guest' }
         ];
         
@@ -164,22 +197,75 @@ export class SettingsUser implements OnInit {
             { name: 'Business Savings', code: 'business_savings' }
         ];
         
-        // Load pre-populated address
-        this.loadAddress();
+        // Load user information
+        this.loadUserSettings();
     }
     
-    loadAddress() {
+    loadUserSettings() {
+        // Load from AuthService
+        const user = this.authService.currentUserValue;
+        if (user) {
+            this.settings.email = user.email || '';
+            this.settings.role = user.role?.toLowerCase() || '';
+        }
+        
+        // Load address from AddressService
         const savedAddress = this.addressService.getAddress();
         if (savedAddress) {
-            this.userAddress.address = savedAddress.address || savedAddress.street || '';
-            this.userAddress.state = savedAddress.state || '';
+            this.settings.address = savedAddress.address || savedAddress.street || '';
+            this.settings.state = savedAddress.state || '';
         }
+        
+        // TODO: Load banking info and other settings from API
+        // For now, we'll keep the structure ready for API integration
+        
+        // Store original settings for cancel functionality
+        this.originalSettings = JSON.parse(JSON.stringify(this.settings));
     }
     
-    saveAddress() {
+    enterEditMode() {
+        this.isEditMode = true;
+        // Store current settings as original for cancel
+        this.originalSettings = JSON.parse(JSON.stringify(this.settings));
+    }
+    
+    cancelEdit() {
+        // Restore original settings
+        this.settings = JSON.parse(JSON.stringify(this.originalSettings));
+        this.isEditMode = false;
+    }
+    
+    saveSettings() {
+        this.saving = true;
+        
+        // Save address to AddressService
         this.addressService.updateAddress({
-            address: this.userAddress.address,
-            state: this.userAddress.state
+            address: this.settings.address,
+            state: this.settings.state
         });
+        
+        // TODO: Call API to save settings
+        // For now, simulate API call
+        setTimeout(() => {
+            this.saving = false;
+            this.isEditMode = false;
+            this.originalSettings = JSON.parse(JSON.stringify(this.settings));
+            
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Settings saved successfully'
+            });
+        }, 500);
+    }
+    
+    getRoleName(roleCode: string): string {
+        const role = this.type.find(r => r.code === roleCode);
+        return role ? role.name : roleCode;
+    }
+    
+    getAccountTypeName(accountTypeCode: string): string {
+        const accountType = this.accountTypes.find(a => a.code === accountTypeCode);
+        return accountType ? accountType.name : accountTypeCode;
     }
 }

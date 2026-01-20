@@ -51,7 +51,7 @@ export class Register {
     userTypes = [
         { label: 'Farmer', value: 'FARMER' },
         { label: 'Restaurant', value: 'RESTAURANT' },
-        { label: 'Courier', value: 'COURIER' }
+        // { label: 'Courier', value: 'COURIER' }
     ];
 
     farmTypes = [
@@ -73,7 +73,7 @@ export class Register {
         const prefillAddress = savedAddress?.address || savedAddress?.street || '';
         
         this.registerForm = this.fb.group({
-            username: ['', Validators.required],
+            username: ['test_user_001', Validators.required],
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required, Validators.minLength(6)]],
             fullName: ['', Validators.required],
