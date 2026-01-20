@@ -78,7 +78,7 @@ export class UserList implements OnInit {
 
     statuses: string[] = ['unqualified', 'qualified', 'new', 'negotiation', 'renewal'];
     countries: any[] = [];
-    roles: string[] = ['ADMIN', 'FARMER', 'RESTAURANT', 'USER'];
+    roles: string[] = ['ADMIN', 'MERCHANT', 'BUYER', 'USER'];
 
     @ViewChild('dt') dt!: Table;
     @ViewChild(UserInfoDialog) userInfoDialog!: UserInfoDialog;
@@ -156,7 +156,7 @@ export class UserList implements OnInit {
     }
 
     getRandomRole(): string {
-        const roles = ['ADMIN', 'FARMER', 'RESTAURANT', 'USER'];
+        const roles = ['ADMIN', 'MERCHANT', 'BUYER', 'USER'];
         return roles[Math.floor(Math.random() * roles.length)];
     }
 

@@ -9,10 +9,10 @@ export class RoleBadgePipe implements PipeTransform {
     switch (role) {
       case 'ADMIN': 
         return 'danger'; // Red for admin (high importance)
-      case 'FARMER': 
-        return 'success'; // Green for farmers
-      case 'RESTAURANT': 
-        return 'warning'; // Orange for restaurants
+      case 'MERCHANT': 
+        return 'success'; // Green for merchants
+      case 'BUYER': 
+        return 'warning'; // Orange for buyers
       case 'USER': 
         return 'info'; // Blue for regular users
       default: 

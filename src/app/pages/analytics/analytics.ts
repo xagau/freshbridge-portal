@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
     <div class="grid">
       <div class="col-12">
         <p-tabView>
-          <p-tabPanel header="Farmer Analytics">
+          <p-tabPanel header="Merchant Analytics">
             <div class="grid grid-cols-12 gap-4">
               <!-- Revenue Chart -->
               <div class="col-span-12 md:col-span-6">
@@ -135,7 +135,7 @@ export class AnalyticsComponent {
     elements: { line: { tension: 0.4 } }
   };
 
-  // Farmer Analytics Data
+  // Merchant Analytics Data
   revenueData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
@@ -164,7 +164,7 @@ export class AnalyticsComponent {
   };
 
   buyerTypeData = {
-    labels: ['Restaurants', 'Grocers', 'Institutions', 'Direct Consumers'],
+    labels: ['Buyers', 'Grocers', 'Institutions', 'Direct Consumers'],
     datasets: [
       {
         data: [45, 30, 15, 10],
@@ -229,7 +229,7 @@ export class AnalyticsComponent {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
       {
-        label: 'Farmers',
+        label: 'Merchants',
         borderColor: '#FFA726',
         data: [120, 145, 165, 190, 210, 240],
         fill: false

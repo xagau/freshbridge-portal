@@ -28,12 +28,12 @@ import { AccordionModule } from 'primeng/accordion';
 export class FaqWidget {
     faqs = [
         {
-            question: 'How does FreshBridge help farmers?',
-            answer: 'FreshBridge gives farmers access to a wide network of local buyers including restaurants and grocers. It simplifies pricing, order management, logistics, and payments — so farmers can focus on growing, not selling.'
+            question: 'How does FreshBridge help merchants?',
+            answer: 'FreshBridge gives merchants access to a wide network of local buyers including buyers and grocers. It simplifies pricing, order management, logistics, and payments — so merchants can focus on growing, not selling.'
         },
         {
-            question: 'What can restaurants and grocers expect from FreshBridge?',
-            answer: 'FreshBridge allows buyers to access real-time listings of fresh, locally sourced food. Orders are consolidated and delivered efficiently, with transparent pricing and direct communication with producers.'
+            question: 'What can Buyers and grocers expect from FreshBridge?',
+            answer: 'FreshBridge allows buyers to access real-time listings of fresh, locally sourced food. Orders are consolidated and delivered efficiently, with transparent pricing and direct communication with merchants.'
         },
         {
             question: 'Is FreshBridge only for Ontario?',
@@ -41,7 +41,7 @@ export class FaqWidget {
         },
         {
             question: 'How do payments and deliveries work?',
-            answer: 'Buyers pay through the platform, and we handle secure payments to farmers. Logistics are coordinated with our delivery partners to ensure reliable fulfillment.'
+            answer: 'Buyers pay through the platform, and we handle secure payments to merchants. Logistics are coordinated with our delivery partners to ensure reliable fulfillment.'
         }
     ];
 }

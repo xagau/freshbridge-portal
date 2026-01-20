@@ -45,10 +45,10 @@ import { RouterLink } from '@angular/router';
                 </div>
                 <div class="max-w-[31.5rem] lg:max-w-md mx-auto w-full flex flex-col items-center lg:items-start">
                     <div class="badge mx-0">About FreshBridge</div>
-                    <h4 class="title-h5 md:title-h4 text-center lg:text-left mt-4 max-w-xs md:max-w-lg">Empowering Farm-to-Fork Commerce in Canada</h4>
+                    <h4 class="title-h5 md:title-h4 text-center lg:text-left mt-4 max-w-xs md:max-w-lg">Empowering Merchant-to-Fork Commerce in Canada</h4>
                     <p class="body-small md:body-medium text-center lg:text-left mt-6">
                         FreshBridge (formerly FreshConnect) is a logistics-enabled online marketplace built to modernize the Canadian agricultural supply chain. From real-time produce listings to order management and last-mile delivery, we make it
-                        easy for farmers and food buyers to connect, trade, and grow — together.
+                        easy for merchants and food buyers to connect, trade, and grow — together.
                     </p>
                     <a routerLink="/landing" class="body-button mt-8">Get Started</a>
                 </div>

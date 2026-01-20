@@ -7,11 +7,11 @@ import { AuthService } from '@/auth/auth.service';
 
 export interface Product {
   id: number;
-  farmerId: number;
+  merchantId: number;
   name: string;
   description: string;
   price: number;
-  farmer: any;
+  merchant: any;
   unit: string;
   quantityAvailable: number;
   imageUrls: string[];
@@ -24,7 +24,7 @@ export interface Product {
   providedIn: 'root'
 })
 export class ProductService {
-  private readonly API = environment.apiUrl + 'farm-products';
+  private readonly API = environment.apiUrl + 'merchant-products';
   private authCredentials = {
     username: 'admin',
     password: '6f4acf41-b6ad-483f-bc35-abe48b9fd58a'
@@ -43,10 +43,10 @@ export class ProductService {
   getProducts(): Observable<Product[]> {
     console.log(this.authService.currentUserValue);
 
-    if (this.authService.currentUserValue?.role === 'FARMER') {
+    if (this.authService.currentUserValue?.role === 'MERCHANT') {
       return this.http.get<Product[]>(`${this.API}?userId=${this.authService.getProfileId()}`, { headers: this.getAuthHeaders() });
-    } else if (this.authService.currentUserValue?.role === 'RESTAURANT') {
-      return this.http.get<Product[]>(`${this.API}?restaurantId=${this.authService.getProfileId()}`, { headers: this.getAuthHeaders() });
+    } else if (this.authService.currentUserValue?.role === 'BUYER') {
+      return this.http.get<Product[]>(`${this.API}?buyerId=${this.authService.getProfileId()}`, { headers: this.getAuthHeaders() });
     } else if (this.authService.currentUserValue?.role === 'ADMIN') {
       return this.http.get<Product[]>(this.API, { headers: this.getAuthHeaders() });
     } else {

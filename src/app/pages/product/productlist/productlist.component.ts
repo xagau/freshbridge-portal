@@ -11,7 +11,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { environment } from '../../../../environments/environment';
-import { FarmerService, Farmer } from '@/service/farmer.service';
+import { MerchantService, Merchant } from '@/service/merchant.service';
 import { AuthService } from '@/auth/auth.service';
 
 @Component({
@@ -27,31 +27,31 @@ import { AuthService } from '@/auth/auth.service';
         ProgressSpinnerModule,
         ToastModule,
     ],
-    providers: [MessageService, ProductService, FarmerService],
+    providers: [MessageService, ProductService, MerchantService],
     templateUrl: "./productlist.component.html",
 })
 export class ProductList {
     products = signal<Product[]>([]);
     filteredProducts = signal<Product[]>([]);
-    farms = signal<Farmer[]>([]);
+    merchants = signal<Merchant[]>([]);
     loading = signal<boolean>(true);
-    showFarmFilter = signal<boolean>(false);
-    selectedFarmId = signal<number | null>(null);
+    showMerchantFilter = signal<boolean>(false);
+    selectedMerchantId = signal<number | null>(null);
 
     // User role signals
     isAdmin = signal<boolean>(false);
-    isFarmer = signal<boolean>(false);
-    isRestaurant = signal<boolean>(false);
+    isMerchant = signal<boolean>(false);
+    isBuyer = signal<boolean>(false);
 
-    // Current farmer ID (if user is a farmer)
-    // currentFarmerId = signal<number | null>(null);
+    // Current merchant ID (if user is a merchant)
+    // currentMerchantId = signal<number | null>(null);
     currentUserId = signal<number | null>(null);
     public environment = environment;
 
     constructor(
         private router: Router,
         private productService: ProductService,
-        private farmService: FarmerService,
+        private merchantService: MerchantService,
         private messageService: MessageService,
         private authService: AuthService
     ) { }
@@ -62,22 +62,22 @@ export class ProductList {
         console.log("userRole:", userRole);
         
         this.isAdmin.set(userRole === 'ADMIN');
-        this.isFarmer.set(userRole === 'FARMER');
-        this.isRestaurant.set(userRole === 'RESTAURANT');
+        this.isMerchant.set(userRole === 'MERCHANT');
+        this.isBuyer.set(userRole === 'BUYER');
 
-        // Get the current farmer ID if the user is a farmer
-        if (this.isFarmer()) {
+        // Get the current merchant ID if the user is a merchant
+        if (this.isMerchant()) {
             const userId = this.authService.getProfileId();
-            console.log('Current farmer ID:', userId);
+            console.log('Current merchant ID:', userId);
             this.currentUserId.set(userId);
         }
 
         // Load products based on user role
         this.loadProducts();
 
-        // Only load farms list if user is admin (for filtering)
+        // Only load merchants list if user is admin (for filtering)
         if (this.isAdmin()) {
-            this.loadFarms();
+            this.loadMerchants();
         }
     }
 
@@ -85,9 +85,9 @@ export class ProductList {
         this.loading.set(true);
 
         // Use the appropriate method based on user role
-        // For farmers: getProducts() will filter by farmer ID
-        // For restaurants and admins: getProductsAll() will show all products
-        const productsObservable = this.isFarmer()
+        // For merchants: getProducts() will filter by merchant ID
+        // For buyers and admins: getProductsAll() will show all products
+        const productsObservable = this.isMerchant()
             ? this.productService.getProducts()
             : this.productService.getProductsAll();
 
@@ -96,15 +96,15 @@ export class ProductList {
                 this.products.set(data);
                 console.log("Products loaded:", data.length);
 
-                // If user is a farmer, we can verify the products belong to them
-                if (this.isFarmer() && this.currentUserId()) {
+                // If user is a merchant, we can verify the products belong to them
+                if (this.isMerchant() && this.currentUserId()) {
                     const userId = this.currentUserId();
-                    console.log(`Verifying products belong to farmer ID: ${userId}`);
+                    console.log(`Verifying products belong to merchant ID: ${userId}`);
 
                     // This is just a verification step - the API should already filter correctly
-                    const farmerProducts = data.filter(product => product.farmerId === userId);
-                    if (farmerProducts.length !== data.length) {
-                        console.warn(`Found ${data.length} products, but only ${farmerProducts.length} belong to the current farmer`);
+                    const merchantProducts = data.filter(product => product.merchantId === userId);
+                    if (merchantProducts.length !== data.length) {
+                        console.warn(`Found ${data.length} products, but only ${merchantProducts.length} belong to the current merchant`);
                     }
                 }
 
@@ -124,10 +124,10 @@ export class ProductList {
         });
     }
 
-    loadFarms() {
-        this.farmService.getFarmers().subscribe({
+    loadMerchants() {
+        this.merchantService.getMerchants().subscribe({
             next: (data) => {
-                this.farms.set(data);
+                this.merchants.set(data);
                 console.log(data);
 
             },
@@ -135,39 +135,39 @@ export class ProductList {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Failed to load farms',
+                    detail: 'Failed to load merchants',
                     life: 3000
                 });
             }
         });
     }
 
-    toggleFarmFilter() {
-        this.showFarmFilter.update(prev => !prev);
+    toggleMerchantFilter() {
+        this.showMerchantFilter.update(prev => !prev);
     }
 
-    filterByFarm(farmId: number | null) {
-        console.log(farmId);
+    filterByMerchant(merchantId: number | null) {
+        console.log(merchantId);
 
-        this.selectedFarmId.set(farmId);
-        if (farmId) {
+        this.selectedMerchantId.set(merchantId);
+        if (merchantId) {
             this.filteredProducts.set(
-                this.products().filter(product => product.farmerId === farmId)
+                this.products().filter(product => product.merchantId === merchantId)
             );
         } else {
             this.filteredProducts.set(this.products());
         }
     }
 
-    clearFarmFilter() {
-        this.selectedFarmId.set(null);
+    clearMerchantFilter() {
+        this.selectedMerchantId.set(null);
         this.filteredProducts.set(this.products());
     }
 
-    viewFarmProducts(event: Event, farmId: number) {
+    viewMerchantProducts(event: Event, merchantId: number) {
         event.stopPropagation(); // Prevent the product click event from firing
-        this.selectedFarmId.set(farmId);
-        this.filterByFarm(farmId);
+        this.selectedMerchantId.set(merchantId);
+        this.filterByMerchant(merchantId);
     }
 
     goToProduct(product: Product) {
@@ -184,9 +184,9 @@ export class ProductList {
         img.classList.add('default-image');
     }
 
-    setDefaultFarmImage(event: Event) {
+    setDefaultMerchantImage(event: Event) {
         const img = event.target as HTMLImageElement;
-        img.src = 'https://via.placeholder.com/150'; // Default farm logo
+        img.src = 'https://via.placeholder.com/150'; // Default merchant logo
         img.classList.add('default-image');
     }
 }

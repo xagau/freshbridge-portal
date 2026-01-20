@@ -1,4 +1,4 @@
-// userlist.ts
+// merchant-managment.ts
 import { Component, OnInit, signal } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
@@ -16,14 +16,16 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { FarmerService, Farmer } from '@/service/farmer.service';
+import { MerchantService, Merchant } from '@/service/merchant.service';
 import { HttpClientModule } from '@angular/common/http';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { InputIconModule } from 'primeng/inputicon';
+import { IconFieldModule } from 'primeng/iconfield';
 
 @Component({
-    selector: 'app-farmer-list',
+    selector: 'app-merchant-list',
     standalone: true,
     imports: [
         CommonModule,
@@ -44,24 +46,26 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
         TableModule,
         CheckboxModule,
         ProgressSpinnerModule,
-        ToggleSwitchModule
+        ToggleSwitchModule,
+        InputIconModule,
+        IconFieldModule
     ],
-    templateUrl: './farmer-managment.component.html',
-    providers: [MessageService, ConfirmationService, FarmerService]
+    templateUrl: './merchant-managment.component.html',
+    providers: [MessageService, ConfirmationService, MerchantService]
 })
-export class FarmerList implements OnInit {
-    farmers = signal<Farmer[]>([]);
-    farmerDialog: boolean = false;
-    farmer: Farmer = {} as Farmer;
-    selectedFarmers: Farmer[] = [];
+export class MerchantList implements OnInit {
+    merchants = signal<Merchant[]>([]);
+    merchantDialog: boolean = false;
+    merchant: Merchant = {} as Merchant;
+    selectedMerchants: Merchant[] = [];
     submitted: boolean = false;
     loading = signal<boolean>(true);
 
-    farmTypes = [
+    merchantTypes = [
         { label: 'Organic', value: 'ORGANIC' },
         { label: 'Conventional', value: 'CONVENTIONAL' },
         { label: 'Hydroponic', value: 'HYDROPONIC' },
-        { label: 'Other', value: 'OTHER' }
+        { label: 'Aquaponic', value: 'AQUAPONIC' }
     ];
 
     communicationPreferences = [
@@ -77,32 +81,32 @@ export class FarmerList implements OnInit {
         { field: 'lastName', header: 'Last Name' },
         { field: 'email', header: 'Email' },
         { field: 'phoneNumber', header: 'Phone' },
-        { field: 'farmType', header: 'Farm Type' },
+        { field: 'merchantType', header: 'Merchant Type' },
         { field: 'active', header: 'Active' }
     ];
 
     constructor(
-        private farmerService: FarmerService,
+        private merchantService: MerchantService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) { }
 
     ngOnInit() {
-        this.loadFarmers();
+        this.loadMerchants();
     }
 
-    loadFarmers() {
+    loadMerchants() {
         this.loading.set(true);
-        this.farmerService.getFarmers().subscribe({
+        this.merchantService.getMerchants().subscribe({
             next: (data) => {
-                this.farmers.set(data);
+                this.merchants.set(data);
                 this.loading.set(false);
             },
             error: (err) => {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: err.message || 'Failed to load farmers',
+                    detail: err.message || 'Failed to load merchants',
                     life: 3000
                 });
                 this.loading.set(false);
@@ -111,29 +115,29 @@ export class FarmerList implements OnInit {
     }
 
     openNew() {
-        this.farmer = {} as Farmer;
+        this.merchant = {} as Merchant;
         this.submitted = false;
-        this.farmerDialog = true;
+        this.merchantDialog = true;
     }
 
-    editFarmer(farmer: Farmer) {
-        this.farmer = { ...farmer };
-        this.farmerDialog = true;
+    editMerchant(merchant: Merchant) {
+        this.merchant = { ...merchant };
+        this.merchantDialog = true;
     }
 
-    deleteFarmer(farmer: Farmer) {
+    deleteMerchant(merchant: Merchant) {
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete ${farmer.firstName} ${farmer.lastName}?`,
+            message: `Are you sure you want to delete ${merchant.firstName} ${merchant.lastName}?`,
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.farmerService.deleteFarmer(farmer.id).subscribe({
+                this.merchantService.deleteMerchant(merchant.id).subscribe({
                     next: () => {
-                        this.farmers.set(this.farmers().filter(f => f.id !== farmer.id));
+                        this.merchants.set(this.merchants().filter(m => m.id !== merchant.id));
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Successful',
-                            detail: 'Farmer Deleted',
+                            detail: 'Merchant Deleted',
                             life: 3000
                         });
                     },
@@ -141,7 +145,7 @@ export class FarmerList implements OnInit {
                         this.messageService.add({
                             severity: 'error',
                             summary: 'Error',
-                            detail: 'Failed to delete farmer',
+                            detail: 'Failed to delete merchant',
                             life: 3000
                         });
                     }
@@ -151,59 +155,59 @@ export class FarmerList implements OnInit {
     }
 
     hideDialog() {
-        this.farmerDialog = false;
+        this.merchantDialog = false;
         this.submitted = false;
     }
 
-    saveFarmer() {
+    saveMerchant() {
         this.submitted = true;
 
-        if (this.farmer.firstName?.trim() && this.farmer.lastName?.trim()) {
-            if (this.farmer.id) {
-                // Update existing farmer
-                this.farmerService.updateFarmer(this.farmer.id, this.farmer).subscribe({
-                    next: (updatedFarmer) => {
-                        const index = this.farmers().findIndex(f => f.id === updatedFarmer.id);
+        if (this.merchant.firstName?.trim() && this.merchant.lastName?.trim()) {
+            if (this.merchant.id) {
+                // Update existing merchant
+                this.merchantService.updateMerchant(this.merchant.id, this.merchant).subscribe({
+                    next: (updatedMerchant) => {
+                        const index = this.merchants().findIndex(m => m.id === updatedMerchant.id);
                         if (index !== -1) {
-                            const updatedFarmers = [...this.farmers()];
-                            updatedFarmers[index] = updatedFarmer;
-                            this.farmers.set(updatedFarmers);
+                            const updatedMerchants = [...this.merchants()];
+                            updatedMerchants[index] = updatedMerchant;
+                            this.merchants.set(updatedMerchants);
                         }
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Successful',
-                            detail: 'Farmer Updated',
+                            detail: 'Merchant Updated',
                             life: 3000
                         });
-                        this.farmerDialog = false;
+                        this.merchantDialog = false;
                     },
                     error: () => {
                         this.messageService.add({
                             severity: 'error',
                             summary: 'Error',
-                            detail: 'Failed to update farmer',
+                            detail: 'Failed to update merchant',
                             life: 3000
                         });
                     }
                 });
             } else {
-                // Create new farmer
-                this.farmerService.createFarmer(this.farmer).subscribe({
-                    next: (newFarmer) => {
-                        this.farmers.set([...this.farmers(), newFarmer]);
+                // Create new merchant
+                this.merchantService.createMerchant(this.merchant).subscribe({
+                    next: (newMerchant) => {
+                        this.merchants.set([...this.merchants(), newMerchant]);
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Successful',
-                            detail: 'Farmer Created',
+                            detail: 'Merchant Created',
                             life: 3000
                         });
-                        this.farmerDialog = false;
+                        this.merchantDialog = false;
                     },
                     error: () => {
                         this.messageService.add({
                             severity: 'error',
                             summary: 'Error',
-                            detail: 'Failed to create farmer',
+                            detail: 'Failed to create merchant',
                             life: 3000
                         });
                     }

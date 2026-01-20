@@ -56,11 +56,11 @@ export class PricingHeroWidget {
                 yearly: '$0',
                 monthly: '$0'
             },
-            description: 'A great starting point for smaller farms looking to connect with buyers and access essential tools.',
+            description: 'A great starting point for smaller merchants looking to connect with buyers and access essential tools.',
             ingredients: [
                 'Dynamic Pricing Engine',
                 'Compliance & Food Safety',
-                'Farm Direct Shipping',
+                'Merchant Direct Shipping',
                 'FreshBridge-Managed Logistics',
                 'Real-Time Inventory',
                 'Invoice & Payment Integration',
@@ -79,11 +79,11 @@ export class PricingHeroWidget {
                 yearly: '$1200',
                 monthly: '$136'
             },
-            description: 'Ideal for growing operations ready to scale with integrated tools, predictive insights, and dedicated support.',
+            description: 'Ideal for growing merchants ready to scale with integrated tools, predictive insights, and dedicated support.',
             ingredients: [
                 'Dynamic Pricing Engine',
                 'Compliance & Food Safety',
-                'Farm Direct Shipping',
+                'Merchant Direct Shipping',
                 'Priority Logistics Scheduling',
                 'Real-Time Inventory',
                 'Invoice & Payment Integration',
@@ -101,11 +101,11 @@ export class PricingHeroWidget {
                 yearly: 'Custom',
                 monthly: 'Custom'
             },
-            description: 'Built for large, multi-site buyers who demand full customization, SLAs, and 24/7 support.',
+            description: 'Built for large, multi-site merchants who demand full customization, SLAs, and 24/7 support.',
             ingredients: [
                 'Dynamic Pricing Engine',
                 'Compliance & Food Safety',
-                'Farm Direct Shipping',
+                'Merchant Direct Shipping',
                 'SLA-Based Logistics Scheduling',
                 'Multi-location Inventory Sync',
                 'Invoice & Payment Integration',

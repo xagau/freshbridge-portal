@@ -126,22 +126,22 @@ export class OrderDetailComponent implements OnChanges, AfterViewInit, OnDestroy
             return;
         }
 
-        const farmLocation = L.latLng(43.6532, -79.3832);
+        const merchantLocation = L.latLng(43.6532, -79.3832);
         const deliveryLocation = L.latLng(43.6510, -79.3470);
 
-        this.map = L.map('map').setView(farmLocation, 13);
+        this.map = L.map('map').setView(merchantLocation, 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(this.map);
 
-        L.marker(farmLocation, {
+        L.marker(merchantLocation, {
             icon: L.icon({
-                iconUrl: '/images/map/farmer.jpg',
+                iconUrl: '/images/map/merchant.jpg',
                 iconSize: [32, 32],
                 iconAnchor: [16, 32]
             })
-        }).addTo(this.map).bindPopup('<b>Restaurant</b>');
+        }).addTo(this.map).bindPopup('<b>Buyer</b>');
 
         L.marker(deliveryLocation, {
             icon: L.icon({
@@ -151,7 +151,7 @@ export class OrderDetailComponent implements OnChanges, AfterViewInit, OnDestroy
             })
         }).addTo(this.map).bindPopup('<b>Delivery Address</b>');
 
-        const coordsStr = `${farmLocation.lng},${farmLocation.lat};${deliveryLocation.lng},${deliveryLocation.lat}`;
+        const coordsStr = `${merchantLocation.lng},${merchantLocation.lat};${deliveryLocation.lng},${deliveryLocation.lat}`;
         fetch(`https://router.project-osrm.org/route/v1/driving/${coordsStr}?overview=full&geometries=geojson`)
             .then(res => res.json())
             .then(data => {
@@ -289,14 +289,14 @@ export class OrderDetailComponent implements OnChanges, AfterViewInit, OnDestroy
         });
     }
 
-    isRestaurantOwner(): boolean {
-        if (this.currentUser?.role !== 'RESTAURANT' || !this.order) return false;
+    isBuyerOwner(): boolean {
+        if (this.currentUser?.role !== 'BUYER' || !this.order) return false;
         return true;
     }
 
     canCancelOrder(): boolean {
         
-        if (!this.isRestaurantOwner() || !this.order) return false;
+        if (!this.isBuyerOwner() || !this.order) return false;
         // Can cancel if order is not already cancelled, completed, or delivered
         return this.order.status !== 'CANCELLED' &&
             this.order.status !== 'COMPLETED' &&

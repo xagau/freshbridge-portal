@@ -31,9 +31,9 @@ export class ProfileCompletionComponent implements OnInit {
     currentYear = new Date().getFullYear();
 
     userTypes = [
-        { label: 'Farmer', value: 'FARMER' },
-        { label: 'Restaurant', value: 'RESTAURANT' },
-        { label: 'Courier', value: 'COURIER' }
+        { label: 'Merchant', value: 'MERCHANT' },
+        { label: 'Buyer', value: 'BUYER' },
+        // { label: 'Courier', value: 'COURIER' }
     ];
 
     constructor(
@@ -47,13 +47,13 @@ export class ProfileCompletionComponent implements OnInit {
             userType: ['', Validators.required],
             phoneNumber: ['', Validators.required],
 
-            // Farmer specific
-            farmEstablishedDate: [''],
-            farmType: [''],
+            // Merchant specific
+            merchantEstablishedDate: [''],
+            merchantType: [''],
             organicCertification: [false],
 
-            // Restaurant specific
-            restaurantName: [''],
+            // Buyer specific
+            buyerName: [''],
             website: [''],
 
             // Courier specific
@@ -86,13 +86,13 @@ export class ProfileCompletionComponent implements OnInit {
         const formData = {
             userType: this.profileForm.value.userType,
             phoneNumber: this.profileForm.value.phoneNumber,
-            ...(this.profileForm.value.userType === 'FARMER' && {
-                farmEstablishedDate: this.profileForm.value.farmEstablishedDate,
-                farmType: this.profileForm.value.farmType,
+            ...(this.profileForm.value.userType === 'MERCHANT' && {
+                merchantEstablishedDate: this.profileForm.value.merchantEstablishedDate,
+                merchantType: this.profileForm.value.merchantType,
                 organicCertification: this.profileForm.value.organicCertification
             }),
-            ...(this.profileForm.value.userType === 'RESTAURANT' && {
-                restaurantName: this.profileForm.value.restaurantName,
+            ...(this.profileForm.value.userType === 'BUYER' && {
+                buyerName: this.profileForm.value.buyerName,
                 website: this.profileForm.value.website
             }),
             ...(this.profileForm.value.userType === 'COURIER' && {

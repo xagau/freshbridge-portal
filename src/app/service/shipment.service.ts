@@ -7,7 +7,7 @@ export type ShipmentStatus = 'PENDING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 
 export interface Shipment {
     id: number;
-    farmerOrder: any; // You may want to define a FarmerOrder interface
+    merchantOrder: any; // You may want to define a MerchantOrder interface
     trackingNumber: string;
     carrier: string;
     shippingMethod: string;
@@ -31,7 +31,7 @@ export interface ShipmentItem {
 }
 
 export interface ShipmentRequest {
-    farmerOrderId: number;
+    merchantOrderId: number;
     trackingNumber: string;
     carrier: string;
     shippingMethod: string;

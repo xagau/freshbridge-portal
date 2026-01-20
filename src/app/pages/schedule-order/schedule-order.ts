@@ -313,8 +313,8 @@ export class ScheduleRepeatOrder {
     addressSuggestions: string[] = [];
 
     // Example IDs, replace with actual logic as needed
-    // restaurantId = 1;
-    // farmerId = 1;
+    // buyerId = 1;
+    // merchantId = 1;
     userId = 1
     // Validation state
     isSubmitting = false;
@@ -489,11 +489,11 @@ export class ScheduleRepeatOrder {
             return false;
         }
 
-        if (currentUser.role !== 'RESTAURANT' && currentUser.role !== 'FARMER') {
+        if (currentUser.role !== 'BUYER' && currentUser.role !== 'MERCHANT') {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Validation Error',
-                detail: 'Only restaurants and farmers can create orders',
+                detail: 'Only buyers and merchants can create orders',
                 life: 3000
             });
             return false;
@@ -532,23 +532,23 @@ export class ScheduleRepeatOrder {
         this.authService.currentUser$.subscribe(user => {
             console.log(user);
 
-            /* if (user?.role === "RESTAURANT") {
-                this.restaurantId = this.authService.getProfileId() || 0;
-                console.log("restaurantId", this.authService.getProfileId())
+            /* if (user?.role === "BUYER") {
+                this.buyerId = this.authService.getProfileId() || 0;
+                console.log("buyerId", this.authService.getProfileId())
             }
-            else if (user?.role === "FARMER") {
-                this.farmerId = this.authService.getProfileId() || 0;
-                console.log("farmerId", this.authService.getProfileId())
+            else if (user?.role === "MERCHANT") {
+                this.merchantId = this.authService.getProfileId() || 0;
+                console.log("merchantId", this.authService.getProfileId())
             } */
             this.userId = this.authService.getProfileId() || 0;
-            // console.log(this.farmerId)
-            // console.log(this.restaurantId)
+            // console.log(this.merchantId)
+            // console.log(this.buyerId)
             // Validate IDs after getting them
             if (this.userId === 0) {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Validation Error',
-                    detail: 'Unable to determine restaurant or farmer ID',
+                    detail: 'Unable to determine buyer or merchant ID',
                     life: 3000
                 });
                 this.isSubmitting = false;

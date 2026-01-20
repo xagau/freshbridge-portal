@@ -3,7 +3,7 @@
         <ng-template pTemplate="left">
             <p-button label="New Farmer" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
             <p-button severity="danger" label="Delete" icon="pi pi-trash"
-                [disabled]="!selectedFarmers || selectedFarmers.length === 0" (onClick)="confirmDeleteSelected()" />
+                [disabled]="!selectedMerchants || selectedMerchants.length === 0" (onClick)="confirmDeleteSelected()" />
         </ng-template>
     </p-toolbar>
 
@@ -13,42 +13,44 @@
 
 
     <ng-container *ngIf="!loading()">
-        <p-table [value]="farmers()" [rows]="10" [paginator]="true"
-            [globalFilterFields]="['firstName','lastName','email']" [(selection)]="selectedFarmers" dataKey="id"
+        <p-table [value]="merchants()" [rows]="10" [paginator]="true"
+            [globalFilterFields]="['firstName','lastName','email','phoneNumber','merchantType']" [(selection)]="selectedMerchants" dataKey="id"
             [rowHover]="true" styleClass="p-datatable-gridlines">
             <ng-template pTemplate="header">
                 <tr>
                     <th style="width: 3rem">
                         <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                     </th>
+                    <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
                     <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName"></p-sortIcon></th>
                     <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
                     <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
-                    <th pSortableColumn="phoneNumber">Phone</th>
-                    <th pSortableColumn="farmType">Farm Type</th>
-                    <th pSortableColumn="active">Status</th>
+                    <th pSortableColumn="phoneNumber">Phone <p-sortIcon field="phoneNumber"></p-sortIcon></th>
+                    <th pSortableColumn="merchantType">Merchant Type <p-sortIcon field="merchantType"></p-sortIcon></th>
+                    <th pSortableColumn="active">Status <p-sortIcon field="active"></p-sortIcon></th>
                     <th>Actions</th>
                 </tr>
             </ng-template>
-            <ng-template pTemplate="body" let-farmer>
+            <ng-template pTemplate="body" let-merchant>
                 <tr>
                     <td>
-                        <p-tableCheckbox [value]="farmer"></p-tableCheckbox>
+                        <p-tableCheckbox [value]="merchant"></p-tableCheckbox>
                     </td>
-                    <td>{{farmer.firstName}}</td>
-                    <td>{{farmer.lastName}}</td>
-                    <td>{{farmer.email}}</td>
-                    <td>{{farmer.phoneNumber}}</td>
-                    <td>{{farmer.farmType}}</td>
+                    <td>{{merchant.id}}</td>
+                    <td>{{merchant.firstName}}</td>
+                    <td>{{merchant.lastName}}</td>
+                    <td>{{merchant.email}}</td>
+                    <td>{{merchant.phoneNumber}}</td>
+                    <td>{{merchant.merchantType}}</td>
                     <td>
-                        <p-tag [value]="farmer.active ? 'Active' : 'Inactive'"
-                            [severity]="getStatusSeverity(farmer.active)"></p-tag>
+                        <p-tag [value]="merchant.active ? 'Active' : 'Inactive'"
+                            [severity]="getStatusSeverity(merchant.active)"></p-tag>
                     </td>
                     <td>
                         <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true"
-                            (click)="editFarmer(farmer)"></p-button>
+                            (click)="editMerchant(merchant)"></p-button>
                         <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
-                            (click)="deleteFarmer(farmer)" class="ml-1"></p-button>
+                            (click)="deleteMerchant(merchant)" class="ml-1"></p-button>
                     </td>
                 </tr>
             </ng-template>
@@ -56,75 +58,75 @@
     </ng-container>
 </div>
 
-<p-dialog [(visible)]="farmerDialog" [style]="{width: '600px'}" header="Farmer Details" [modal]="true">
-    <form (ngSubmit)="saveFarmer()">
+<p-dialog [(visible)]="merchantDialog" [style]="{width: '600px'}" header="Merchant Details" [modal]="true">
+    <form (ngSubmit)="saveMerchant()">
         <div class="grid p-fluid grid-cols-12 gap-6">
             <div class="col-span-12 md:col-span-6">
                 <h4 for="firstName">First Name</h4>
-                <input type="text" pInputText id="firstName" [(ngModel)]="farmer.firstName" name="firstName" required />
+                <input type="text" pInputText id="firstName" [(ngModel)]="merchant.firstName" name="firstName" required />
             </div>
             <div class="col-span-12 md:col-span-6">
                 <h4 for="lastName">Last Name</h4>
-                <input type="text" pInputText id="lastName" [(ngModel)]="farmer.lastName" name="lastName" required />
+                <input type="text" pInputText id="lastName" [(ngModel)]="merchant.lastName" name="lastName" required />
             </div>
             <div class="col-span-12 md:col-span-6">
                 <h4 for="email">Email</h4>
-                <input type="email" pInputText id="email" [(ngModel)]="farmer.email" name="email" required />
+                <input type="email" pInputText id="email" [(ngModel)]="merchant.email" name="email" required />
             </div>
             <div class="col-span-12 md:col-span-6">
                 <h4 for="phoneNumber">Phone</h4>
-                <input type="tel" pInputText id="phoneNumber" [(ngModel)]="farmer.phoneNumber" name="phoneNumber" />
+                <input type="tel" pInputText id="phoneNumber" [(ngModel)]="merchant.phoneNumber" name="phoneNumber" />
             </div>
             <div class="col-span-12 md:col-span-6">
-                <h4 for="farmType">Farm Type</h4>
-                <p-dropdown [options]="farmTypes" [(ngModel)]="farmer.farmType" name="farmType" optionLabel="label"
+                <h4 for="merchantType">Merchant Type</h4>
+                <p-dropdown [options]="merchantTypes" [(ngModel)]="merchant.merchantType" name="merchantType" optionLabel="label"
                     optionValue="value" placeholder="Select Farm Type"></p-dropdown>
             </div>
             <div class="col-span-12 md:col-span-6">
-                <h4 for="farmEstablishedDate">Farm Established Date</h4>
-                <p-calendar [(ngModel)]="farmer.farmEstablishedDate" name="farmEstablishedDate" dateFormat="yy-mm-dd"
+                <h4 for="merchantEstablishedDate">Merchant Established Date</h4>
+                <p-calendar [(ngModel)]="merchant.merchantEstablishedDate" name="merchantEstablishedDate" dateFormat="yy-mm-dd"
                     [showIcon]="true"></p-calendar>
             </div>
             <div class="col-span-12 md:col-span-6">
                 <h4 for="activeToggle">Status:</h4>
-                <p-toggleSwitch id="activeToggle" [(ngModel)]="farmer.active" name="active"
+                <p-toggleSwitch id="activeToggle" [(ngModel)]="merchant.active" name="active"
                     [style]="{'width': '3.5rem'}">
                     <ng-template #handle let-checked="checked">
                         <i [ngClass]="['text-xs', 'pi', checked ? 'pi-check' : 'pi-times']"></i>
                     </ng-template>
                 </p-toggleSwitch>
-                <span class="text-md ml-2">{{farmer.active ? 'Active' : 'Inactive'}}</span>
+                <span class="text-md ml-2">{{merchant.active ? 'Active' : 'Inactive'}}</span>
             </div>
             <div class="col-span-12 md:col-span-6">
                 <h4 for="communicationPreference">Communication Preference</h4>
-                <p-dropdown [options]="communicationPreferences" [(ngModel)]="farmer.communicationPreference"
+                <p-dropdown [options]="communicationPreferences" [(ngModel)]="merchant.communicationPreference"
                     name="communicationPreference" optionLabel="label" optionValue="value"></p-dropdown>
             </div>
             <div class="col-span-12 md:col-span-6">
                 <h4 for="emergencyContactName">Emergency Contact Name</h4>
-                <input type="text" pInputText id="emergencyContactName" [(ngModel)]="farmer.emergencyContactName"
+                <input type="text" pInputText id="emergencyContactName" [(ngModel)]="merchant.emergencyContactName"
                     name="emergencyContactName" />
             </div>
             <div class="col-span-12 md:col-span-6">
                 <h4 for="emergencyContactPhone">Emergency Contact Phone</h4>
-                <input type="tel" pInputText id="emergencyContactPhone" [(ngModel)]="farmer.emergencyContactPhone"
+                <input type="tel" pInputText id="emergencyContactPhone" [(ngModel)]="merchant.emergencyContactPhone"
                     name="emergencyContactPhone" />
             </div>
             <div class="col-span-12 md:col-span-6">
                 <h4>Organic Certification</h4>
-                <p-checkbox [binary]="true" [(ngModel)]="farmer.organicCertification"
+                <p-checkbox [binary]="true" [(ngModel)]="merchant.organicCertification"
                     name="organicCertification"></p-checkbox>
             </div>
-            <div class="col-span-12 md:col-span-6" *ngIf="farmer.organicCertification">
+            <div class="col-span-12 md:col-span-6" *ngIf="merchant.organicCertification">
                 <h4 for="certificationDate">Certification Date</h4>
-                <p-calendar [(ngModel)]="farmer.certificationDate" name="certificationDate" dateFormat="yy-mm-dd"
+                <p-calendar [(ngModel)]="merchant.certificationDate" name="certificationDate" dateFormat="yy-mm-dd"
                     [showIcon]="true"></p-calendar>
             </div>
         </div>
     </form>
     <ng-template pTemplate="footer">
         <p-button label="Cancel" icon="pi pi-times" (click)="hideDialog()" styleClass="p-button-text"></p-button>
-        <p-button label="Save" icon="pi pi-check" (click)="saveFarmer()"></p-button>
+        <p-button label="Save" icon="pi pi-check" (click)="saveMerchant()"></p-button>
     </ng-template>
 </p-dialog>
 

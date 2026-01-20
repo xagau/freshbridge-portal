@@ -48,12 +48,12 @@ export const appRoutes: Routes = [
             {
                 path: 'dashboard',
                 loadComponent: () => import('@/pages/dashboards/dashboard').then((c) => c.EcommerceDashboard),
-                data: { breadcrumb: 'Dashboard', roles: ['FARMER', 'RESTAURANT'] }
+                data: { breadcrumb: 'Dashboard', roles: ['MERCHANT', 'BUYER'] }
             },
             {
                 path: 'freshselect',
                 loadComponent: () => import('@/pages/chat/chat.component').then((c) => c.ChatComponent),
-                data: { breadcrumb: 'FreshSelect', roles: ['FARMER', 'RESTAURANT', 'COURIER'] }
+                data: { breadcrumb: 'FreshSelect', roles: ['MERCHANT', 'BUYER', 'COURIER'] }
             },
             {
                 path: 'settings',
@@ -63,34 +63,34 @@ export const appRoutes: Routes = [
             {
                 path: 'order-management',
                 loadComponent: () => import('@/pages/order-list/order-list.component').then((c) => c.OrderListComponent),
-                data: { breadcrumb: 'Dashboard', roles: ['FARMER', 'RESTAURANT', 'COURIER'] }
+                data: { breadcrumb: 'Dashboard', roles: ['MERCHANT', 'BUYER', 'COURIER'] }
             },
             {
                 path: 'product-management',
                 loadChildren: () => import('@/pages/product/product.route'),
-                data: { roles: ['FARMER', 'RESTAURANT'] }
+                data: { roles: ['MERCHANT', 'BUYER'] }
             },
             {
-                path: 'farmers-management',
-                loadComponent: () => import('@/pages/farmer-managment/farmer-managment').then((c) => c.FarmerList),
+                path: 'merchants-management',
+                loadComponent: () => import('@/pages/merchant-managment/merchant-managment').then((c) => c.MerchantList),
                 canActivate: [AuthGuard],
                 data: { breadcrumb: 'Dashboard', roles: ['ADMIN'] }
             },
             {
-                path: 'restaurant-management',
-                loadComponent: () => import('@/pages/restaurant-managment/restaurant-management.component').then((c) => c.RestaurantManagementComponent),
+                path: 'buyers-management',
+                loadComponent: () => import('@/pages/buyer-managment/buyer-management.component').then((c) => c.BuyerManagementComponent),
                 canActivate: [AuthGuard],
                 data: { breadcrumb: 'Dashboard', roles: ['ADMIN'] }
             },
             {
                 path: 'pi',
                 loadChildren: () => import('@/pages/payment-invoice/payment.routes'),
-                data: { breadcrumb: 'Dashboard', roles: ['FARMER', 'RESTAURANT'] }
+                data: { breadcrumb: 'Dashboard', roles: ['MERCHANT', 'BUYER'] }
             },
             {
                 path: 'schedule-order',
                 loadComponent: () => import('@/pages/schedule-order/schedule-order').then((c) => c.ScheduleRepeatOrder),
-                data: { breadcrumb: 'Schedule Order', roles: ['ADMIN', 'RESTAURANT'] }
+                data: { breadcrumb: 'Schedule Order', roles: ['ADMIN', 'BUYER'] }
             },
             {
                 path: 'analytics',

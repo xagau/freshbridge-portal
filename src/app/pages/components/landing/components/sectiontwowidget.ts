@@ -59,8 +59,8 @@ import { RouterLink } from '@angular/router';
                     <h4 class="title-h5 md:title-h4 text-center lg:text-left mt-4">🌱 Why FreshBridge?</h4>
                     <p class="body-small md:body-medium text-center lg:text-left mt-6">We’re not just a platform. We’re infrastructure for a new food economy.</p>
                     <ul class="list-disc list-inside body-small lg:body-medium text-center lg:text-left mt-8 space-y-3.5">
-                        <li>Higher profits for small-to-medium farms</li>
-                        <li>Better access for local restaurants & retailers</li>
+                        <li>Higher profits for small-to-medium merchants</li>
+                        <li>Better access for local buyers & retailers</li>
                         <li>Lower waste and fewer intermediaries.</li>
                         <li>Smart delivery from field to fork</li>
                         <li>Built by Canadians, for Canadian agriculture</li>

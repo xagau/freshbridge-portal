@@ -29,7 +29,7 @@ import { LazyImageWidget } from '@/pages/components/landing/components/lazyimage
 
                     <ul class="list-disc mt-8 body-medium text-center lg:text-left list-inside space-y-3.5">
                         <li>900+ transactions in first 90 days</li>
-                        <li>18% average increase in farm profit margin</li>
+                        <li>18% average increase in merchant profit margin</li>
                         <li>93% buyer re-order rate</li>
                         <li>25% savings on last-mile delivery costs</li>
                     </ul>

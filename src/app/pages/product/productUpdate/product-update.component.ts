@@ -62,8 +62,8 @@ export class ProductUpdateComponent implements OnInit {
     maxImages = 4;
     imageUrls: string[] = [];
 
-    // Store the current farmer ID
-    // currentFarmerId: number | null = null;
+    // Store the current merchant ID
+    // currentMerchantId: number | null = null;
     userId: number | null = null;
     constructor(
         private productService: ProductService,
@@ -77,16 +77,16 @@ export class ProductUpdateComponent implements OnInit {
         // Get the current user's role
         const userRole = this.authService.currentUserValue?.role;
         this.loading = true;
-        // If the user is a farmer, get their farmer ID
-        if (userRole === 'FARMER') {
+        // If the user is a merchant, get their merchant ID
+        if (userRole === 'MERCHANT') {
             this.userId = this.authService.getProfileId();
-            console.log('Current farmer ID:', this.userId);
+            console.log('Current merchant ID:', this.userId);
         } else if (userRole === 'ADMIN') {
-            // Admins can create products for any farm, but we'll need to handle this differently
+            // Admins can create products for any merchant, but we'll need to handle this differently
             // For now, we'll just log a message
-            console.log('Admin user detected. Will need to select a farm.');
+            console.log('Admin user detected. Will need to select a merchant.');
         } else {
-            // If the user is not a farmer or admin, they shouldn't be on this page
+            // If the user is not a merchant or admin, they shouldn't be on this page
             this.messageService.add({
                 severity: 'error',
                 summary: 'Access Denied',
@@ -132,7 +132,7 @@ export class ProductUpdateComponent implements OnInit {
             // Check if the URL is already a full URL or just a path
             const fullUrl = url.startsWith('http') 
                 ? url 
-                : `https://api.freshbridge.ca/api/v1/farm-products/${url}`;
+                : `https://api.freshbridge.ca/api/v1/merchant-products/${url}`;
             
             console.log("Fetching image from:", fullUrl);
             
@@ -178,19 +178,19 @@ export class ProductUpdateComponent implements OnInit {
     onSubmit() {
         this.loading = true;
 
-        // Check if we have a valid farmer ID
-        if (!this.userId && this.authService.currentUserValue?.role === 'FARMER') {
-            this.handleError('Unable to determine your farmer ID. Please try logging in again.');
+        // Check if we have a valid merchant ID
+        if (!this.userId && this.authService.currentUserValue?.role === 'MERCHANT') {
+            this.handleError('Unable to determine your merchant ID. Please try logging in again.');
             return;
         }
 
-        // For admin users who might be creating products for any farm
-        // In a real app, you'd have a farm selector in the UI
+        // For admin users who might be creating products for any merchant
+        // In a real app, you'd have a merchant selector in the UI
         const UID = this.userId ||
             (this.authService.currentUserValue?.role === 'ADMIN' ? 1 : null);
 
         if (!UID) {
-            this.handleError('No farmer ID available. Cannot create product.');
+            this.handleError('No merchant ID available. Cannot update product.');
             return;
         }
 
@@ -198,7 +198,7 @@ export class ProductUpdateComponent implements OnInit {
             ...this.product,
             price: Number(this.product.price),
             quantityAvailable: Number(this.product.quantityAvailable),
-            userId: UID, // Use the farmer ID from auth service
+            userId: UID, // Use the merchant ID from auth service
             harvestDateStr: this.product.harvestDate || new Date().toISOString().split('T')[0]
         } as Product;
 

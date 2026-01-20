@@ -1,8 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { RestaurantRevenueWidget } from '@/pages/dashboards/components/restaurantrevenuewidget';
+import { BuyerRevenueWidget } from '@/pages/dashboards/components/buyerrevenuewidget';
 import { MiniStatCardWidget } from '@/pages/dashboards/components/ministatcardwidget';
 // import { OrdersWidget } from '@/pages/dashboards/components/orderswidget';
-import { OrderByRestaurantWidget } from '@/pages/dashboards/components/orderbyrestaurantwidget';
+import { OrderByBuyerWidget } from '@/pages/dashboards/components/orderbybuyerwidget';
 import { GoogleLikeCalendarComponent } from '@/pages/dashboards/components/calendar/calendarwidget';
 import { DashboardDataService } from '@/service/dashboard-data.service';
 import { BannerWidget } from '@/pages/dashboards/components/bannerwidget';
@@ -10,7 +10,7 @@ import { BannerWidget } from '@/pages/dashboards/components/bannerwidget';
 @Component({
     selector: 'app-ecommerce-dashboard',
     standalone: true,
-    imports: [RestaurantRevenueWidget, MiniStatCardWidget, OrderByRestaurantWidget, GoogleLikeCalendarComponent, BannerWidget],
+    imports: [BuyerRevenueWidget, MiniStatCardWidget, OrderByBuyerWidget, GoogleLikeCalendarComponent, BannerWidget],
     template: `<section class="flex flex-col gap-7">
         <div class="flex flex-wrap gap-7">
             <banner-widget />
@@ -18,9 +18,9 @@ import { BannerWidget } from '@/pages/dashboards/components/bannerwidget';
         </div>
         <app-google-like-calendar></app-google-like-calendar>
         <div class="flex flex-wrap gap-7">
-            <restaurant-revenue-widget />
+            <buyer-revenue-widget />
             <!-- <orders-widget /> -->
-            <order-by-restaurant-widget />
+            <order-by-buyer-widget />
         </div>
     </section>`
 })
