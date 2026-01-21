@@ -42,11 +42,13 @@ export class Register {
     currentYear: number = new Date().getFullYear();
     registerForm: FormGroup;
     loading = false;
+    showVerificationType = false;
     showVerification = false;
     verificationCode = '';
+    verificationType: 'EMAIL' | 'PHONE' = 'EMAIL';
     emailForVerification = '';
-    showPassword: boolean = false;
-
+    verificationTargetLabel = '';
+    showPassword = false;
 
     userTypes = [
         { label: 'Merchant', value: 'MERCHANT' },
@@ -126,8 +128,48 @@ export class Register {
             this.registerForm.patchValue({ phoneNumber: phoneNumber });
         }
 
+        this.showVerificationType = true;
+    }
+
+    onSelectVerificationType(type: 'EMAIL' | 'PHONE') {
+        this.verificationType = type;
+        const target = this.getVerificationTarget(type);
+        if (!target) {
+            return;
+        }
+        this.emailForVerification = target.sendTo;
+        this.verificationTargetLabel = target.display;
+        this.showVerificationType = false;
+        this.sendVerificationCode();
+    }
+
+    private getVerificationTarget(type: 'EMAIL' | 'PHONE') {
+        const { email, phoneNumber } = this.registerForm.value;
+        if (type === 'EMAIL') {
+            if (!email) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Please provide a valid email address'
+                });
+                return null;
+            }
+            return { sendTo: email, display: email };
+        }
+
+        if (!phoneNumber) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please provide a valid phone number'
+            });
+            return null;
+        }
+        return { sendTo: phoneNumber, display: phoneNumber };
+    }
+
+    sendVerificationCode() {
         this.loading = true;
-        this.emailForVerification = phoneNumber;
 
         try {
             // First send verification code
@@ -135,22 +177,22 @@ export class Register {
                 next: (response) => {
                     console.log(response);
                     this.showVerification = true;
-                    },
-                    error: (error) => {
-                        console.error(error);
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: error || 'Failed to send verification code'
-                        });
-                        this.loading = false;
-                    }
+                },
+                error: (error) => {
+                    console.error(error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: error || 'Failed to send verification code'
+                    });
+                    this.loading = false;
+                }
             });
         } catch (error: any) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
-                detail: error.message ||  'Failed to send verification code'
+                detail: error.message || 'Failed to send verification code'
             });
         } finally {
             this.loading = false;

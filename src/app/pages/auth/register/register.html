@@ -110,10 +110,35 @@
     </div>
 </section>
 
-<p-dialog [(visible)]="showVerification" [modal]="true" [style]="{ width: '450px' }" [closable]="false">
-    <h5 class="title-h5 text-center">Email Verification</h5>
+<p-dialog [(visible)]="showVerificationType" [modal]="true" [style]="{ width: '450px' }" [closable]="false">
+    <h5 class="title-h5 text-center">Choose Verification Method</h5>
     <p class="body-small mt-3.5 text-center">
-        We've sent a 6-digit code to {{ emailForVerification }}
+        How would you like to receive your 6-digit code?
+    </p>
+
+    <div class="flex flex-col gap-3 mt-6">
+        <button (click)="onSelectVerificationType('EMAIL')" type="button" class="body-button w-full">
+            Email
+        </button>
+        <button (click)="onSelectVerificationType('PHONE')" type="button" class="body-button w-full">
+            Phone Number
+        </button>
+    </div>
+
+    <div class="mt-6">
+        <button (click)="showVerificationType = false" type="button"
+            class="body-button border border-surface-200 dark:border-surface-800 bg-transparent hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-950 dark:text-surface-0 w-full">
+            Cancel
+        </button>
+    </div>
+</p-dialog>
+
+<p-dialog [(visible)]="showVerification" [modal]="true" [style]="{ width: '450px' }" [closable]="false">
+    <h5 class="title-h5 text-center">
+        {{ verificationType === 'EMAIL' ? 'Email' : 'Phone' }} Verification
+    </h5>
+    <p class="body-small mt-3.5 text-center">
+        We've sent a 6-digit code to {{ verificationTargetLabel }}
     </p>
 
     <div class="mt-6 flex items-center justify-center">
@@ -133,7 +158,7 @@
 
     <div class="text-center mt-4 body-small">
         Didn't receive code?
-        <button (click)="onSubmit()" class="text-primary-500 hover:underline bg-transparent border-none cursor-pointer">
+        <button (click)="sendVerificationCode()" class="text-primary-500 hover:underline bg-transparent border-none cursor-pointer">
             Resend
         </button>
     </div>
