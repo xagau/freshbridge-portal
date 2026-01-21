@@ -92,8 +92,10 @@ export class ForgotPassword {
                     summary: 'Check your email',
                     detail: 'If an account exists, a reset code has been sent.'
                 });
-                this.router.navigate(['/auth/new-password'], { queryParams: { contact: email } });
-                this.loading = false;
+                setTimeout(() => {
+                    this.router.navigate(['/auth/new-password'], { queryParams: { contact: email } });
+                    this.loading = false;
+                }, 1000);
             },
             error: (error) => {
                 this.messageService.add({
