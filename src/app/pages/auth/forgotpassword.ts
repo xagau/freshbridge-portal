@@ -1,17 +1,22 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
 import { LogoWidget } from '@/pages/components/landing/components/logowidget';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterModule, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { AuthService } from '@/auth/auth.service';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'app-forgot-password',
-    imports: [InputTextModule, LazyImageWidget, LogoWidget, ReactiveFormsModule, RouterModule],
+    imports: [CommonModule, InputTextModule, LazyImageWidget, LogoWidget, ReactiveFormsModule, RouterModule, ToastModule],
+    providers: [AuthService, MessageService],
     standalone: true,
     template: `
+        <p-toast></p-toast>
         <section 
     class="min-h-screen flex items-center lg:items-start lg:py-20 justify-center animate-fadein animate-duration-300 animate-ease-in max-w-[100rem] mx-auto bg-[url('/images/landing/auth-image.png')] bg-cover bg-center bg-no-repeat lg:bg-none">
             <div class="flex w-full h-full justify-center gap-12">
@@ -23,11 +28,14 @@ import { Location } from '@angular/common';
                         <div class="max-w-md mx-auto w-full">
                             <h5 class="title-h5 text-center lg:text-left">Forgot Password</h5>
                             <p class="body-small mt-3.5 text-center lg:text-left">Enter your email to reset your password</p>
-                            <form>
-                                <input pInputText type="text" [formControl]="emailControl" class="w-full mt-7" placeholder="Email" />
+                            <form [formGroup]="forgotForm" (ngSubmit)="onSubmit()">
+                                <input pInputText type="text" formControlName="email" class="w-full mt-7" placeholder="Email" />
                                 <div class="flex items-center gap-4 mt-8">
                                     <button type="button" (click)="goHome()" class="body-button border border-surface-200 dark:border-surface-800 bg-transparent hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-950 dark:text-surface-0 flex-1">Cancel</button>
-                                    <button type="submit" class="body-button flex-1">Submit</button>
+                                    <button type="submit" class="body-button flex-1" [disabled]="forgotForm.invalid || loading">
+                                        <span *ngIf="!loading">Submit</span>
+                                        <span *ngIf="loading">Submitting...</span>
+                                    </button>
                                 </div>
                             </form>
                             <div class="mt-8 body-small text-center lg:text-left">
@@ -49,10 +57,54 @@ import { Location } from '@angular/common';
 })
 export class ForgotPassword {
     currentYear: number = new Date().getFullYear();
+    loading = false;
+    forgotForm: FormGroup;
 
-    emailControl = new FormControl('');
+    constructor(
+        private router: Router,
+        private location: Location,
+        private fb: FormBuilder,
+        private authService: AuthService,
+        private messageService: MessageService
+    ) {
+        this.forgotForm = this.fb.group({
+            email: ['', [Validators.required, Validators.email]]
+        });
+    }
 
-    constructor(private router: Router, private location: Location) {}
+    onSubmit() {
+        if (this.forgotForm.invalid || this.loading) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please enter a valid email address'
+            });
+            return;
+        }
+
+        this.loading = true;
+        const { email } = this.forgotForm.value;
+
+        this.authService.forgotPassword(email!).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Check your email',
+                    detail: 'If an account exists, a reset code has been sent.'
+                });
+                this.router.navigate(['/auth/new-password'], { queryParams: { contact: email } });
+                this.loading = false;
+            },
+            error: (error) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error?.message || 'Failed to send reset code'
+                });
+                this.loading = false;
+            }
+        });
+    }
 
     goHome() {
         this.location.back();

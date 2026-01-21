@@ -363,12 +363,16 @@ export class AuthService {
         return this.http.post(`${environment.apiUrl}auth/forgot-password`, { email });
     }
 
-    verifyResetCode(email: string, code: string) {
-        return this.http.post(`${environment.apiUrl}auth/verify-reset-code`, { email, code });
+    verifyResetCode(contact: string, code: string) {
+        return this.http.post(`${environment.apiUrl}auth/verify-code`, { contact, code });
     }
 
-    resetPassword(email: string, code: string, password: string) {
-        return this.http.post(`${environment.apiUrl}auth/reset-password`, { email, code, password });
+    resetPassword(contact: string, resetCode: string, newPassword: string) {
+        return this.http.post(`${environment.apiUrl}auth/reset-password`, {
+            contact,
+            resetCode,
+            newPassword
+        });
     }
 
 }
