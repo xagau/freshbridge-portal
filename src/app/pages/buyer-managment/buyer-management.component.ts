@@ -147,8 +147,9 @@ export class BuyerManagementComponent implements OnInit {
 
     saveBuyer() {
         this.submitted = true;
-
-        if (this.buyer.name?.trim() && this.buyer.email?.trim()) {
+        console.log(this.buyer);
+        
+        if (this.buyer.name?.trim()) {
             if (this.buyer.id) {
                 // Update existing buyer
                 this.buyerService.updateBuyer(this.buyer.id, this.buyer).subscribe({

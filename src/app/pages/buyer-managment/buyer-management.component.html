@@ -25,7 +25,7 @@
                         <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                     </th>
                     <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
-                    <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                    <!-- <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th> -->
                     <th pSortableColumn="phoneNumber">Phone <p-sortIcon field="phoneNumber"></p-sortIcon></th>
                     <th pSortableColumn="address">Address <p-sortIcon field="address"></p-sortIcon></th>
                     <th pSortableColumn="website">Website <p-sortIcon field="website"></p-sortIcon></th>
@@ -39,7 +39,7 @@
                         <p-tableCheckbox [value]="buyer"></p-tableCheckbox>
                     </td>
                     <td>{{buyer.name}}</td>
-                    <td>{{buyer.email}}</td>
+                    <!-- <td>{{buyer.email}}</td> -->
                     <td>{{buyer.phoneNumber}}</td>
                     <td>{{buyer.address}}</td>
                     <td>{{buyer.website}}</td>
@@ -75,10 +75,10 @@
                 <input type="tel" pInputText id="phoneNumber" [(ngModel)]="buyer.phoneNumber" name="phoneNumber"
                     required />
             </div>
-            <div class="col-span-12 sm:col-span-6">
+            <!-- <div class="col-span-12 sm:col-span-6">
                 <h4 for="email">Email</h4>
                 <input type="email" pInputText id="email" [(ngModel)]="buyer.email" name="email" required />
-            </div>
+            </div> -->
             <div class="col-span-12 sm:col-span-6">
                 <h4 for="website">Website</h4>
                 <input type="url" pInputText id="website" [(ngModel)]="buyer.website" name="website" />

@@ -45,7 +45,7 @@ export class BuyerService {
   }
 
   updateBuyer(id: number, buyer: Buyer): Observable<Buyer> {
-    return this.http.post<Buyer>(`${this.apiUrl}/${id}`, buyer, { headers: this.getAuthHeaders() });
+    return this.http.put<Buyer>(`${this.apiUrl}/${id}`, buyer, { headers: this.getAuthHeaders() });
   }
 
   deleteBuyer(id: number): Observable<void> {
