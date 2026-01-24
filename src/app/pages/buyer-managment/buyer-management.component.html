@@ -1,7 +1,7 @@
 <div class="card">
     <p-toolbar styleClass="mb-4">
         <ng-template pTemplate="left">
-            <p-button label="New Restaurant" icon="pi pi-plus" severity="secondary" class="mr-2"
+            <p-button label="New Buyer" icon="pi pi-plus" severity="secondary" class="mr-2"
                 (onClick)="openNew()" />
             <p-button severity="danger" label="Delete" icon="pi pi-trash"
                 [disabled]="!selectedBuyers || selectedBuyers.length === 0"
@@ -33,19 +33,19 @@
                     <th>Actions</th>
                 </tr>
             </ng-template>
-            <ng-template pTemplate="body" let-restaurant>
+            <ng-template pTemplate="body" let-buyer>
                 <tr>
                     <td>
-                        <p-tableCheckbox [value]="restaurant"></p-tableCheckbox>
+                        <p-tableCheckbox [value]="buyer"></p-tableCheckbox>
                     </td>
-                    <td>{{restaurant.name}}</td>
-                    <td>{{restaurant.email}}</td>
-                    <td>{{restaurant.phoneNumber}}</td>
-                    <td>{{restaurant.address}}</td>
-                    <td>{{restaurant.website}}</td>
+                    <td>{{buyer.name}}</td>
+                    <td>{{buyer.email}}</td>
+                    <td>{{buyer.phoneNumber}}</td>
+                    <td>{{buyer.address}}</td>
+                    <td>{{buyer.website}}</td>
                     <td>
-                        <p-tag [value]="restaurant.active ? 'Active' : 'Inactive'"
-                            [severity]="getStatusSeverity(restaurant.active)"></p-tag>
+                        <p-tag [value]="buyer.active ? 'Active' : 'Inactive'"
+                            [severity]="getStatusSeverity(buyer.active)"></p-tag>
                     </td>
                     <td>
                         <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true"
