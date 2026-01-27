@@ -1,11 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { RadioButtonModule } from 'primeng/radiobutton';
@@ -16,7 +15,8 @@ import { OrdersService } from '@/service/orders.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '@/auth/auth.service';
-import { AddressService } from '@/service/address.service';
+import { AutoComplete } from 'primeng/autocomplete';
+import { AddressSearchResult, AddressService } from '@/service/address.service';
 
 @Component({
     selector: 'app-schedule-repeat-order',
@@ -28,13 +28,13 @@ import { AddressService } from '@/service/address.service';
         CalendarModule,
         CheckboxModule,
         DropdownModule,
-        HttpClientModule,
         InputNumberModule,
         MultiSelectModule,
         RadioButtonModule,
         RippleModule,
         SelectButtonModule,
         ToggleButtonModule,
+        AutoComplete,
         ToastModule
     ],
     template: `
@@ -44,27 +44,23 @@ import { AddressService } from '@/service/address.service';
                 <!-- 🚚 Delivery Address Section -->
                 <div class="col-span-12">
                     <h3 class="text-xl font-medium mb-4">Delivery Address <span class="text-red-500">*</span></h3>
-                    <input 
-                        type="text"
-                        class="p-inputtext w-full"
-                        placeholder="Start typing address..."
-                        [ngModel]="deliveryAddress"
-                        (ngModelChange)="onDeliveryAddressChange($event)"
-                        autocomplete="off"
+                    <p-autocomplete
+                        inputId="deliveryAddress"
+                        [suggestions]="addressSuggestions"
+                        (completeMethod)="searchAddress($event)"
+                        (onSelect)="onAddressSelect($event)"
+                        (ngModelChange)="onAddressInputChange($event)"
+                        [(ngModel)]="addressQuery"
+                        field="display_name"
+                        [minLength]="3"
+                        styleClass="w-full"
+                        inputStyleClass="w-full"
+                        [forceSelection]="false"
                         [class.p-invalid]="!deliveryAddress || deliveryAddress.trim().length < 10"
-                    />
+                    ></p-autocomplete>
                     <small *ngIf="!deliveryAddress || deliveryAddress.trim().length < 10" class="p-error">
                         Address is required and must be at least 10 characters
                     </small>
-                    <ul *ngIf="addressSuggestions.length" class="bg-white border mt-1 rounded shadow p-2 max-h-48 overflow-auto">
-                        <li 
-                            *ngFor="let suggestion of addressSuggestions" 
-                            (click)="selectAddress(suggestion)"
-                            class="cursor-pointer hover:bg-gray-100 p-2 rounded"
-                        >
-                            {{ suggestion }}
-                        </li>
-                    </ul>
                 </div>
 
                 <!-- 📅 Start Date Section -->
@@ -243,24 +239,11 @@ export class ScheduleRepeatOrder {
         private ordersService: OrdersService,
         private messageService: MessageService,
         private authService: AuthService,
-        private http: HttpClient,
-        private addressService: AddressService
+        private addressService: AddressService,
+        private zone: NgZone
     ) {
         this.startDate = new Date();
         this.minStartDate = new Date();
-        // Pre-populate delivery address
-        this.loadDeliveryAddress();
-    }
-    
-    loadDeliveryAddress() {
-        const savedAddress = this.addressService.getAddress();
-        if (savedAddress) {
-            // Use full address if available, otherwise construct from parts
-            this.deliveryAddress = savedAddress.address || 
-                [savedAddress.street, savedAddress.city, savedAddress.state, savedAddress.zipCode]
-                    .filter(Boolean)
-                    .join(', ') || '';
-        }
     }
 
     // 📅 Start Date
@@ -310,7 +293,8 @@ export class ScheduleRepeatOrder {
 
     // 🚚 Delivery Address
     deliveryAddress: string = '';
-    addressSuggestions: string[] = [];
+    addressQuery: string = '';
+    addressSuggestions: AddressSearchResult[] = [];
 
     // Example IDs, replace with actual logic as needed
     // buyerId = 1;
@@ -330,31 +314,35 @@ export class ScheduleRepeatOrder {
     }
 
 
-    onDeliveryAddressChange(value: string) {
-        this.deliveryAddress = value;
-        const query = value ?? '';
-        // Clear suggestions if query is too short
+    onAddressInputChange(value: string) {
+        this.addressQuery = value || '';
+        this.deliveryAddress = value || '';
+    }
+
+    async searchAddress(event: { query: string }) {
+        const query = event?.query?.trim();
         if (!query) {
             this.addressSuggestions = [];
             return;
         }
-        if (query.length < 3) {
-            this.addressSuggestions = [];
-            return;
-        }
-        // Example using Geoapify (free tier, replace YOUR_API_KEY)
-        // this.http.get<any>(
-        //     `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&filter=countrycode:ca&limit=5&apiKey=YOUR_API_KEY`
-        // ).subscribe(res => {
-        //     this.addressSuggestions = res.features.map((f: any) => f.properties.formatted);
-        // });
+
+        const results = await this.addressService.searchAddress(query, 5);
+        this.zone.run(() => {
+            this.addressSuggestions = results;
+        });
     }
 
-    selectAddress(address: string) {
-        this.deliveryAddress = address;
-        this.addressSuggestions = [];
-        // Save selected address
-        this.addressService.updateAddress({ address: address });
+    onAddressSelect(event: { value?: AddressSearchResult }) {
+        const selection = event?.value;
+        if (!selection?.display_name) {
+            return;
+        }
+
+        this.zone.run(() => {
+            this.addressQuery = selection.display_name;
+            this.deliveryAddress = selection.display_name;
+            this.addressSuggestions = [];
+        });
     }
 
     getScheduleSummary(): string {
@@ -604,6 +592,7 @@ export class ScheduleRepeatOrder {
         this.applyToAllLocations = false;
         this.autoConfirmOrders = true;
         this.deliveryAddress = '';
+        this.addressQuery = '';
         this.addressSuggestions = [];
     }
 }

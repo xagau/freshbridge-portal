@@ -37,8 +37,17 @@
                             placeholder="Full Name" />
                         <input type="text" pInputText formControlName="phoneNumber" class="w-full mt-4"
                             placeholder="Phone Number" />
-                        <input type="text" pInputText formControlName="address" class="w-full mt-4"
-                            placeholder="Address" />
+                        <p-autocomplete
+                            inputId="address"
+                            formControlName="address"
+                            class="w-full mt-4"
+                            [suggestions]="addressSuggestions"
+                            (completeMethod)="searchAddress($event)"
+                            (onSelect)="onAddressSelect($event)"
+                            field="display_name"
+                            [minLength]="3"
+                            [forceSelection]="false"
+                        ></p-autocomplete>
 
                         <p-dropdown formControlName="userType" [options]="userTypes" optionLabel="label"
                             optionValue="value" placeholder="Select User Type" class="w-full mt-4">

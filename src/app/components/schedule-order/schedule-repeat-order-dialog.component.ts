@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, NgZone, inject, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CalendarModule } from 'primeng/calendar';
@@ -16,6 +16,8 @@ import { OrdersService } from '@/service/orders.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '@/auth/auth.service';
+import { AutoComplete } from 'primeng/autocomplete';
+import { AddressSearchResult, AddressService } from '@/service/address.service';
 @Component({
     selector: 'app-schedule-repeat-order-dialog',
     standalone: true,
@@ -33,6 +35,7 @@ import { AuthService } from '@/auth/auth.service';
         RippleModule,
         SelectButtonModule,
         ToggleButtonModule,
+        AutoComplete,
         ToastModule
     ],
     template: `
@@ -49,23 +52,19 @@ import { AuthService } from '@/auth/auth.service';
                 <!-- 🚚 Delivery Address Section -->
                 <div class="col-span-12">
                     <h3 class="text-xl font-medium mb-4">Delivery Address</h3>
-                    <input 
-                        type="text"
-                        class="p-inputtext w-full"
-                        placeholder="Start typing address..."
-                        [(ngModel)]="deliveryAddress"
-                        (input)="onAddressInput($event)"
-                        autocomplete="off"
-                    />
-                    <ul *ngIf="addressSuggestions.length" class="bg-white border mt-1 rounded shadow p-2 max-h-48 overflow-auto">
-                        <li 
-                            *ngFor="let suggestion of addressSuggestions" 
-                            (click)="selectAddress(suggestion)"
-                            class="cursor-pointer hover:bg-gray-100 p-2 rounded"
-                        >
-                            {{ suggestion }}
-                        </li>
-                    </ul>
+                    <p-autocomplete
+                        inputId="deliveryAddress"
+                        [suggestions]="addressSuggestions"
+                        (completeMethod)="searchAddress($event)"
+                        (onSelect)="onAddressSelect($event)"
+                        (ngModelChange)="onAddressInputChange($event)"
+                        [(ngModel)]="addressQuery"
+                        field="display_name"
+                        [minLength]="3"
+                        styleClass="w-full"
+                        inputStyleClass="w-full"
+                        [forceSelection]="false"
+                    ></p-autocomplete>
                 </div>
 
                 <!-- 📅 Start Date Section -->
@@ -219,6 +218,8 @@ export class ScheduleRepeatOrderDialog {
     constructor(
         private ordersService: OrdersService,
         private messageService: MessageService,
+        private addressService: AddressService,
+        private zone: NgZone
     ) {
         this.startDate = new Date();
         this.minStartDate = new Date();
@@ -286,7 +287,8 @@ export class ScheduleRepeatOrderDialog {
     }
     // 🚚 Delivery Address
     deliveryAddress: string = '';
-    addressSuggestions: string[] = [];
+    addressQuery: string = '';
+    addressSuggestions: AddressSearchResult[] = [];
 
     // Example IDs, replace with actual logic as needed
     // buyerId = 1;
@@ -294,24 +296,9 @@ export class ScheduleRepeatOrderDialog {
 
     userId = this.authService.currentUserValue?.id ?? 0;
 
-    onAddressInput(event: Event) {
-        const input = event.target as HTMLInputElement;
-        const query = input?.value ?? '';
-        // Clear suggestions if query is too short
-        if (!query) {
-            this.addressSuggestions = [];
-            return;
-        }
-        if (query.length < 3) {
-            this.addressSuggestions = [];
-            return;
-        }
-        // Example using Geoapify (free tier, replace YOUR_API_KEY)
-        // this.http.get<any>(
-        //     `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&filter=countrycode:ca&limit=5&apiKey=YOUR_API_KEY`
-        // ).subscribe(res => {
-        //     this.addressSuggestions = res.features.map((f: any) => f.properties.formatted);
-        // });
+    onAddressInputChange(value: string) {
+        this.addressQuery = value || '';
+        this.deliveryAddress = value || '';
     }
 
     onCancel() {
@@ -320,9 +307,30 @@ export class ScheduleRepeatOrderDialog {
         this.hide();
     }
 
-    selectAddress(address: string) {
-        this.deliveryAddress = address;
-        this.addressSuggestions = [];
+    async searchAddress(event: { query: string }) {
+        const query = event?.query?.trim();
+        if (!query) {
+            this.addressSuggestions = [];
+            return;
+        }
+
+        const results = await this.addressService.searchAddress(query, 5);
+        this.zone.run(() => {
+            this.addressSuggestions = results;
+        });
+    }
+
+    onAddressSelect(event: { value?: AddressSearchResult }) {
+        const selection = event?.value;
+        if (!selection?.display_name) {
+            return;
+        }
+
+        this.zone.run(() => {
+            this.addressQuery = selection.display_name;
+            this.deliveryAddress = selection.display_name;
+            this.addressSuggestions = [];
+        });
     }
 
     getScheduleSummary(): string {
