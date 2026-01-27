@@ -104,6 +104,12 @@ export class AppMenu implements OnInit, OnDestroy {
                         icon: 'pi pi-fw pi-chart-bar',
                         routerLink: ['analytics'],
                         roles: ['ADMIN']
+                    },
+                    {
+                        label: 'Audit Logs',
+                        icon: 'pi pi-fw pi-file',
+                        routerLink: ['audit-logs'],
+                        roles: ['ADMIN']
                     }
                 ]
             },
