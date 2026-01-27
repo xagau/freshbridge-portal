@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface Address {
     street?: string;
@@ -11,60 +10,79 @@ export interface Address {
     country?: string;
 }
 
+export interface AddressSearchResult {
+    display_name: string;
+    address?: {
+        state?: string;
+        state_district?: string;
+        region?: string;
+        city?: string;
+        town?: string;
+        village?: string;
+        postcode?: string;
+        country?: string;
+    };
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class AddressService {
-    private addressSubject = new BehaviorSubject<Address | null>(this.getStoredAddress());
-    public address$: Observable<Address | null> = this.addressSubject.asObservable();
-
-    private readonly STORAGE_KEY = 'user_address';
+    private readonly nominatimEndpoint = 'https://nominatim.openstreetmap.org/search';
+    private nominatimAbortController?: AbortController;
 
     /**
-     * Get the current address
+     * Search addresses via OSM Nominatim
      */
-    getAddress(): Address | null {
-        return this.addressSubject.value;
-    }
+    async searchAddress(query: string, limit: number = 5): Promise<AddressSearchResult[]> {
+        const trimmedQuery = query.trim();
+        if (!trimmedQuery) {
+            return [];
+        }
 
-    /**
-     * Save address to service and localStorage
-     */
-    saveAddress(address: Address): void {
-        // Store in localStorage
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(address));
-        // Update subject
-        this.addressSubject.next(address);
-    }
+        if (this.nominatimAbortController) {
+            this.nominatimAbortController.abort();
+        }
 
-    /**
-     * Get address from localStorage
-     */
-    private getStoredAddress(): Address | null {
+        this.nominatimAbortController = new AbortController();
+        const url = `${this.nominatimEndpoint}?format=json&addressdetails=1&limit=${limit}&q=${encodeURIComponent(trimmedQuery)}`;
+
         try {
-            const stored = localStorage.getItem(this.STORAGE_KEY);
-            return stored ? JSON.parse(stored) : null;
+            const response = await fetch(url, {
+                signal: this.nominatimAbortController.signal,
+                headers: {
+                    Accept: 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                return [];
+            }
+
+            const results = (await response.json()) as AddressSearchResult[];
+            return results || [];
         } catch (error) {
-            console.error('Error reading address from localStorage:', error);
-            return null;
+            if (error instanceof DOMException && error.name === 'AbortError') {
+                return [];
+            }
+            return [];
         }
     }
 
-    /**
-     * Clear stored address
-     */
-    clearAddress(): void {
-        localStorage.removeItem(this.STORAGE_KEY);
-        this.addressSubject.next(null);
+    extractState(result?: AddressSearchResult): string {
+        return result?.address?.state || result?.address?.state_district || result?.address?.region || '';
     }
 
-    /**
-     * Update partial address fields
-     */
-    updateAddress(partialAddress: Partial<Address>): void {
-        const currentAddress = this.getAddress() || {};
-        const updatedAddress = { ...currentAddress, ...partialAddress };
-        this.saveAddress(updatedAddress);
+    extractCity(result?: AddressSearchResult): string {
+        return result?.address?.city || result?.address?.town || result?.address?.village || '';
+    }
+
+    extractPostalCode(result?: AddressSearchResult): string {
+        return result?.address?.postcode || '';
+    }
+
+    extractCountry(result?: AddressSearchResult): string {
+        return result?.address?.country || '';
     }
 }
 

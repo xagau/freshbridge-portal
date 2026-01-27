@@ -1,20 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
 import { InputText } from 'primeng/inputtext';
+import { AutoComplete } from 'primeng/autocomplete';
 import { TextareaModule } from 'primeng/textarea';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { ButtonModule } from 'primeng/button';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { RippleModule } from 'primeng/ripple';
-import { AddressService } from '@/service/address.service';
+import { AddressSearchResult, AddressService } from '@/service/address.service';
 
 @Component({
     selector: 'user-create',
     standalone: true,
-    imports: [CommonModule, FormsModule, Select, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule],
+    imports: [CommonModule, FormsModule, Select, AutoComplete, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule],
     template: `<div class="card">
         <span class="text-surface-900 dark:text-surface-0 text-xl font-bold mb-6 block">Create User</span>
         <div class="grid grid-cols-12 gap-4">
@@ -45,13 +46,30 @@ import { AddressService } from '@/service/address.service';
                         <p-select [options]="type" optionLabel="name" placeholder="Select a Role" class="w-full md:w-56" />
                     </div>
                   
+                    <div class="mb-6 col-span-12">
+                        <label for="address" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Address </label>
+                        <p-autocomplete
+                            inputId="address"
+                            [suggestions]="addressSuggestions"
+                            (completeMethod)="searchAddress($event)"
+                            (onSelect)="onAddressSelect($event)"
+                            (ngModelChange)="onAddressInputChange($event)"
+                            [(ngModel)]="addressQuery"
+                            field="display_name"
+                            [minLength]="3"
+                            styleClass="w-full"
+                            inputStyleClass="w-full"
+                            [forceSelection]="false"
+                        ></p-autocomplete>
+                    </div>
+
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="city" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> City </label>
-                        <input id="city" type="text" pInputText fluid [(ngModel)]="userAddress.city" (blur)="saveAddress()" />
+                        <input id="city" type="text" pInputText fluid [(ngModel)]="userAddress.city" />
                     </div>
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="state" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> State </label>
-                        <input id="state" type="text" pInputText fluid [(ngModel)]="userAddress.state" (blur)="saveAddress()" />
+                        <input id="state" type="text" pInputText fluid [(ngModel)]="userAddress.state" />
                     </div>
                     <div class="mb-6 col-span-12">
                         <label for="website" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Website </label>
@@ -75,11 +93,15 @@ export class UserCreate implements OnInit {
     type: any[] = [];
     
     userAddress: any = {
+        address: '',
         city: '',
         state: ''
     };
+
+    addressQuery: string = '';
+    addressSuggestions: AddressSearchResult[] = [];
     
-    constructor(private addressService: AddressService) {}
+    constructor(private addressService: AddressService, private zone: NgZone) {}
     
     ngOnInit() {
         this.countries = [
@@ -99,23 +121,45 @@ export class UserCreate implements OnInit {
             { name: 'Buyer', code: 'buyer' },
             { name: 'Guest', code: 'guest' }
         ];
-        
-        // Load pre-populated address
-        this.loadAddress();
     }
-    
-    loadAddress() {
-        const savedAddress = this.addressService.getAddress();
-        if (savedAddress) {
-            this.userAddress.city = savedAddress.city || '';
-            this.userAddress.state = savedAddress.state || '';
+
+    onAddressInputChange(value: string) {
+        this.addressQuery = value || '';
+        this.userAddress.address = value || '';
+    }
+
+    async searchAddress(event: { query: string }) {
+        const query = event?.query?.trim();
+        if (!query) {
+            this.addressSuggestions = [];
+            return;
         }
+
+        const results = await this.addressService.searchAddress(query, 5);
+        this.zone.run(() => {
+            this.addressSuggestions = results;
+        });
     }
-    
-    saveAddress() {
-        this.addressService.updateAddress({
-            city: this.userAddress.city,
-            state: this.userAddress.state
+
+    onAddressSelect(event: { value?: AddressSearchResult }) {
+        const selection = event?.value;
+        if (!selection?.display_name) {
+            return;
+        }
+
+        const state = this.addressService.extractState(selection);
+        const city = this.addressService.extractCity(selection);
+
+        this.zone.run(() => {
+            this.addressQuery = selection.display_name;
+            this.userAddress.address = selection.display_name;
+            if (city) {
+                this.userAddress.city = city;
+            }
+            if (state) {
+                this.userAddress.state = state;
+            }
+            this.addressSuggestions = [];
         });
     }
 

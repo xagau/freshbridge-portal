@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
+import { AutoComplete } from 'primeng/autocomplete';
 // import { AppleWidget } from '@/pages/auth/components/applewidget';
 import { GoogleWidget } from '@/pages/auth/components/googlewidget';
 import { LogoWidget } from '@/pages/components/landing/components/logowidget';
@@ -14,7 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { InputOtpModule } from 'primeng/inputotp';
-import { AddressService } from '@/service/address.service';
+import { AddressSearchResult, AddressService } from '@/service/address.service';
 
 @Component({
     selector: 'app-register',
@@ -29,6 +30,7 @@ import { AddressService } from '@/service/address.service';
         InputTextModule,
         CheckboxModule,
         DropdownModule,
+        AutoComplete,
         ToastModule,
         RouterLink,
         DialogModule,
@@ -49,6 +51,7 @@ export class Register {
     emailForVerification = '';
     verificationTargetLabel = '';
     showPassword = false;
+    addressSuggestions: AddressSearchResult[] = [];
 
     userTypes = [
         { label: 'Merchant', value: 'MERCHANT' },
@@ -68,18 +71,15 @@ export class Register {
         private fb: FormBuilder,
         private authService: AuthService,
         private messageService: MessageService,
-        private addressService: AddressService
+        private addressService: AddressService,
+        private zone: NgZone
     ) {
-        // Pre-populate address
-        const savedAddress = this.addressService.getAddress();
-        const prefillAddress = savedAddress?.address || savedAddress?.street || '';
-        
         this.registerForm = this.fb.group({
             username: ['test_user_001', Validators.required],
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required, Validators.minLength(6)]],
             fullName: ['', Validators.required],
-            address: [prefillAddress, Validators.required],
+            address: ['', Validators.required],
             phoneNumber: ['', Validators.required],
             userType: ['', Validators.required],
             terms: [false, Validators.requiredTrue],
@@ -113,13 +113,6 @@ export class Register {
             });
             return;
         }
-        
-        // Save address to service for future pre-population
-        if (this.registerForm.value.address) {
-            this.addressService.updateAddress({
-                address: this.registerForm.value.address
-            });
-        }
 
         // Add + prefix to phone number if not present
         let phoneNumber = this.registerForm.value.phoneNumber;
@@ -129,6 +122,28 @@ export class Register {
         }
 
         this.showVerificationType = true;
+    }
+
+    async searchAddress(event: { query: string }) {
+        const query = event?.query?.trim();
+        if (!query) {
+            this.addressSuggestions = [];
+            return;
+        }
+
+        const results = await this.addressService.searchAddress(query, 5);
+        this.zone.run(() => {
+            this.addressSuggestions = results;
+        });
+    }
+
+    onAddressSelect(event: { value?: AddressSearchResult }) {
+        const selection = event?.value;
+        if (!selection?.display_name) {
+            return;
+        }
+
+        this.registerForm.patchValue({ address: selection.display_name });
     }
 
     onSelectVerificationType(type: 'EMAIL' | 'PHONE') {

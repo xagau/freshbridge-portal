@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
+import { AutoComplete } from 'primeng/autocomplete';
 import { InputText } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { FileUploadModule } from 'primeng/fileupload';
@@ -10,7 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { RippleModule } from 'primeng/ripple';
 import { DividerModule } from 'primeng/divider';
-import { AddressService } from '@/service/address.service';
+import { AddressSearchResult, AddressService } from '@/service/address.service';
 import { AuthService } from '@/auth/auth.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -18,7 +19,7 @@ import { ToastModule } from 'primeng/toast';
 @Component({
     selector: 'settings-user',
     standalone: true,
-    imports: [CommonModule, FormsModule, Select, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule, DividerModule, ToastModule],
+    imports: [CommonModule, FormsModule, Select, AutoComplete, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule, DividerModule, ToastModule],
     template: `<div class="card">
         <div class="flex items-center justify-between mb-6">
             <span class="text-surface-900 dark:text-surface-0 text-xl font-bold">Settings</span>
@@ -53,16 +54,25 @@ import { ToastModule } from 'primeng/toast';
                         <p-select *ngIf="isEditMode" [options]="type" optionLabel="name" optionValue="code" placeholder="Select a Role" class="w-full md:w-56" [(ngModel)]="settings.role" />
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ getRoleName(settings.role) || 'Not set' }}</div>
                     </div>
-                    <div class="mb-6 col-span-12 md:col-span-6">
+                    <div class="mb-6 col-span-12">
                         <label for="address" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Address </label>
-                        <input *ngIf="isEditMode" id="address" type="text" pInputText fluid [(ngModel)]="settings.address" />
+                        <p-autocomplete
+                            *ngIf="isEditMode"
+                            inputId="address"
+                            [suggestions]="addressSuggestions"
+                            (completeMethod)="searchAddress($event)"
+                            (onSelect)="onAddressSelect($event)"
+                            (ngModelChange)="onAddressInputChange($event)"
+                            [(ngModel)]="addressQuery"
+                            field="display_name"
+                            [minLength]="3"
+                            styleClass="w-full"
+                            inputStyleClass="w-full"
+                            [forceSelection]="false"
+                        ></p-autocomplete>
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.address || 'Not set' }}</div>
                     </div>
-                    <div class="mb-6 col-span-12 md:col-span-6">
-                        <label for="state" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> State </label>
-                        <input *ngIf="isEditMode" id="state" type="text" pInputText fluid [(ngModel)]="settings.state" />
-                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.state || 'Not set' }}</div>
-                    </div>
+                    
                     <div class="mb-6 col-span-12">
                         <label for="website" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Website </label>
                         <p-inputgroup *ngIf="isEditMode">
@@ -156,6 +166,8 @@ export class SettingsUser implements OnInit {
     countries: any[] = [];
     type: any[] = [];
     accountTypes: any[] = [];
+    addressQuery: string = '';
+    addressSuggestions: AddressSearchResult[] = [];
     
     settings: any = {
         nickname: '',
@@ -176,11 +188,11 @@ export class SettingsUser implements OnInit {
     };
     
     originalSettings: any = {};
-    
     constructor(
         private addressService: AddressService,
         private authService: AuthService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private zone: NgZone
     ) {}
     
     ngOnInit() {
@@ -200,7 +212,7 @@ export class SettingsUser implements OnInit {
         // Load user information
         this.loadUserSettings();
     }
-    
+
     loadUserSettings() {
         // Load from AuthService
         const user = this.authService.currentUserValue;
@@ -209,40 +221,31 @@ export class SettingsUser implements OnInit {
             this.settings.role = user.role?.toLowerCase() || '';
         }
         
-        // Load address from AddressService
-        const savedAddress = this.addressService.getAddress();
-        if (savedAddress) {
-            this.settings.address = savedAddress.address || savedAddress.street || '';
-            this.settings.state = savedAddress.state || '';
-        }
-        
         // TODO: Load banking info and other settings from API
         // For now, we'll keep the structure ready for API integration
         
         // Store original settings for cancel functionality
         this.originalSettings = JSON.parse(JSON.stringify(this.settings));
+        this.addressQuery = this.settings.address || '';
     }
     
     enterEditMode() {
         this.isEditMode = true;
         // Store current settings as original for cancel
         this.originalSettings = JSON.parse(JSON.stringify(this.settings));
+        this.addressQuery = this.settings.address || '';
     }
     
     cancelEdit() {
         // Restore original settings
         this.settings = JSON.parse(JSON.stringify(this.originalSettings));
         this.isEditMode = false;
+        this.addressQuery = this.settings.address || '';
+        this.addressSuggestions = [];
     }
     
     saveSettings() {
         this.saving = true;
-        
-        // Save address to AddressService
-        this.addressService.updateAddress({
-            address: this.settings.address,
-            state: this.settings.state
-        });
         
         // TODO: Call API to save settings
         // For now, simulate API call
@@ -250,6 +253,8 @@ export class SettingsUser implements OnInit {
             this.saving = false;
             this.isEditMode = false;
             this.originalSettings = JSON.parse(JSON.stringify(this.settings));
+            this.addressQuery = this.settings.address || '';
+            this.addressSuggestions = [];
             
             this.messageService.add({
                 severity: 'success',
@@ -267,5 +272,39 @@ export class SettingsUser implements OnInit {
     getAccountTypeName(accountTypeCode: string): string {
         const accountType = this.accountTypes.find(a => a.code === accountTypeCode);
         return accountType ? accountType.name : accountTypeCode;
+    }
+
+    onAddressInputChange(value: string) {
+        this.settings.address = value || '';
+    }
+
+    async searchAddress(event: { query: string }) {
+        const query = event?.query?.trim();
+        if (!query) {
+            this.addressSuggestions = [];
+            return;
+        }
+
+        const results = await this.addressService.searchAddress(query, 5);
+        this.zone.run(() => {
+            this.addressSuggestions = results;
+        });
+    }
+
+    onAddressSelect(event: { value?: AddressSearchResult }) {
+        const selection = event?.value;
+        if (!selection?.display_name) {
+            return;
+        }
+
+        const state = this.addressService.extractState(selection);
+
+        this.zone.run(() => {
+            this.addressQuery = selection.display_name;
+            this.settings.address = selection.display_name;
+            if (state) {
+                this.settings.state = state;
+            }
+        });
     }
 }
