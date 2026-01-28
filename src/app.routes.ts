@@ -98,6 +98,11 @@ export const appRoutes: Routes = [
                 data: { breadcrumb: 'Analytics', roles: ['ADMIN'] }
             },
             {
+                path: 'audit-logs',
+                loadComponent: () => import('@/pages/audit-logs/audit-logs.component').then((c) => c.AuditLogsComponent),
+                data: { breadcrumb: 'Audit Logs', roles: ['ADMIN'] }
+            },
+            {
                 path: 'accounts-management',
                 loadChildren: () => import('@/pages/account-access/usersmanagement.routes'),
                 data: { roles: ['ADMIN'] }

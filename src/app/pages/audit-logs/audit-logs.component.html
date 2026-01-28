@@ -1,0 +1,85 @@
+<div class="card">
+    <p-toolbar styleClass="mb-12">
+        <ng-template #start>
+            <p-button label="Refresh" icon="pi pi-refresh" severity="secondary" (onClick)="loadEvents()" />
+        </ng-template>
+        <ng-template #end>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search logs..." />
+            </p-iconfield>
+        </ng-template>
+    </p-toolbar>
+
+    <p-table #dt [value]="events()" [rows]="10" [paginator]="true" [rowHover]="true" [loading]="loading()"
+        [globalFilterFields]="filterFields" dataKey="id" [tableStyle]="{ 'min-width': '75rem' }"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} events"
+        [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 20, 30]">
+        <ng-template #caption>
+            <div class="flex items-center justify-between">
+                <h5 class="m-0">Audit Logs</h5>
+            </div>
+        </ng-template>
+        <ng-template #header>
+            <tr>
+                <th style="min-width: 12rem" pSortableColumn="timestamp">
+                    <span class="flex items-center gap-2">Time <p-sortIcon field="timestamp" /></span>
+                </th>
+                <th style="min-width: 12rem" pSortableColumn="actorName">
+                    <span class="flex items-center gap-2">Actor <p-sortIcon field="actorName" /></span>
+                </th>
+                <th style="min-width: 16rem" pSortableColumn="action">
+                    <span class="flex items-center gap-2">Action <p-sortIcon field="action" /></span>
+                </th>
+                <th style="min-width: 12rem" pSortableColumn="entityType">
+                    <span class="flex items-center gap-2">Entity <p-sortIcon field="entityType" /></span>
+                </th>
+                <th style="min-width: 12rem" pSortableColumn="ipAddress">
+                    <span class="flex items-center gap-2">IP Address <p-sortIcon field="ipAddress" /></span>
+                </th>
+                <th style="min-width: 12rem" pSortableColumn="city">
+                    <span class="flex items-center gap-2">City <p-sortIcon field="city" /></span>
+                </th>
+                <th style="min-width: 12rem" pSortableColumn="country">
+                    <span class="flex items-center gap-2">Country <p-sortIcon field="country" /></span>
+                </th>
+                <th style="min-width: 14rem" pSortableColumn="route">
+                    <span class="flex items-center gap-2">Page <p-sortIcon field="route" /></span>
+                </th>
+                <th style="min-width: 8rem" pSortableColumn="status">
+                    <span class="flex items-center gap-2">Status <p-sortIcon field="status" /></span>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-event>
+            <tr>
+                <td>{{ event.timestamp | date: 'medium' }}</td>
+                <td>
+                    <div class="flex flex-col">
+                        <span>{{ formatActor(event) }}</span>
+                        <small class="text-500" *ngIf="event.actorRole">{{ event.actorRole }}</small>
+                    </div>
+                </td>
+                <td>
+                    <div class="flex flex-col">
+                        <span>{{ event.action }}</span>
+                        <small class="text-500" *ngIf="event.details">{{ event.details }}</small>
+                    </div>
+                </td>
+                <td>
+                    <div class="flex flex-col">
+                        <span>{{ event.entityType || '-' }}</span>
+                        <small class="text-500" *ngIf="event.entityId">#{{ event.entityId }}</small>
+                    </div>
+                </td>
+                <td>{{ event.ipAddress || '-' }}</td>
+                <td>{{ event.city || '-' }}</td>
+                <td>{{ event.country || '-' }}</td>
+                <td>{{ event.route || '-' }}</td>
+                <td>
+                    <p-tag [value]="event.status" [severity]="getStatusSeverity(event.status)" />
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
