@@ -13,51 +13,12 @@ export class AuditLogService {
     constructor(private http: HttpClient) { }
 
     getEvents(): Observable<AuditLogEvent[]> {
-        const now = new Date();
-        const mockEvents: AuditLogEvent[] = [
-            {
-                id: 1,
-                timestamp: now.toISOString(),
-                actorId: 1,
-                actorName: 'Admin User',
-                actorRole: 'ADMIN',
-                ipAddress: '135.181.68.17',
-                action: 'Password Accepted',
-                status: 'SUCCESS',
-                entityType: 'Auth',
-                route: '/auth/login'
-            },
-            {
-                id: 2,
-                timestamp: new Date(now.getTime() - 5 * 60 * 1000).toISOString(),
-                actorId: 2,
-                actorName: 'Buyer User',
-                actorRole: 'BUYER',
-                ipAddress: '198.51.100.24',
-                action: 'Add Order',
-                status: 'SUCCESS',
-                entityType: 'Order',
-                entityId: '451',
-                route: '/order-management'
-            },
-            {
-                id: 3,
-                timestamp: new Date(now.getTime() - 12 * 60 * 1000).toISOString(),
-                actorId: 3,
-                actorName: 'Merchant User',
-                actorRole: 'MERCHANT',
-                ipAddress: '192.0.2.45',
-                action: 'Delete Product',
-                status: 'FAILED',
-                entityType: 'Product',
-                entityId: '88',
-                route: '/product-management',
-                details: 'Permission denied'
-            }
-        ];
-
-        return of(mockEvents).pipe(
-            switchMap((events) => this.attachGeo(events))
+        return this.http.get<AuditLogEvent[]>(this.AUDIT_ENDPOINT).pipe(
+            switchMap((events) => this.attachGeo(events)),
+            catchError((error) => {
+                console.error('Failed to fetch audit logs:', error);
+                return of([]);
+            })
         );
     }
 
