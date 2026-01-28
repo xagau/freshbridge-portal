@@ -4,32 +4,35 @@ import { RouterModule } from '@angular/router';
 import { AppMenuitem } from './app.menuitem';
 import { AuthService } from '@/auth/auth.service';
 import { Subject, takeUntil } from 'rxjs';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
     selector: '[app-menu]',
     standalone: true,
-    imports: [CommonModule, AppMenuitem, RouterModule],
+    imports: [CommonModule, AppMenuitem, RouterModule, ProgressSpinnerModule],
     template: `<ul class="layout-menu">
         <ng-container *ngFor="let item of filteredModel; let i = index">
             <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
             <li *ngIf="item.separator" class="menu-separator"></li>
         </ng-container>
-    </ul>`
+    </ul>
+    <p-progressSpinner *ngIf="isLoading" styleClass="w-full h-full" [style]="{ 'min-height': '200px' }" mode="indeterminate" />
+    `
 })
 export class AppMenu implements OnInit, OnDestroy {
     model: any[];
     filteredModel: any[] = [];
     private destroy$ = new Subject<void>();
-
+    isLoading = true;
     constructor(private authService: AuthService) {
         this.model = this.buildMenu();
     }
 
     ngOnInit() {
         // Initial check
-        this.updateMenu(this.authService.getStoredUser()?.role);
 
-        console.log(this.authService.getStoredUser()?.role);
+        this.updateMenu(this.authService.getStoredUser()?.role);
+        this.isLoading = false;
 
         // Subscribe to user changes
         this.authService.currentUser$

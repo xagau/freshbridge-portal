@@ -60,6 +60,11 @@ export class Login {
             next: (success) => {
                 if (success) {
                     const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'] || '/dashboard';
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Login successful'
+                    });
                     this.router.navigateByUrl(returnUrl);
                 } else {
                     this.error = '';
