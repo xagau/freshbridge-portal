@@ -1,35 +1,53 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppMenuitem } from './app.menuitem';
 import { AuthService } from '@/auth/auth.service';
 import { Subject, takeUntil } from 'rxjs';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
     selector: '[app-menu]',
     standalone: true,
-    imports: [CommonModule, AppMenuitem, RouterModule],
+    imports: [CommonModule, AppMenuitem, RouterModule, ProgressSpinnerModule],
     template: `<ul class="layout-menu">
         <ng-container *ngFor="let item of filteredModel; let i = index">
             <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
             <li *ngIf="item.separator" class="menu-separator"></li>
         </ng-container>
-    </ul>`
+    </ul>
+    <p-progressSpinner *ngIf="isLoading" styleClass="w-full h-full" [style]="{ 'min-height': '200px' }" mode="indeterminate" />
+    `
 })
 export class AppMenu implements OnInit, OnDestroy {
     model: any[];
     filteredModel: any[] = [];
     private destroy$ = new Subject<void>();
+    
+    isLoading = true;
+    isUser = false;
 
-    constructor(private authService: AuthService) {
+    constructor(
+        private authService: AuthService,
+        private cdr: ChangeDetectorRef
+    ) {
         this.model = this.buildMenu();
+    }
+
+
+    isAuthenticated() {
+        return this.authService.isAuthenticated;
     }
 
     ngOnInit() {
         // Initial check
+        this.isUser = this.isAuthenticated();
+        console.log("isUser", this.isUser);
+        
         this.updateMenu(this.authService.getStoredUser()?.role);
-
-        console.log(this.authService.getStoredUser()?.role);
+        console.log("updateMenu", this.authService.getStoredUser()?.role);
+        
+        this.isLoading = false;
 
         // Subscribe to user changes
         this.authService.currentUser$
@@ -48,6 +66,7 @@ export class AppMenu implements OnInit, OnDestroy {
     private updateMenu(role: string | undefined) {
         // Always filter the menu, even if role is undefined (which will show only role-less items)
         this.filteredModel = this.filterMenuByRole(this.model, role);
+        this.cdr.markForCheck();
     }
 
     private buildMenu(): any[] {
@@ -148,6 +167,9 @@ export class AppMenu implements OnInit, OnDestroy {
     }
 
     private filterMenuByRole(menu: any[], role: string | undefined): any[] {
+        console.log("menu", menu);
+        console.log("role", role);
+        
         return menu
             .map(group => {
                 if (group.separator) return group;

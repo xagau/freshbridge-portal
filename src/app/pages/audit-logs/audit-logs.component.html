@@ -22,31 +22,28 @@
         </ng-template>
         <ng-template #header>
             <tr>
-                <th style="min-width: 12rem" pSortableColumn="timestamp">
+                <th style="min-width: 14rem" pSortableColumn="timestamp">
                     <span class="flex items-center gap-2">Time <p-sortIcon field="timestamp" /></span>
                 </th>
-                <th style="min-width: 12rem" pSortableColumn="actorName">
+                <th style="min-width: 8rem" pSortableColumn="actorName">
                     <span class="flex items-center gap-2">Actor <p-sortIcon field="actorName" /></span>
                 </th>
                 <th style="min-width: 16rem" pSortableColumn="action">
                     <span class="flex items-center gap-2">Action <p-sortIcon field="action" /></span>
                 </th>
-                <th style="min-width: 12rem" pSortableColumn="entityType">
+                <th style="min-width: 5rem" pSortableColumn="entityType">
                     <span class="flex items-center gap-2">Entity <p-sortIcon field="entityType" /></span>
                 </th>
-                <th style="min-width: 12rem" pSortableColumn="ipAddress">
+                <th style="min-width: 8rem" pSortableColumn="ipAddress">
                     <span class="flex items-center gap-2">IP Address <p-sortIcon field="ipAddress" /></span>
                 </th>
-                <th style="min-width: 12rem" pSortableColumn="city">
-                    <span class="flex items-center gap-2">City <p-sortIcon field="city" /></span>
+                <th style="min-width: 10rem" pSortableColumn="city">
+                    <span class="flex items-center gap-2">Location <p-sortIcon field="city" /></span>
                 </th>
-                <th style="min-width: 12rem" pSortableColumn="country">
-                    <span class="flex items-center gap-2">Country <p-sortIcon field="country" /></span>
-                </th>
-                <th style="min-width: 14rem" pSortableColumn="route">
+                <th style="min-width: 8rem" pSortableColumn="route">
                     <span class="flex items-center gap-2">Page <p-sortIcon field="route" /></span>
                 </th>
-                <th style="min-width: 8rem" pSortableColumn="status">
+                <th style="min-width: 7rem" pSortableColumn="status">
                     <span class="flex items-center gap-2">Status <p-sortIcon field="status" /></span>
                 </th>
             </tr>
@@ -73,8 +70,7 @@
                     </div>
                 </td>
                 <td>{{ event.ipAddress || '-' }}</td>
-                <td>{{ event.city || '-' }}</td>
-                <td>{{ event.country || '-' }}</td>
+                <td>{{ event.city + ', &nbsp;' + event.country  || '-' }}</td>
                 <td>{{ event.route || '-' }}</td>
                 <td>
                     <p-tag [value]="event.status" [severity]="getStatusSeverity(event.status)" />

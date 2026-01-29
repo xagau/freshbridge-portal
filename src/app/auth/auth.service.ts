@@ -70,9 +70,7 @@ export class AuthService {
                     throw new Error(response.error); 
                     
                 } 
-                console.log("response.authUser.user:", response.authUser.user);
-                console.log("response.authUser.merchantId:", response.authUser.merchantId);
-                console.log("response.authUser.buyerId:", response.authUser.buyerId);
+                
                 this.storeAuthData(
                     response.token,
                     response.authUser.user,

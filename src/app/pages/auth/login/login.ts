@@ -17,7 +17,7 @@ import { MessageService } from 'primeng/api';
     selector: 'app-login',
     standalone: true,
     imports: [LogoWidget, CommonModule, ReactiveFormsModule, InputTextModule, LazyImageWidget, GoogleWidget, CheckboxModule, RouterLink, ToastModule],
-    providers: [AuthService, MessageService],
+    providers: [MessageService],
     templateUrl: './login.component.html'
 })
 export class Login {
@@ -60,6 +60,7 @@ export class Login {
             next: (success) => {
                 if (success) {
                     const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'] || '/dashboard';
+                   
                     this.router.navigateByUrl(returnUrl);
                 } else {
                     this.error = '';
