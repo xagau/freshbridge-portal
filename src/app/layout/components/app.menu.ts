@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppMenuitem } from './app.menuitem';
@@ -23,22 +23,30 @@ export class AppMenu implements OnInit, OnDestroy {
     model: any[];
     filteredModel: any[] = [];
     private destroy$ = new Subject<void>();
+    
     isLoading = true;
-    constructor(private authService: AuthService) {
+    isUser = false;
+
+    constructor(
+        private authService: AuthService,
+        private cdr: ChangeDetectorRef
+    ) {
         this.model = this.buildMenu();
     }
 
 
-    // when change router to login, need to check authService.currentUser$ to update menu
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['authService.currentUser$'] && this.authService.currentUserValue) {
-            this.updateMenu(this.authService.currentUserValue?.role);
-        }
+    isAuthenticated() {
+        return this.authService.isAuthenticated;
     }
+
     ngOnInit() {
         // Initial check
-
+        this.isUser = this.isAuthenticated();
+        console.log("isUser", this.isUser);
+        
         this.updateMenu(this.authService.getStoredUser()?.role);
+        console.log("updateMenu", this.authService.getStoredUser()?.role);
+        
         this.isLoading = false;
 
         // Subscribe to user changes
@@ -58,6 +66,7 @@ export class AppMenu implements OnInit, OnDestroy {
     private updateMenu(role: string | undefined) {
         // Always filter the menu, even if role is undefined (which will show only role-less items)
         this.filteredModel = this.filterMenuByRole(this.model, role);
+        this.cdr.markForCheck();
     }
 
     private buildMenu(): any[] {
@@ -158,6 +167,9 @@ export class AppMenu implements OnInit, OnDestroy {
     }
 
     private filterMenuByRole(menu: any[], role: string | undefined): any[] {
+        console.log("menu", menu);
+        console.log("role", role);
+        
         return menu
             .map(group => {
                 if (group.separator) return group;
