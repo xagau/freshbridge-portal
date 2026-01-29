@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppMenuitem } from './app.menuitem';
@@ -28,6 +28,13 @@ export class AppMenu implements OnInit, OnDestroy {
         this.model = this.buildMenu();
     }
 
+
+    // when change router to login, need to check authService.currentUser$ to update menu
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['authService.currentUser$'] && this.authService.currentUserValue) {
+            this.updateMenu(this.authService.currentUserValue?.role);
+        }
+    }
     ngOnInit() {
         // Initial check
 
