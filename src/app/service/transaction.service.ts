@@ -22,9 +22,9 @@ export interface Order {
 export interface Transaction {
     id: number;
     account: any;
-    type: 'CREDIT' | 'WITHDRAWAL' | 'TRANSFER';
+    type: 'CREDIT' | 'WITHDRAWAL' | 'TRANSFER' | 'DEPOSIT' | 'ORDER_PAYMENT' | 'REFUND' | 'FEE' | 'DEBIT';
     amount: number;
-    status: 'COMPLETED' | 'PENDING' | 'REFUNDED';
+    status: 'COMPLETED' | 'PENDING' | 'REFUNDED' | 'FAILED' | 'CANCELLED';
     description: string;
     transactionDate: string;
     createdAt: string;
@@ -38,8 +38,17 @@ export class TransactionService {
 
     constructor(private http: HttpClient) { }
 
-    getTransactions(): Observable<Transaction[]> {
+    getTransactions(userId?: number): Observable<Transaction[]> {
+        if (userId) {
+            return this.http.get<Transaction[]>(`${this.API}?userId=${userId}`);
+        }
         return this.http.get<Transaction[]>(this.API);
+    }
+
+    getTransactionsByUserId(userId: number): Observable<Transaction[]> {
+        console.log("userId", userId);
+        
+        return this.http.get<Transaction[]>(`${this.API}?userId=${userId}`);
     }
 
     getRecentTransactions(limit: number = 5): Observable<Transaction[]> {
@@ -48,4 +57,5 @@ export class TransactionService {
     addTransaction(transaction: { type: string, amount: number, description: string }): Observable<Transaction> {
         return this.http.post<Transaction>(this.API, transaction);
     }
+
 }

@@ -309,13 +309,7 @@ export class AuthService {
 
 
     getAccountInfo(id: number) {
-        // The return type is actually a more complex structure with account and transactions
-        // Based on the example response:
-        // {
-        //   "account": { ... },
-        //   "transactions": [ ... ]
-        // }
-        return this.http.get<any>(`${environment.apiUrl}auth/${id}/info`);
+        return this.http.get<Account>(`${environment.apiUrl}auth/${id}/info`);
     }
 
     withdraw(accountId: number, amount: number) {
