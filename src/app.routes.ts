@@ -56,9 +56,9 @@ export const appRoutes: Routes = [
                 data: { breadcrumb: 'FreshSelect', roles: ['MERCHANT', 'BUYER', 'COURIER'] }
             },
             {
-                path: 'settings',
-                loadComponent: () => import('@/pages/settings/settings.component').then((c) => c.SettingsUser),
-                data: { breadcrumb: 'Settings' }
+                path: 'profile',
+                loadComponent: () => import('@/pages/profile/profile.component').then((c) => c.ProfileUser),
+                data: { breadcrumb: 'Profile' }
             },
             {
                 path: 'order-management',
