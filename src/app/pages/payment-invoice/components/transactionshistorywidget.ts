@@ -325,6 +325,7 @@ export class TransactionsHistoryWidget {
                     detail: err.error.message || 'Failed to load transactions',
                     life: 3000
                 });
+                this.loading = false;
             }
         });
 
