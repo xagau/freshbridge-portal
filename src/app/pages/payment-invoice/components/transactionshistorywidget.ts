@@ -13,6 +13,9 @@ import { DividerModule } from 'primeng/divider';
 import { AuthService } from '@/auth/auth.service';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 enum TransactionStatus {
     PENDING = 'PENDING',
@@ -44,9 +47,11 @@ enum TransactionType {
         Dialog,
         TimelineModule,
         TagModule,
-        DividerModule
+        DividerModule,
+        ProgressSpinnerModule,
+        ToastModule
     ],
-    providers: [CustomerService],
+    providers: [CustomerService, MessageService],
     template: `
         <div class="flex items-center justify-between gap-2">
             <div class="flex-1 flex flex-col gap-1">
@@ -84,6 +89,7 @@ enum TransactionType {
                 [(selection)]="selectedTransactions"
                 dataKey="id"
                 [tableStyle]="{ 'min-width': '50rem' }"
+                [loading]="loading"
             >
                 <ng-template #header>
                     <tr>
@@ -134,6 +140,7 @@ enum TransactionType {
                     </tr>
                 </ng-template>
             </p-table>
+            <p-progressSpinner *ngIf="loading" styleClass="w-full h-full" [style]="{ 'min-height': '200px' }" mode="indeterminate" />
         </div>
 
         <p-dialog 
@@ -248,30 +255,45 @@ enum TransactionType {
 export class TransactionsHistoryWidget {
     @ViewChild(UserInfoDialog) userInfoDialog!: UserInfoDialog;
     selectedTransactions = null;
-
+    loading = false;
     constructor(
         private customerService: CustomerService,
         private transactionService: TransactionService,
-        private authService: AuthService
+        private authService: AuthService,
+        private messageService: MessageService,
+
     ) { }
 
     transactions: any[] = [];
-    useDemoData: boolean = false; // Set to true to use demo data for testing
 
     ngOnInit() {
-        if (this.useDemoData) {
-            this.loadDemoTransactions();
-        } else {
-            this.loadTransactionsFromAccountInfo();
-        }
+        this.loading = true;
+        this.loadTransactions();
     }
 
-    private loadTransactionsFromAccountInfo() {
+    private loadTransactions() {
         const currentUser = this.authService.currentUserValue;
         if (!currentUser) {
             console.error('No user is currently logged in');
-            // Fallback to demo data if no user is logged in
-            this.loadDemoTransactions();
+            this.transactions = [];
+            this.loading = false;
+            return;
+        }
+
+        if (currentUser.role === 'ADMIN') {
+            this.transactionService.getTransactions().subscribe({
+                next: (transactions: Transaction[]) => {
+                    this.transactions = transactions.map((t: any) => {
+                        const accountName = t.account?.name || 'Unknown';
+                        return this.transformTransaction({ ...t, accountName });
+                    });
+                },
+                error: (err) => {
+                    console.error('Error fetching transactions:', err);
+                    this.transactions = [];
+                    this.loading = false;
+                }
+            });
             return;
         }
 
@@ -279,12 +301,6 @@ export class TransactionsHistoryWidget {
 
         this.authService.getAccountInfo(userId).subscribe({
             next: (response: any) => {
-                // Based on the example response structure you provided:
-                // {
-                //   "account": { ... },
-                //   "transactions": [ ... ]
-                // }
-
                 if (response && response.transactions && Array.isArray(response.transactions) && response.transactions.length > 0) {
                     // Store the account name for use in transformTransaction
                     const accountName = response.account?.name || currentUser?.name || 'Unknown';
@@ -293,229 +309,39 @@ export class TransactionsHistoryWidget {
                     this.transactions = response.transactions.map((t: Transaction) => {
                         // Add the account name to each transaction
                         return this.transformTransaction({ ...t, accountName: accountName });
+                        
                     });
+                    this.loading = false;
                 } else {
-                    console.warn('No transactions found in account info response, loading demo data');
-                    this.loadDemoTransactions();
+                    this.loading = false;
+                    this.transactions = [];
                 }
             },
             error: (err) => {
-                console.error('Error fetching account info:', err);
-                console.log('Loading demo data for testing');
-                this.loadDemoTransactions();
+                // fetch error messageSerice
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'error',
+                    detail: err.error.message || 'Failed to load transactions',
+                    life: 3000
+                });
             }
         });
-    }
 
-    private loadDemoTransactions() {
-        const currentUser = this.authService.currentUserValue;
-        const accountName = currentUser?.name || 'Demo User';
-        const accountId = currentUser?.id || 1000;
-
-        // Generate demo transactions with various types, statuses, and dates
-        const now = new Date();
-        const demoTransactions: any[] = [
-            {
-                id: 1,
-                account: accountId,
-                type: 'CREDIT',
-                amount: 5000,
-                status: 'COMPLETED',
-                description: 'Initial account deposit',
-                transactionDate: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 2,
-                account: accountId,
-                type: 'ORDER_PAYMENT',
-                amount: 1250,
-                status: 'COMPLETED',
-                description: 'Payment for fresh produce order #ORD-2024-001',
-                transactionDate: new Date(now.getTime() - 25 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 25 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 25 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 3,
-                account: accountId,
-                type: 'TRANSFER',
-                amount: 2000,
-                status: 'COMPLETED',
-                description: 'Transfer to partner account',
-                transactionDate: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 4,
-                account: accountId,
-                type: 'CREDIT',
-                amount: 3500,
-                status: 'COMPLETED',
-                description: 'Payment received from buyer order',
-                transactionDate: new Date(now.getTime() - 18 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 18 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 18 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 5,
-                account: accountId,
-                type: 'FEE',
-                amount: 25,
-                status: 'COMPLETED',
-                description: 'Platform service fee',
-                transactionDate: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 6,
-                account: accountId,
-                type: 'WITHDRAWAL',
-                amount: 1000,
-                status: 'PENDING',
-                description: 'Withdrawal request to bank account',
-                transactionDate: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 7,
-                account: accountId,
-                type: 'ORDER_PAYMENT',
-                amount: 850,
-                status: 'COMPLETED',
-                description: 'Payment for organic vegetables order #ORD-2024-002',
-                transactionDate: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 8,
-                account: accountId,
-                type: 'REFUND',
-                amount: 450,
-                status: 'COMPLETED',
-                description: 'Refund for cancelled order #ORD-2024-003',
-                transactionDate: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 9,
-                account: accountId,
-                type: 'DEPOSIT',
-                amount: 2000,
-                status: 'COMPLETED',
-                description: 'Direct deposit from payment processor',
-                transactionDate: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 10,
-                account: accountId,
-                type: 'ORDER_PAYMENT',
-                amount: 3200,
-                status: 'FAILED',
-                description: 'Payment failed for order #ORD-2024-004 - Insufficient funds',
-                transactionDate: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName,
-                failureReason: 'Insufficient funds'
-            },
-            {
-                id: 11,
-                account: accountId,
-                type: 'CREDIT',
-                amount: 1800,
-                status: 'COMPLETED',
-                description: 'Payment received from bulk order',
-                transactionDate: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 12,
-                account: accountId,
-                type: 'FEE',
-                amount: 15,
-                status: 'COMPLETED',
-                description: 'Transaction processing fee',
-                transactionDate: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 13,
-                account: accountId,
-                type: 'TRANSFER',
-                amount: 500,
-                status: 'PENDING',
-                description: 'Transfer to supplier account',
-                transactionDate: new Date(now.getTime() - 0.5 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 0.5 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 0.5 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 14,
-                account: accountId,
-                type: 'ORDER_PAYMENT',
-                amount: 950,
-                status: 'COMPLETED',
-                description: 'Payment for fresh fruits order #ORD-2024-005',
-                transactionDate: new Date(now.getTime() - 0.25 * 24 * 60 * 60 * 1000).toISOString(),
-                createdAt: new Date(now.getTime() - 0.25 * 24 * 60 * 60 * 1000).toISOString(),
-                updatedAt: new Date(now.getTime() - 0.25 * 24 * 60 * 60 * 1000).toISOString(),
-                accountName: accountName
-            },
-            {
-                id: 15,
-                account: accountId,
-                type: 'CREDIT',
-                amount: 2750,
-                status: 'COMPLETED',
-                description: 'Payment received from buyer chain order',
-                transactionDate: new Date().toISOString(),
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                accountName: accountName
-            }
-        ];
-
-        // Transform demo transactions using the same method as real transactions
-        this.transactions = demoTransactions.map((t: any) => this.transformTransaction(t));
     }
 
     private transformTransaction(t: any): any {
         // Use the account name passed from loadTransactionsFromAccountInfo
         // This comes from response.account.name in the API response
-        let accountName = t.accountName || 'Unknown';
-        let accountId = '0000';
+        let accountName = t.account.name || 'Unknown';
+        let accountId = t.account.id || '0000';
+        let accountNumber = t.account.accountNumber || '0000';
 
         // Get the account ID from the transaction
         if (typeof t.account === 'number') {
             accountId = t.account.toString();
         }
-        // Or it could be an object with id property
-        else if (typeof t.account === 'object' && t.account !== null) {
-            accountId = t.account.id?.toString() || '0000';
-        }
+       
 
         // Create initials for the avatar
         const capName: string = accountName.split(' ')
@@ -548,7 +374,7 @@ export class TransactionsHistoryWidget {
             status: t.status,
             description: t.description || 'No description provided',
             amount: `${amountSign}${t.amount.toLocaleString()}`,
-            account: `**** **** ${accountId.padStart(4, '0').slice(-4)}`,
+            account: `**** **** ${accountNumber.padStart(4, '0').slice(-4)}`,
             // Store the original transaction for details view
             originalTransaction: t
         };
@@ -697,8 +523,7 @@ export class TransactionsHistoryWidget {
     }
 
     reloadTransactions() {
-        // Reload transactions using the account info API
-        this.loadTransactionsFromAccountInfo();
+        this.loadTransactions();
     }
 
     exportToCSV() {

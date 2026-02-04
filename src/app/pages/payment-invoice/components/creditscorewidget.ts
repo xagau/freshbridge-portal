@@ -1,6 +1,8 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { GaugeChart } from '@/components/charts/gaugechart';
 import { BankTransferService } from '@/service/banktransfer.service';
 import { TransactionActionDialogComponent } from './transaction-action-dialog.component';
@@ -9,8 +11,12 @@ import { AuthService } from '@/auth/auth.service';
 @Component({
     selector: 'credit-score-widget',
     standalone: true,
-    imports: [DividerModule, ButtonModule, GaugeChart, TransactionActionDialogComponent],
-    template: ` <div class="card xl:w-auto w-full !mb-0 min-w-80 !px-6 !pb-6 !pt-4 rounded-3xl border border-surface">
+    imports: [CommonModule, DividerModule, ButtonModule, GaugeChart, TransactionActionDialogComponent, ProgressSpinnerModule],
+    template: ` <div class="card xl:w-auto w-full !mb-0 min-w-80 !px-6 !pb-6 !pt-4 rounded-3xl border border-surface relative">
+        <div *ngIf="loading" class="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-surface-950/60 z-10">
+            <p-progressSpinner styleClass="w-full h-full" [style]="{ 'min-height': '200px' }" mode="indeterminate" />
+        </div>
+        <ng-container *ngIf="!loading">
         <div class="mb-2 flex items-start gap-2">
             <span class="flex-1 label-medium">Account Overview</span>
             <button><i class="pi pi-ellipsis-h text-surface-500 hover:text-surface-950 dark:hover:text-surface-0 transition-all"></i></button>
@@ -40,6 +46,7 @@ import { AuthService } from '@/auth/auth.service';
             [(visible)]="showDialog"
             (submitTransaction)="handleTransaction($event)">
         </transaction-action-dialog>
+        </ng-container>
     </div>`
 })
 export class CreditScoreWidget implements OnInit {
@@ -57,6 +64,7 @@ export class CreditScoreWidget implements OnInit {
     data: number[] = [];
     labels: string[] = [];
     showDialog = false;
+    loading = false;
 
     @Output() transactionSubmitted = new EventEmitter<void>();
 
@@ -69,10 +77,12 @@ export class CreditScoreWidget implements OnInit {
     }
 
     initAccountInfo() {
+        this.loading = true;
         // Get the current user's ID
         const currentUser = this.authService.currentUserValue;
         if (!currentUser) {
             console.error('No user is currently logged in');
+            this.loading = false;
             return;
         }
 
@@ -95,6 +105,7 @@ export class CreditScoreWidget implements OnInit {
                 // Update chart data
                 this.data = [this.balance];
                 this.labels = ['Balance', 'Pending Transfers'];
+                this.loading = false;
             },
             error: (err) => {
                 console.error('Error fetching account info:', err);
@@ -103,6 +114,7 @@ export class CreditScoreWidget implements OnInit {
                 this.availableBalance = 0;
                 this.data = [0];
                 this.labels = ['Balance', 'Pending Transfers'];
+                this.loading = false;
             }
         });
     }
