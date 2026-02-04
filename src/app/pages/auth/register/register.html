@@ -2,7 +2,8 @@
 <section
     class="min-h-screen flex items-center lg:items-start lg:py-20 justify-center animate-fadein animate-duration-300 animate-ease-in max-w-[100rem] mx-auto bg-[url('/images/landing/auth-image.png')] bg-cover bg-center bg-no-repeat lg:bg-none">
     <div class="flex w-full h-full justify-center items-center gap-12">
-        <div class="flex flex-col p-20 min-w-[20rem] lg:min-w-[40rem] bg-yellow-100 bg-opacity-70 rounded-3xl dark:bg-gray-800 xl:bg-transparent">
+        <div
+            class="flex flex-col p-20 min-w-[20rem] lg:min-w-[40rem] bg-yellow-100 bg-opacity-70 rounded-3xl dark:bg-gray-800 xl:bg-transparent">
             <a routerLink="/" class="flex items-center justify-center lg:justify-start mb-8">
                 <logo-widget></logo-widget>
             </a>
@@ -26,9 +27,9 @@
                             placeholder="Username" /> -->
                         <input type="text" pInputText formControlName="email" class="w-full mt-4" placeholder="Email" />
                         <div class="relative mt-4">
-                            <input [type]="showPassword ? 'text' : 'password'" formControlName="password" pInputText class="w-full pr-10"
-                                placeholder="Password" required />
-                            <button type="button" (click)="togglePasswordVisibility()" 
+                            <input [type]="showPassword ? 'text' : 'password'" formControlName="password" pInputText
+                                class="w-full pr-10" placeholder="Password" required />
+                            <button type="button" (click)="togglePasswordVisibility()"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 focus:outline-none transition-colors">
                                 <i [class]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
                             </button>
@@ -37,17 +38,16 @@
                             placeholder="Full Name" />
                         <input type="text" pInputText formControlName="phoneNumber" class="w-full mt-4"
                             placeholder="Phone Number" />
-                        <p-autocomplete
-                            inputId="address"
-                            formControlName="address"
-                            class="w-full mt-4"
-                            [suggestions]="addressSuggestions"
-                            (completeMethod)="searchAddress($event)"
-                            (onSelect)="onAddressSelect($event)"
-                            field="display_name"
-                            [minLength]="3"
-                            [forceSelection]="false"
-                        ></p-autocomplete>
+
+                        <div class="relative mt-4 w-full">
+                            <p-autocomplete inputId="address" formControlName="address" class="w-full mt-4"
+                                placeholder="Address" [suggestions]="addressSuggestions"
+                                width="100%"
+                                styleClass="w-full"
+                                inputStyleClass="w-full"
+                                (completeMethod)="searchAddress($event)" (onSelect)="onAddressSelect($event)"
+                                field="display_name" [minLength]="3" [forceSelection]="false"></p-autocomplete>
+                        </div>
 
                         <p-dropdown formControlName="userType" [options]="userTypes" optionLabel="label"
                             optionValue="value" placeholder="Select User Type" class="w-full mt-4">
@@ -61,9 +61,11 @@
                                 optionValue="value" placeholder="Merchant Type" class="w-full mt-4">
                             </p-dropdown>
                             <div class="flex items-center gap-2 mt-4">
-                                <p-checkbox binary="true" inputId="organicCertification" formControlName="organicCertification"></p-checkbox>
+                                <p-checkbox binary="true" inputId="organicCertification"
+                                    formControlName="organicCertification"></p-checkbox>
                                 <label for="organicCertification" class="body-small">
-                                    <span class="label-small text-surface-950 dark:text-surface-0">Organic Certification</span>
+                                    <span class="label-small text-surface-950 dark:text-surface-0">Organic
+                                        Certification</span>
                                 </label>
                             </div>
                         </div>
@@ -92,12 +94,13 @@
                                 <label for="terms" class="body-small">
                                     <span class="label-small text-surface-950 dark:text-surface-0">I have read the
                                     </span>
-                                    <a href="/terms-and-conditions" class="text-primary-500 hover:underline">Terms and Conditions</a>
+                                    <a href="/terms-and-conditions" class="text-primary-500 hover:underline">Terms and
+                                        Conditions</a>
                                 </label>
                             </div>
-                        </div>  
-                        <button type="submit" class="body-button w-full " [disabled]="registerForm.invalid || loading" 
-                        [style.background-color]="registerForm.invalid || loading ? 'var(--p-primary-200)' : 'var(--p-primary-500)'">
+                        </div>
+                        <button type="submit" class="body-button w-full " [disabled]="registerForm.invalid || loading"
+                            [style.background-color]="registerForm.invalid || loading ? 'var(--p-primary-200)' : 'var(--p-primary-500)'">
                             <span *ngIf="!loading">Register</span>
                             <span *ngIf="loading">Registering...</span>
                         </button>
@@ -167,7 +170,8 @@
 
     <div class="text-center mt-4 body-small">
         Didn't receive code?
-        <button (click)="sendVerificationCode()" class="text-primary-500 hover:underline bg-transparent border-none cursor-pointer">
+        <button (click)="sendVerificationCode()"
+            class="text-primary-500 hover:underline bg-transparent border-none cursor-pointer">
             Resend
         </button>
     </div>
