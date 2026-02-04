@@ -17,12 +17,12 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-    selector: 'settings-user',
+    selector: 'profile-user',
     standalone: true,
     imports: [CommonModule, FormsModule, Select, AutoComplete, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule, DividerModule, ToastModule],
     template: `<div class="card">
         <div class="flex items-center justify-between mb-6">
-            <span class="text-surface-900 dark:text-surface-0 text-xl font-bold">Settings</span>
+            <span class="text-surface-900 dark:text-surface-0 text-xl font-bold">Profile</span>
             <button *ngIf="!isEditMode" pButton pRipple label="Edit" icon="pi pi-pencil" class="p-button-outlined" (click)="enterEditMode()"></button>
         </div>
         <p-toast></p-toast>
@@ -160,7 +160,7 @@ import { ToastModule } from 'primeng/toast';
     </div> `,
     providers: [MessageService]
 })
-export class SettingsUser implements OnInit {
+export class ProfileUser implements OnInit {
     isEditMode: boolean = false;
     saving: boolean = false;
     countries: any[] = [];
