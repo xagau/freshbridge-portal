@@ -175,7 +175,7 @@ export class AppShipmentView implements OnInit {
     }
 
     getEvents(shipment: any) {
-        type StatusKey = 'PENDING' | 'PROCESSING' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED' | 'DELIVERY_FAILED' | 'RETURNED' | 'CANCELLED';
+        type StatusKey = 'PENDING' | 'ACCEPTED' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED' | 'DELIVERY_FAILED' | 'RETURNED' | 'CANCELLED';
 
         const statusMap: Record<StatusKey, { display: string; icon: string; color: string; note?: string }> = {
             'PENDING': {
@@ -183,8 +183,8 @@ export class AppShipmentView implements OnInit {
                 icon: 'pi pi-clock',
                 color: '#9C27B0'
             },
-            'PROCESSING': {
-                display: 'Processing',
+            'ACCEPTED': {
+                display: 'Accepted',
                 icon: 'pi pi-cog',
                 color: '#673AB7'
             },
@@ -225,7 +225,7 @@ export class AppShipmentView implements OnInit {
 
         const statusOrder: StatusKey[] = [
             'PENDING',
-            'PROCESSING',
+            'ACCEPTED',
             'PICKED_UP',
             'IN_TRANSIT',
             'DELIVERED'
