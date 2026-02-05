@@ -61,6 +61,11 @@ export const appRoutes: Routes = [
                 data: { breadcrumb: 'Profile' }
             },
             {
+                path: 'settings-security',
+                loadComponent: () => import('@/pages/profile/settings-security.component').then((c) => c.SettingsSecurityComponent),
+                data: { breadcrumb: 'Settings Security' }
+            },
+            {
                 path: 'order-management',
                 loadComponent: () => import('@/pages/order-list/order-list.component').then((c) => c.OrderListComponent),
                 data: { breadcrumb: 'Dashboard', roles: ['MERCHANT', 'BUYER', 'COURIER'] }
