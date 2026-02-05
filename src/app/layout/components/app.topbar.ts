@@ -134,12 +134,12 @@ interface NotificationsBars {
                                     <span>Profile</span>
                                 </a>
                             </li>
-                            <!-- <li>
-                                <a routerLink="/settings" class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
+                            <li>
+                                <a routerLink="/settings-security" class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
                                     <i class="pi pi-cog"></i>
                                     <span>Settings</span>
                                 </a>
-                            </li> -->
+                            </li>
                             <li>
                                 <a (click)="logout()" class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
                                     <i class="pi pi-power-off"></i>

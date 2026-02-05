@@ -13,6 +13,9 @@ export interface User {
     role: UserRole;
     preferences: UserPreferences;
     userId: number;
+    phone: string;
+    twoFaEnabled: boolean;
+    twoFaMethod: string;
 }
 
 export interface Account {

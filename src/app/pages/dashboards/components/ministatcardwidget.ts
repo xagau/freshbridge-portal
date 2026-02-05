@@ -106,7 +106,7 @@ export class MiniStatCardWidget implements OnInit {
     }
 
     getEvents(product: any) {
-        const statusOrder = ['PENDING', 'PROCESSING', 'IN_TRANSIT', 'DELIVERED'];
+        const statusOrder = ['PENDING', 'ACCEPTED', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED'];
         const currentIndex = statusOrder.indexOf(product.status);
 
         return statusOrder.map((status, index) => ({
@@ -227,7 +227,7 @@ export class MiniStatCardWidget implements OnInit {
     getStatusColor(status: string) {
         const statusColors: Record<string, string> = {
             PENDING: 'bg-yellow-400',
-            PROCESSING: 'bg-blue-400',
+            ACCEPTED: 'bg-blue-400',
             PICKED_UP: 'bg-indigo-400',
             IN_TRANSIT: 'bg-purple-400',
             DELIVERED: 'bg-green-400',

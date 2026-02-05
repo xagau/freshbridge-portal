@@ -57,6 +57,7 @@ export class AuthService {
         return !!token && !this.jwtHelper.isTokenExpired(token);
     }
 
+
     login(usernameOrEmail: string, password: string): Observable<User> {
         console.log(`AuthService: Logging in with usernameOrEmail: ${usernameOrEmail}`);
 
@@ -79,7 +80,6 @@ export class AuthService {
                 );
 
                 this.currentUserSubject.next(response.authUser.user);
-
             }),
             map(response => response.authUser.user),
             
@@ -89,6 +89,25 @@ export class AuthService {
                 return throwError(() => new Error(errorMessage));
             })
         );
+    }
+
+    setupTwoFa(userId: number, method: string) {
+        return this.http.post<{ secret: string; otpauthUri: string; method: string }>(
+            `${environment.apiUrl}auth/2fa/setup`,
+            { userId, method }
+        );
+    }
+
+    verifyTwoFa(userId: number, code: string) {
+        return this.http.post<User>(`${environment.apiUrl}auth/2fa/verify`, { userId, code });
+    }
+
+    disableTwoFa(userId: number) {
+        return this.http.post<User>(`${environment.apiUrl}auth/2fa/disable`, { userId });
+    }
+
+    validateTwoFa(userId: number, code: string) {
+        return this.http.post<{ valid: boolean }>(`${environment.apiUrl}auth/2fa/validate`, { userId, code });
     }
 
     public storeAuthData(
@@ -106,6 +125,11 @@ export class AuthService {
             localStorage.setItem(this.PROFILE_ID_KEY, buyerId.toString());
             localStorage.setItem(this.PROFILE_TYPE_KEY, 'buyer');
         }
+    }
+
+    public updateStoredUser(user: User): void {
+        localStorage.setItem(this.USER_DATA_KEY, JSON.stringify(user));
+        this.currentUserSubject.next(user);
     }
 
 
