@@ -8,6 +8,7 @@ import { Select } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '@/auth/auth.service';
+import { QRCodeComponent } from 'angularx-qrcode';
 
 @Component({
     selector: 'settings-security',
@@ -19,7 +20,8 @@ import { AuthService } from '@/auth/auth.service';
         InputText,
         DividerModule,
         Select,
-        ToastModule
+        ToastModule,
+        QRCodeComponent
     ],
     providers: [MessageService],
     template: `
@@ -78,6 +80,23 @@ import { AuthService } from '@/auth/auth.service';
                 icon="pi pi-shield"
                 (click)="toggle2fa()">
         </button>
+
+        <div *ngIf="twoFaSetup.showSetup" class="mt-4 border border-surface-200 rounded-lg p-4">
+            <p class="body-small mb-2">Scan this QR code with Google Authenticator, then enter the code below.</p>
+            <qrcode [qrdata]="twoFaSetup.otpauthUri" [width]="160" [errorCorrectionLevel]="'M'"></qrcode>
+            <p class="body-small mt-3">Secret: <span class="font-semibold">{{ twoFaSetup.secret }}</span></p>
+
+            <input pInputText
+                   placeholder="Enter 6-digit code"
+                   [(ngModel)]="twoFaSetup.code"
+                   class="w-full mt-3 mb-2" />
+            <button pButton
+                    label="Verify and Enable"
+                    icon="pi pi-check"
+                    (click)="confirmTwoFa()"
+                    [disabled]="twoFaSetup.loading">
+            </button>
+        </div>
     </section>
 
     <p-divider></p-divider>
@@ -140,6 +159,14 @@ export class SettingsSecurityComponent implements OnInit {
         codeSent: false
     };
 
+    twoFaSetup = {
+        secret: '',
+        otpauthUri: '',
+        code: '',
+        loading: false,
+        showSetup: false
+    };
+
     constructor(
         private authService: AuthService,
         private message: MessageService
@@ -178,17 +205,106 @@ export class SettingsSecurityComponent implements OnInit {
     }
 
     toggle2fa() {
-        this.security.twoFaEnabled = !this.security.twoFaEnabled;
+        const user = this.authService.currentUserValue;
+        if (!user) {
+            this.message.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'User not found'
+            });
+            return;
+        }
 
-        this.message.add({
-            severity: 'success',
-            summary: '2FA Updated',
-            detail: this.security.twoFaEnabled
-                ? 'Two-factor authentication enabled'
-                : 'Two-factor authentication disabled'
+        if (this.security.twoFaEnabled) {
+            this.authService.disableTwoFa(user.id).subscribe({
+                next: (updatedUser) => {
+                    this.security.twoFaEnabled = false;
+                    this.security.twoFaMethod = '';
+                    this.twoFaSetup.showSetup = false;
+                    this.authService.updateStoredUser(updatedUser);
+                    this.message.add({
+                        severity: 'success',
+                        summary: '2FA Updated',
+                        detail: 'Two-factor authentication disabled'
+                    });
+                },
+                error: () => {
+                    this.message.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to disable two-factor authentication'
+                    });
+                }
+            });
+            return;
+        }
+
+        if (!this.security.twoFaMethod) {
+            this.message.add({
+                severity: 'warn',
+                summary: '2FA Method',
+                detail: 'Select a 2FA method first'
+            });
+            return;
+        }
+
+        if (this.security.twoFaMethod === 'sms') {
+            this.message.add({
+                severity: 'info',
+                summary: 'SMS 2FA',
+                detail: 'SMS 2FA is not available yet'
+            });
+            return;
+        }
+
+        this.twoFaSetup.loading = true;
+        this.authService.setupTwoFa(user.id, this.security.twoFaMethod).subscribe({
+            next: (response) => {
+                this.twoFaSetup.secret = response.secret;
+                this.twoFaSetup.otpauthUri = response.otpauthUri;
+                this.twoFaSetup.code = '';
+                this.twoFaSetup.showSetup = true;
+                this.twoFaSetup.loading = false;
+            },
+            error: () => {
+                this.twoFaSetup.loading = false;
+                this.message.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to initialize 2FA setup'
+                });
+            }
         });
+    }
 
-        // TODO: API update
+    confirmTwoFa() {
+        const user = this.authService.currentUserValue;
+        if (!user || !this.twoFaSetup.code) {
+            return;
+        }
+        this.twoFaSetup.loading = true;
+        this.authService.verifyTwoFa(user.id, this.twoFaSetup.code).subscribe({
+            next: (updatedUser) => {
+                this.security.twoFaEnabled = true;
+                this.security.twoFaMethod = 'totp';
+                this.twoFaSetup.showSetup = false;
+                this.twoFaSetup.loading = false;
+                this.authService.updateStoredUser(updatedUser);
+                this.message.add({
+                    severity: 'success',
+                    summary: '2FA Enabled',
+                    detail: 'Two-factor authentication enabled successfully'
+                });
+            },
+            error: () => {
+                this.twoFaSetup.loading = false;
+                this.message.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Invalid authentication code'
+                });
+            }
+        });
     }
 
     sendPhoneCode() {
