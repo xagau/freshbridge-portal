@@ -119,7 +119,6 @@ export class UserCreate implements OnInit {
         this.type = [
             { name: 'Merchant', code: 'merchant' },
             { name: 'Buyer', code: 'buyer' },
-            { name: 'Guest', code: 'guest' }
         ];
     }
 
