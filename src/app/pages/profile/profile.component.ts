@@ -254,8 +254,31 @@ export class ProfileUser implements OnInit {
         this.addressSuggestions = [];
     }
 
-    saveSettings() {
+    async saveSettings() {
         this.saving = true;
+        let isInappropriate = false;
+        const inappropriateWords = await fetch('/data/en.txt');
+        const inappropriateWordsList = await inappropriateWords.text();
+        inappropriateWordsList.split('\n').forEach(word => {
+            if (this.settings.bio.toLowerCase().includes(word.toLowerCase())) {
+                console.log(word.trim() === '');
+                
+                if (word.trim() !== '') {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Bio contains inappropriate language'
+                    });
+                    
+                    isInappropriate = true;
+                }
+            }
+        });
+
+        if (isInappropriate) {
+            this.saving = false;
+            return;
+        }
         const params = {
             bio: this.settings.bio,
             fullName: this.settings.fullName,
