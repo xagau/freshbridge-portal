@@ -60,7 +60,8 @@ import { Order } from '@/model/order.model';
                         <ng-template pTemplate="content" let-event>
                             <div class="p-3">
                                 <p class="font-semibold">{{ event.status }}</p>
-                                <p class="text-sm text-gray-500">{{ event.date }}</p>
+                                <!-- <p class="text-sm text-gray-500">{{ event.date }}</p> -->
+                                <p class="text-sm text-gray-500">----------------------</p>
                                 @if (event.note) {
                                     <p class="text-xs text-gray-400 mt-1">{{ event.note }}</p>
                                 }
@@ -258,7 +259,6 @@ export class AppShipmentView implements OnInit {
 
         // Create timeline events for the main flow
         // If cancelled, all icons are grey (#E0E0E0), otherwise use normal color logic
-        console.log("shipment.updatedAt", shipment);
         const events: Array<{ status: string; icon: string; color: string; date: string; note?: string }> = statusOrder.map((status, index) => ({
             status: statusMap[status]?.display || status,
             icon: statusMap[status]?.icon || 'pi pi-info-circle',
