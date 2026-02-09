@@ -34,6 +34,13 @@ export class AuthService {
     public currentUser$: Observable<User | null>;
     private jwtHelper = new JwtHelperService();
 
+
+    private authCredentials = {
+        username: 'admin',
+        password: '6f4acf41-b6ad-483f-bc35-abe48b9fd58a'
+      };
+
+      
     constructor(
         private router: Router,
         private http: HttpClient
@@ -399,6 +406,49 @@ export class AuthService {
             resetCode,
             newPassword
         });
+    }
+
+    updateUserSettings(user: any): Observable<any> {
+        const userId = this.currentUserValue?.id;
+        return this.http.put(`${environment.apiUrl}auth/${userId}`, user).pipe(
+            catchError(error => {
+                console.error('Update user settings error:', error);
+                return throwError(() => new Error('Failed to update user settings'));
+            })
+        );
+    }
+
+    uploadBanner(banner: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('banner', banner);
+        const userId = this.currentUserValue?.id;
+        const authString = btoa(`${this.authCredentials.username}:${this.authCredentials.password}`);
+        const headers = new HttpHeaders({
+          'Authorization': `Basic ${authString}`
+        });
+
+        return this.http.post(`${environment.apiUrl}auth/${userId}/banner`, formData, { headers }).pipe(
+            map((response: any) => 
+                {
+                    console.log("response:", response);
+                    if (response.bannerUrl) {
+                        this.currentUserSubject.next({
+                            ...this.currentUserValue as User,
+                            bannerUrl: response.bannerUrl
+                        } as User);
+                        localStorage.setItem(this.USER_DATA_KEY, JSON.stringify({
+                            ...this.currentUserValue as User,
+                            bannerUrl: response.bannerUrl
+                        }));
+                    }
+                    return response;
+                }
+            ),
+            catchError(error => {
+                console.error('Upload banner error:', error);
+                return throwError(() => new Error('Failed to upload banner'));
+            })
+        );
     }
 
 }

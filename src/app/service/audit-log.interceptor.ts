@@ -66,7 +66,7 @@ function logEvent(
     const event: AuditLogCreateRequest = {
         timestamp: new Date().toISOString(),
         actorId: user?.id,
-        actorName: user ? user.name || user.email : undefined,
+        actorName: user ? user.fullName || user.email : undefined,
         actorRole: user?.role,
         ipAddress: undefined,
         action,

@@ -15,6 +15,7 @@ import { AddressSearchResult, AddressService } from '@/service/address.service';
 import { AuthService } from '@/auth/auth.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'profile-user',
@@ -30,14 +31,14 @@ import { ToastModule } from 'primeng/toast';
             <div class="col-span-12 lg:col-span-10">
                 <div class="grid grid-cols-12 gap-4">
                     <div class="mb-6 col-span-12">
-                        <label for="nickname" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Nickname </label>
-                        <input *ngIf="isEditMode" id="nickname" type="text" pInputText fluid [(ngModel)]="settings.nickname" />
-                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.nickname || 'Not set' }}</div>
+                        <label for="nickname" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Full Name </label>
+                        <input *ngIf="isEditMode" id="fullName" type="text" pInputText fluid [(ngModel)]="settings.fullName" />
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.fullName || 'Not set' }}</div>
                     </div>
                     <div class="mb-6 col-span-12 flex flex-col items-start">
                         <label for="banner" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block">Banner</label>
-                        <p-fileupload *ngIf="isEditMode" mode="basic" name="banner" url="./upload.php" accept="image/*" [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain" chooseLabel="Upload Banner"></p-fileupload>
-                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.banner || 'No banner uploaded' }}</div>
+                        <p-fileupload *ngIf="isEditMode" mode="basic" name="banner" url="./upload.php" accept="image/*" [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain" chooseLabel="Upload Banner" (onSelect)="onBannerSelect($event)"></p-fileupload>
+                        <img *ngIf="!isEditMode" [src]="bannerUrl" class="w-full h-40 object-cover rounded-lg" />
                     </div>
                     <div class="mb-6 col-span-12">
                         <label for="bio" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Bio </label>
@@ -168,9 +169,12 @@ export class ProfileUser implements OnInit {
     accountTypes: any[] = [];
     addressQuery: string = '';
     addressSuggestions: AddressSearchResult[] = [];
-    
+    selectedBanner: File | null = null;
+    bannerUrl: string = '';
+
+    environment = environment;
     settings: any = {
-        nickname: '',
+        fullName: '',
         banner: '',
         bio: '',
         email: '',
@@ -186,55 +190,61 @@ export class ProfileUser implements OnInit {
         iban: '',
         bankAddress: ''
     };
-    
+
     originalSettings: any = {};
     constructor(
         private addressService: AddressService,
         private authService: AuthService,
         private messageService: MessageService,
         private zone: NgZone
-    ) {}
-    
+    ) { }
+
     ngOnInit() {
         this.type = [
             { name: 'Merchant', code: 'merchant' },
             { name: 'Buyer', code: 'buyer' },
         ];
-        
+
         this.accountTypes = [
             { name: 'Checking', code: 'checking' },
             { name: 'Savings', code: 'savings' },
             { name: 'Business Checking', code: 'business_checking' },
             { name: 'Business Savings', code: 'business_savings' }
         ];
-        
+
         // Load user information
         this.loadUserSettings();
     }
 
+
     loadUserSettings() {
         // Load from AuthService
         const user = this.authService.currentUserValue;
+        console.log("user:", user);
+        
         if (user) {
             this.settings.email = user.email || '';
             this.settings.role = user.role?.toLowerCase() || '';
+            this.bannerUrl = environment.apiUrl + 'auth/banners/' + user.bannerUrl;
+            this.settings.fullName = user.fullName || '';
+            this.settings.bio = user.bio || '';
         }
-        
+
         // TODO: Load banking info and other settings from API
         // For now, we'll keep the structure ready for API integration
-        
+
         // Store original settings for cancel functionality
         this.originalSettings = JSON.parse(JSON.stringify(this.settings));
         this.addressQuery = this.settings.address || '';
     }
-    
+
     enterEditMode() {
         this.isEditMode = true;
         // Store current settings as original for cancel
         this.originalSettings = JSON.parse(JSON.stringify(this.settings));
         this.addressQuery = this.settings.address || '';
     }
-    
+
     cancelEdit() {
         // Restore original settings
         this.settings = JSON.parse(JSON.stringify(this.originalSettings));
@@ -242,32 +252,63 @@ export class ProfileUser implements OnInit {
         this.addressQuery = this.settings.address || '';
         this.addressSuggestions = [];
     }
-    
+
     saveSettings() {
         this.saving = true;
-        
-        // TODO: Call API to save settings
-        // For now, simulate API call
-        setTimeout(() => {
-            this.saving = false;
-            this.isEditMode = false;
-            this.originalSettings = JSON.parse(JSON.stringify(this.settings));
-            this.addressQuery = this.settings.address || '';
-            this.addressSuggestions = [];
-            
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Settings saved successfully'
+        const params = {
+            bio: this.settings.bio,
+            fullName: this.settings.fullName,
+        }
+        if (this.selectedBanner) {
+            this.authService.uploadBanner(this.selectedBanner).subscribe({
+                next: (response: any) => {
+                    console.log(response);
+                    this.bannerUrl = response.bannerUrl;
+                },
+                error: (error: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: error.message
+                    });
+                    return;
+                }
             });
-        }, 500);
+        }
+        this.authService.updateUserSettings(params).subscribe({
+            next: (response: any) => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: response.message
+                });
+                setTimeout(() => {
+                    this.saving = false;
+                    this.isEditMode = false;
+                    this.originalSettings = JSON.parse(JSON.stringify(this.settings));
+                    this.addressQuery = this.settings.address || '';
+                    this.addressSuggestions = [];
+                }, 1000);
+            },
+            error: (error: any) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error.message
+                });
+                setTimeout(() => {
+                    this.saving = false;
+                }, 1000);
+            }
+        });
     }
-    
+
+
     getRoleName(roleCode: string): string {
         const role = this.type.find(r => r.code === roleCode);
         return role ? role.name : roleCode;
     }
-    
+
     getAccountTypeName(accountTypeCode: string): string {
         const accountType = this.accountTypes.find(a => a.code === accountTypeCode);
         return accountType ? accountType.name : accountTypeCode;
@@ -305,5 +346,9 @@ export class ProfileUser implements OnInit {
                 this.settings.state = state;
             }
         });
+    }
+
+    onBannerSelect(event: any) {
+        this.selectedBanner = event.files[0];
     }
 }

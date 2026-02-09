@@ -8,14 +8,16 @@ export interface UserPreferences {
 
 export interface User {
     id: number;
+    bannerUrl: string;
     email: string;
-    name: string;
+    fullName: string;
     role: UserRole;
     preferences: UserPreferences;
     userId: number;
     phone: string;
     twoFaEnabled: boolean;
     twoFaMethod: string;
+    bio: string;
 }
 
 export interface Account {

@@ -1,34 +1,19 @@
-<div *ngIf="isTestUser()" class="w-full">
+<div class="w-full">
     <div class="flex flex-col md:flex-row items-center relative ">
         <div class="relative w-full">
-            <img src="/images/el_backgroun.png" alt="Empacadora El Llano - Avocados" class="w-full h-auto object-cover hidden md:block"
+            <img [src]="bannerUrl()" alt="Empacadora El Llano - Avocados" class="w-full h-auto object-cover hidden md:block"
                 style="max-height: 250px; border-radius: 10px;">
                 <div class="absolute inset-0 bg-gradient-to-t from-white to-transparent"></div>
-
+            
         </div>
         <div class="md:absolute relative gap-4 p-4 grid grid-cols-12">
             <img src="/images/el_llano.png" alt="Empacadora El Llano - Avocados" class="max-w-full h-auto col-span-12 md:col-span-3"
                 style="max-height: 250px; border-radius: 10px;">
 
-            <div class="text-left col-span-12 md:col-span-9 flex flex-col justify-center">
+            <div class="text-left col-span-12 md:col-span-9 flex flex-col w-full justify-center">
                 <div class="bg-white/65 backdrop-blur-sm rounded-lg p-6 shadow-lg">
                     <p class="text-xl leading-relaxed mb-4 text-gray-800">
-                        Empacadora El Llano is responsible for the cultivation, harvesting, handling, production,
-                        packaging,
-                        and distribution of avocados and avocado-derived products such as guacamole, avocado oil, and
-                        the
-                        sale and distribution of seeds.
-                    </p>
-
-                    <p class="text-lg text-gray-600 mb-3">
-                        <strong>Located at:</strong> Carretera Desviación a Corona km 0.5, Colonia Peribán, Michoacán,
-                        México.
-                    </p>
-
-                    <p class="text-lg text-gray-700">
-                        El Llano Packaging has its own logistics team who facilitates delivery at the border complying
-                        with
-                        all the permissions that the government expects on their end.
+                        {{ bio() }}
                     </p>
                 </div>
             </div>
