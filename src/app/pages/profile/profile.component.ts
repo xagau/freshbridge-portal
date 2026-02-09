@@ -35,9 +35,9 @@ import { ToastModule } from 'primeng/toast';
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.nickname || 'Not set' }}</div>
                     </div>
                     <div class="mb-6 col-span-12 flex flex-col items-start">
-                        <label for="avatar" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block">Avatar</label>
-                        <p-fileupload *ngIf="isEditMode" mode="basic" name="avatar" url="./upload.php" accept="image/*" [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain" chooseLabel="Upload Image"></p-fileupload>
-                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.avatar || 'No avatar uploaded' }}</div>
+                        <label for="banner" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block">Banner</label>
+                        <p-fileupload *ngIf="isEditMode" mode="basic" name="banner" url="./upload.php" accept="image/*" [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain" chooseLabel="Upload Banner"></p-fileupload>
+                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.banner || 'No banner uploaded' }}</div>
                     </div>
                     <div class="mb-6 col-span-12">
                         <label for="bio" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Bio </label>
@@ -51,8 +51,8 @@ import { ToastModule } from 'primeng/toast';
                     </div>
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="role" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Role </label>
-                        <p-select *ngIf="isEditMode" [options]="type" optionLabel="name" optionValue="code" placeholder="Select a Role" class="w-full md:w-56" [(ngModel)]="settings.role" />
-                        <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ getRoleName(settings.role) || 'Not set' }}</div>
+                        <!-- <p-select *ngIf="isEditMode" [options]="type" optionLabel="name" optionValue="code" placeholder="Select a Role" class="w-full md:w-56" [(ngModel)]="settings.role" /> -->
+                        <div class="text-surface-700 dark:text-surface-300 py-2">{{ getRoleName(settings.role) || 'Not set' }}</div>
                     </div>
                     <div class="mb-6 col-span-12">
                         <label for="address" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Address </label>
@@ -171,7 +171,7 @@ export class ProfileUser implements OnInit {
     
     settings: any = {
         nickname: '',
-        avatar: '',
+        banner: '',
         bio: '',
         email: '',
         role: '',

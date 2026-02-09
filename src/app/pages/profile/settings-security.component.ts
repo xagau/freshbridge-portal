@@ -6,8 +6,7 @@ import { InputText } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
 import { Select } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
-import { DialogModule } from 'primeng/dialog';
-import { InputOtpModule } from 'primeng/inputotp';
+import { VerificationCodeModalComponent } from '@/components/verification-code-modal/verification-code-modal.component';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '@/auth/auth.service';
 import { QRCodeComponent } from 'angularx-qrcode';
@@ -23,8 +22,7 @@ import { QRCodeComponent } from 'angularx-qrcode';
         DividerModule,
         Select,
         ToastModule,
-        DialogModule,
-        InputOtpModule,
+        VerificationCodeModalComponent,
         QRCodeComponent
     ],
     providers: [MessageService],
@@ -136,37 +134,15 @@ import { QRCodeComponent } from 'angularx-qrcode';
     </section> -->
 
 
-    <p-dialog [(visible)]="showVerification" [modal]="true" [style]="{ width: '450px' }" [closable]="false">
-        <h5 class="title-h5 text-center">
-            Email Verification Code
-        </h5>
-        <p class="body-small mt-3.5 text-center">
-            We've sent a 6-digit code to {{ verificationTargetLabel }}
-        </p>
-
-        <div class="mt-6 flex items-center justify-center">
-            <p-inputOtp [(ngModel)]="verificationCode" [integerOnly]="true" [length]="6"></p-inputOtp>
-        </div>
-
-        <div class="flex gap-4 mt-6">
-            <button (click)="showVerification = false" type="button"
-                class="body-button border border-surface-200 dark:border-surface-800 bg-transparent hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-950 dark:text-surface-0 flex-1">
-                Cancel
-            </button>
-            <button (click)="onVerify()" type="button" class="body-button flex-1"
-                [disabled]="!verificationCode || verificationCode.length !== 6 || verificationLoading">
-                Verify
-            </button>
-        </div>
-
-        <div class="text-center mt-4 body-small">
-            Didn't receive code?
-            <button (click)="sendVerificationCode()" [disabled]="verificationLoading"
-                class="text-primary-500 hover:underline bg-transparent border-none cursor-pointer">
-                Resend
-            </button>
-        </div>
-    </p-dialog>
+    <app-verification-code-modal
+        [(visible)]="showVerification"
+        title="Email Verification Code"
+        [targetLabel]="verificationTargetLabel"
+        [loading]="verificationLoading"
+        [(code)]="verificationCode"
+        (verify)="onVerify()"
+        (resend)="sendVerificationCode()">
+    </app-verification-code-modal>
 </div>
 `
 })

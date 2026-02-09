@@ -14,7 +14,7 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
-import { InputOtpModule } from 'primeng/inputotp';
+import { VerificationCodeModalComponent } from '@/components/verification-code-modal/verification-code-modal.component';
 import { AddressSearchResult, AddressService } from '@/service/address.service';
 
 @Component({
@@ -35,7 +35,7 @@ import { AddressSearchResult, AddressService } from '@/service/address.service';
         RouterLink,
         DialogModule,
         CommonModule,
-        InputOtpModule
+        VerificationCodeModalComponent
     ],
     templateUrl: './register.html',
     providers: [AuthService, MessageService]

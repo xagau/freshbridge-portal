@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
+import { VerificationCodeModalComponent } from '@/components/verification-code-modal/verification-code-modal.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { GaugeChart } from '@/components/charts/gaugechart';
 import { BankTransferService } from '@/service/banktransfer.service';
@@ -14,7 +13,7 @@ import { AuthService } from '@/auth/auth.service';
 @Component({
     selector: 'credit-score-widget',
     standalone: true,
-    imports: [CommonModule, FormsModule, DividerModule, ButtonModule, DialogModule, InputTextModule, GaugeChart, TransactionActionDialogComponent, ProgressSpinnerModule],
+    imports: [CommonModule, FormsModule, DividerModule, ButtonModule, GaugeChart, TransactionActionDialogComponent, ProgressSpinnerModule, VerificationCodeModalComponent],
     template: ` <div class="card xl:w-auto w-full !mb-0 min-w-80 !px-6 !pb-6 !pt-4 rounded-3xl border border-surface relative">
         <div *ngIf="loading" class="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-surface-950/60 z-10">
             <p-progressSpinner styleClass="w-full h-full" [style]="{ 'min-height': '200px' }" mode="indeterminate" />
@@ -49,20 +48,14 @@ import { AuthService } from '@/auth/auth.service';
             [(visible)]="showDialog"
             (submitTransaction)="handleTransaction($event)">
         </transaction-action-dialog>
-        <p-dialog
-            header="Confirm with Authenticator"
+        <app-verification-code-modal
             [(visible)]="otpDialogVisible"
-            [modal]="true"
-            [closable]="true"
-            [style]="{ 'min-width': '24rem' }"
-        >
-            <div class="flex flex-col gap-3">
-                <p class="body-small">Enter the 6-digit code from your authenticator app.</p>
-                <input pInputText placeholder="One-time code" [(ngModel)]="otpCode" />
-                <p *ngIf="otpError" class="text-red-600 text-sm">{{ otpError }}</p>
-                <button pButton label="Confirm" (click)="confirmOtp()" [disabled]="otpLoading"></button>
-            </div>
-        </p-dialog>
+            title="Confirm with Authenticator"
+            message="Enter the 6-digit code from your authenticator app."
+            [loading]="otpLoading"
+            [(code)]="otpCode"
+            (verify)="confirmOtp()">
+        </app-verification-code-modal>
         </ng-container>
     </div>`
 })
