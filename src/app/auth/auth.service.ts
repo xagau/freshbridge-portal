@@ -350,6 +350,16 @@ export class AuthService {
 
     // Verification Email
 
+    verifyCurrentPassword(userId: number | string, password: string): Observable<boolean> {
+        return this.http.post<{ valid: boolean }>(`${environment.apiUrl}auth/verify-code-for-reset-password`, { userId, password }).pipe(
+            map(response => response?.valid || false),
+            catchError(error => {
+                console.error('Verify password error:', error);
+                return throwError(() => new Error(error?.error?.error || 'Failed to verify current password'));
+            })
+        );
+    }
+
     sendVerificationCode(email_phone: string): Observable<any> {
         console.log(email_phone);
 
