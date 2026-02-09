@@ -409,6 +409,18 @@ export class AuthService {
     updateUserSettings(user: any): Observable<any> {
         const userId = this.currentUserValue?.id;
         return this.http.put(`${environment.apiUrl}auth/${userId}`, user).pipe(
+            map((response: any) => {
+                console.log("response:", response);
+                if (response) {
+                    this.currentUserSubject.next({
+                        ...this.currentUserValue as User,
+                        fullName: response.fullName,
+                        address: response.address,
+                        bio: response.bio
+                    } as User);
+                }
+                return response;
+            }),
             catchError(error => {
                 console.error('Update user settings error:', error);
                 return throwError(() => new Error('Failed to update user settings'));

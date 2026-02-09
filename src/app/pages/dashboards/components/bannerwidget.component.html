@@ -1,7 +1,7 @@
 <div class="w-full">
     <div class="flex flex-col md:flex-row items-center relative ">
         <div class="relative w-full">
-            <img [src]="bannerUrl()" alt="Empacadora El Llano - Avocados" class="w-full h-auto object-cover md:block"
+            <img [src]="bannerUrl()" alt="Empacadora El Llano - Avocados" class="w-full h-auto object-cover md:block" (error)="setDefaultImage($event)"
                 style="max-height: 250px; border-radius: 10px;">
                 <div class="absolute inset-0 bg-gradient-to-t from-white to-transparent"></div>
             

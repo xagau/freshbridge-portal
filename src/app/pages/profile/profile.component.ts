@@ -38,7 +38,7 @@ import { environment } from '../../../environments/environment';
                     <div class="mb-6 col-span-12 flex flex-col items-start">
                         <label for="banner" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block">Banner</label>
                         <p-fileupload *ngIf="isEditMode" mode="basic" name="banner" url="./upload.php" accept="image/*" [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain" chooseLabel="Upload Banner" (onSelect)="onBannerSelect($event)"></p-fileupload>
-                        <img *ngIf="!isEditMode" [src]="bannerUrl" class="w-full h-40 object-cover rounded-lg" />
+                        <img *ngIf="!isEditMode" [src]="bannerUrl" class="w-full h-40 object-cover rounded-lg" (error)="setDefaultImage($event)" />
                     </div>
                     <div class="mb-6 col-span-12">
                         <label for="bio" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Bio </label>
@@ -228,6 +228,7 @@ export class ProfileUser implements OnInit {
             this.bannerUrl = environment.apiUrl + 'auth/banner/' + user.bannerUrl;
             this.settings.fullName = user.fullName || '';
             this.settings.bio = user.bio || '';
+            this.settings.address = user.address || '';
         }
 
         // TODO: Load banking info and other settings from API
@@ -258,7 +259,7 @@ export class ProfileUser implements OnInit {
         const params = {
             bio: this.settings.bio,
             fullName: this.settings.fullName,
-
+            address: this.settings.address,
         }
         if (this.selectedBanner) {
             this.authService.uploadBanner(this.selectedBanner).subscribe({
@@ -351,5 +352,14 @@ export class ProfileUser implements OnInit {
 
     onBannerSelect(event: any) {
         this.selectedBanner = event.files[0];
+    }
+
+    setDefaultImage(event: Event) {
+        const img = event.target as HTMLImageElement;
+        // Set your default image path here
+        img.src = 'images/logo/banner.webp';
+
+        // Optional: Add a CSS class to style broken images differently
+        img.classList.add('default-image');
     }
 }
