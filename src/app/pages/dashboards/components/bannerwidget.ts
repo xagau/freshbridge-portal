@@ -27,7 +27,7 @@ export class BannerWidget implements OnInit {
     constructor(private authService: AuthService) { }
 
     ngOnInit() {
-        this.bannerUrl.set(  environment.apiUrl + 'auth/banners/' + this.authService.currentUserValue?.bannerUrl ||'/images/logo/banner.webp');
+        this.bannerUrl.set(  environment.apiUrl + 'auth/banner/' + this.authService.currentUserValue?.bannerUrl ||'/images/logo/banner.webp');
 
         this.bio.set(this.authService.currentUserValue?.bio || '');
         this.fullName.set(this.authService.currentUserValue?.fullName || '');

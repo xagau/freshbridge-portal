@@ -66,8 +66,6 @@ export class AuthService {
 
 
     login(usernameOrEmail: string, password: string): Observable<User> {
-        console.log(`AuthService: Logging in with usernameOrEmail: ${usernameOrEmail}`);
-
         return this.http.post<LoginResponse>(`${environment.apiUrl}auth/login`, {
             usernameOrEmail,
             password
@@ -77,7 +75,7 @@ export class AuthService {
                 if (response.error) {
                     throw new Error(response.error); 
                     
-                } 
+                }
                 
                 this.storeAuthData(
                     response.token,
@@ -143,7 +141,7 @@ export class AuthService {
     logout(): void {
         this.clearAuthData();
         this.currentUserSubject.next(null);
-        this.router.navigate(['/']);
+        this.router.navigate(['/auth/login']);
     }
 
     register(userData: any): Observable<any> {

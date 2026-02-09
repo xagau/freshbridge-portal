@@ -74,7 +74,7 @@ import { environment } from '../../../environments/environment';
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.address || 'Not set' }}</div>
                     </div>
                     
-                    <div class="mb-6 col-span-12">
+                    <!-- <div class="mb-6 col-span-12">
                         <label for="website" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Website </label>
                         <p-inputgroup *ngIf="isEditMode">
                             <p-inputgroup-addon>
@@ -83,7 +83,7 @@ import { environment } from '../../../environments/environment';
                             <input id="website" type="text" pInputText fluid [(ngModel)]="settings.website" />
                         </p-inputgroup>
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.website ? 'www.' + settings.website : 'Not set' }}</div>
-                    </div>
+                    </div> -->
                     
                     <div class="col-span-12">
                         <p-divider />
@@ -225,7 +225,7 @@ export class ProfileUser implements OnInit {
         if (user) {
             this.settings.email = user.email || '';
             this.settings.role = user.role?.toLowerCase() || '';
-            this.bannerUrl = environment.apiUrl + 'auth/banners/' + user.bannerUrl;
+            this.bannerUrl = environment.apiUrl + 'auth/banner/' + user.bannerUrl;
             this.settings.fullName = user.fullName || '';
             this.settings.bio = user.bio || '';
         }
@@ -258,12 +258,13 @@ export class ProfileUser implements OnInit {
         const params = {
             bio: this.settings.bio,
             fullName: this.settings.fullName,
+
         }
         if (this.selectedBanner) {
             this.authService.uploadBanner(this.selectedBanner).subscribe({
                 next: (response: any) => {
                     console.log(response);
-                    this.bannerUrl = response.bannerUrl;
+                    this.bannerUrl = environment.apiUrl + 'auth/banner/' + response.bannerUrl;
                 },
                 error: (error: any) => {
                     this.messageService.add({

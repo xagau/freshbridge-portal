@@ -37,11 +37,21 @@ import { QRCodeComponent } from 'angularx-qrcode';
 
         <div class="grid gap-3">
             <input pInputText type="password" placeholder="Current password"
-                   [(ngModel)]="password.current" />
-            <input pInputText type="password" placeholder="New password"
-                   [(ngModel)]="password.new" />
-            <input pInputText type="password" placeholder="Confirm new password"
-                   [(ngModel)]="password.confirm" />
+            [(ngModel)]="password.current" />
+        <div class="relative mt-4">
+            <input pInputText  placeholder="New password" [(ngModel)]="password.new" [type]="showNewPassword ? 'text' : 'password'" class="w-full pr-10"/>
+                   <button type="button" (click)="toggleNewPasswordVisibility()" 
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 focus:outline-none transition-colors">
+                                <i [class]="showNewPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                            </button>
+            </div>
+            <div class="relative mt-4">
+            <input pInputText placeholder="Confirm new password" [(ngModel)]="password.confirm" [type]="showConfirmPassword ? 'text' : 'password'" class="w-full pr-10"/>
+                   <button type="button" (click)="toggleConfirmPasswordVisibility()" 
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 focus:outline-none transition-colors">
+                                <i [class]="showConfirmPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                            </button>
+            </div>
         </div>
 
         <button pButton class="mt-3"
@@ -149,7 +159,8 @@ import { QRCodeComponent } from 'angularx-qrcode';
 export class SettingsSecurityComponent implements OnInit {
 
     saving = false;
-
+    showNewPassword = false;
+    showConfirmPassword = false;
     password = {
         current: '',
         new: '',
@@ -189,13 +200,21 @@ export class SettingsSecurityComponent implements OnInit {
     constructor(
         private authService: AuthService,
         private message: MessageService
-    ) {}
+    ) { }
 
     ngOnInit() {
         const user = this.authService.currentUserValue;
         this.security.twoFaEnabled = !!user?.twoFaEnabled;
         this.security.twoFaMethod = user?.twoFaMethod || '';
         this.phone.number = user?.phone || '';
+    }
+
+    toggleNewPasswordVisibility() {
+        this.showNewPassword = !this.showNewPassword;
+    }
+
+    toggleConfirmPasswordVisibility() {
+        this.showConfirmPassword = !this.showConfirmPassword;
     }
 
     changePassword() {

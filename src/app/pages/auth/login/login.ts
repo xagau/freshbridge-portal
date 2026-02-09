@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -12,11 +12,12 @@ import { AuthService } from '@/auth/auth.service';
 import { Router } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { VerificationCodeModalComponent } from '@/components/verification-code-modal/verification-code-modal.component';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [LogoWidget, CommonModule, ReactiveFormsModule, InputTextModule, LazyImageWidget, GoogleWidget, CheckboxModule, RouterLink, ToastModule],
+    imports: [LogoWidget, VerificationCodeModalComponent, CommonModule, ReactiveFormsModule, InputTextModule, LazyImageWidget, GoogleWidget, CheckboxModule, RouterLink, ToastModule],
     providers: [MessageService],
     templateUrl: './login.component.html'
 })
@@ -24,7 +25,6 @@ export class Login {
     loginForm: FormGroup;
     currentYear: number = new Date().getFullYear();
     showPassword: boolean = false;
-
     constructor(
         private fb: FormBuilder,
         private authService: AuthService,
@@ -40,13 +40,16 @@ export class Login {
     }
     loading = false;
     error = '';
-    
+    otpDialogVisible = false;
+    otpCode = '';
+    otpLoading = false;
+
     togglePasswordVisibility(): void {
         this.showPassword = !this.showPassword;
     }
     onSubmit(): void {
         this.loading = true;
-        
+
         if (this.loginForm.invalid) {
             this.loading = false;
             return;
@@ -59,9 +62,17 @@ export class Login {
         this.authService.login(email!, password!).subscribe({
             next: (success) => {
                 if (success) {
-                    const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'] || '/dashboard';
-                   
-                    this.router.navigateByUrl(returnUrl);
+                    // implement two factor authentication with verification modal
+                    console.log("success:", success);
+                    
+                    if (success.twoFaEnabled) {
+                        this.otpDialogVisible = true;
+                        this.otpCode = '';
+                        this.otpLoading = false;
+                    } else {
+                        const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'] || '/dashboard';
+                        this.router.navigateByUrl(returnUrl);
+                    }
                 } else {
                     this.error = '';
                     this.messageService.add({
@@ -81,6 +92,54 @@ export class Login {
                     detail: error
                 });
                 this.loading = false;
+            }
+        });
+    }
+
+
+    confirmOtp() {
+        const currentUser = this.authService.currentUserValue;
+        if (!currentUser || !this.otpCode) {
+            return;
+        }
+        if (!this.otpCode) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please enter a code.'
+            });
+            return;
+        }
+        this.otpLoading = true;
+        this.authService.validateTwoFa(currentUser.id, this.otpCode).subscribe({
+            next: (response) => {
+                this.otpLoading = false;
+                if (!response.valid) {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Invalid authentication code.'
+                    });
+                    // remove current user from localStorage
+                    this.authService.logout();
+                    return;
+                }
+                this.otpDialogVisible = false;
+                this.otpCode = '';
+                this.otpLoading = false;
+                const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'] || '/dashboard';
+                this.router.navigateByUrl(returnUrl);
+            },
+            error: () => {
+                this.otpLoading = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to verify authentication code.'
+                });
+                this.otpLoading = false;
+                this.otpDialogVisible = false;
+                this.otpCode = '';
             }
         });
     }
