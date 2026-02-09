@@ -380,7 +380,7 @@ export class ProfileUser implements OnInit {
     setDefaultImage(event: Event) {
         const img = event.target as HTMLImageElement;
         // Set your default image path here
-        img.src = 'images/logo/banner.webp';
+        img.src = 'images/logo/banner.png';
 
         // Optional: Add a CSS class to style broken images differently
         img.classList.add('default-image');
