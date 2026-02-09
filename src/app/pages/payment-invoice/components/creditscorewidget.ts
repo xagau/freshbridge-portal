@@ -3,18 +3,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
+import { VerificationCodeModalComponent } from '@/components/verification-code-modal/verification-code-modal.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { GaugeChart } from '@/components/charts/gaugechart';
 import { BankTransferService } from '@/service/banktransfer.service';
 import { TransactionActionDialogComponent } from './transaction-action-dialog.component';
 import { AuthService } from '@/auth/auth.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'credit-score-widget',
     standalone: true,
-    imports: [CommonModule, FormsModule, DividerModule, ButtonModule, DialogModule, InputTextModule, GaugeChart, TransactionActionDialogComponent, ProgressSpinnerModule],
+    imports: [CommonModule, FormsModule, DividerModule, ButtonModule, GaugeChart, TransactionActionDialogComponent, ProgressSpinnerModule, VerificationCodeModalComponent],
+    providers: [MessageService],
     template: ` <div class="card xl:w-auto w-full !mb-0 min-w-80 !px-6 !pb-6 !pt-4 rounded-3xl border border-surface relative">
         <div *ngIf="loading" class="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-surface-950/60 z-10">
             <p-progressSpinner styleClass="w-full h-full" [style]="{ 'min-height': '200px' }" mode="indeterminate" />
@@ -49,20 +50,14 @@ import { AuthService } from '@/auth/auth.service';
             [(visible)]="showDialog"
             (submitTransaction)="handleTransaction($event)">
         </transaction-action-dialog>
-        <p-dialog
-            header="Confirm with Authenticator"
+        <app-verification-code-modal
             [(visible)]="otpDialogVisible"
-            [modal]="true"
-            [closable]="true"
-            [style]="{ 'min-width': '24rem' }"
-        >
-            <div class="flex flex-col gap-3">
-                <p class="body-small">Enter the 6-digit code from your authenticator app.</p>
-                <input pInputText placeholder="One-time code" [(ngModel)]="otpCode" />
-                <p *ngIf="otpError" class="text-red-600 text-sm">{{ otpError }}</p>
-                <button pButton label="Confirm" (click)="confirmOtp()" [disabled]="otpLoading"></button>
-            </div>
-        </p-dialog>
+            title="Confirm with Authenticator"
+            message="Enter the 6-digit code from your authenticator app."
+            [loading]="otpLoading"
+            [(code)]="otpCode"
+            (verify)="confirmOtp()">
+        </app-verification-code-modal>
         </ng-container>
     </div>`
 })
@@ -84,14 +79,15 @@ export class CreditScoreWidget implements OnInit {
     loading = false;
     otpDialogVisible = false;
     otpCode = '';
-    otpError = '';
     otpLoading = false;
+
     pendingTransaction: { type: string; amount: number; description: string } | null = null;
 
     @Output() transactionSubmitted = new EventEmitter<void>();
 
     constructor(
-        private authService: AuthService
+        private authService: AuthService,
+        private messageService: MessageService
     ) { }
 
     ngOnInit() {
@@ -161,7 +157,6 @@ export class CreditScoreWidget implements OnInit {
             this.pendingTransaction = event;
             this.otpDialogVisible = true;
             this.otpCode = '';
-            this.otpError = '';
             return;
         }
 
@@ -174,7 +169,11 @@ export class CreditScoreWidget implements OnInit {
             return;
         }
         if (!this.otpCode) {
-            this.otpError = 'Please enter a code.';
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please enter a code.'
+            });
             return;
         }
         this.otpLoading = true;
@@ -182,7 +181,11 @@ export class CreditScoreWidget implements OnInit {
             next: (response) => {
                 this.otpLoading = false;
                 if (!response.valid) {
-                    this.otpError = 'Invalid authentication code.';
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Invalid authentication code.'
+                    });
                     return;
                 }
                 const transaction = this.pendingTransaction;
@@ -194,7 +197,11 @@ export class CreditScoreWidget implements OnInit {
             },
             error: () => {
                 this.otpLoading = false;
-                this.otpError = 'Failed to verify authentication code.';
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to verify authentication code.'
+                });
             }
         });
     }

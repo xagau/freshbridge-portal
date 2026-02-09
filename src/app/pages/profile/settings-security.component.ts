@@ -6,6 +6,7 @@ import { InputText } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
 import { Select } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
+import { VerificationCodeModalComponent } from '@/components/verification-code-modal/verification-code-modal.component';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '@/auth/auth.service';
 import { QRCodeComponent } from 'angularx-qrcode';
@@ -21,6 +22,7 @@ import { QRCodeComponent } from 'angularx-qrcode';
         DividerModule,
         Select,
         ToastModule,
+        VerificationCodeModalComponent,
         QRCodeComponent
     ],
     providers: [MessageService],
@@ -35,11 +37,21 @@ import { QRCodeComponent } from 'angularx-qrcode';
 
         <div class="grid gap-3">
             <input pInputText type="password" placeholder="Current password"
-                   [(ngModel)]="password.current" />
-            <input pInputText type="password" placeholder="New password"
-                   [(ngModel)]="password.new" />
-            <input pInputText type="password" placeholder="Confirm new password"
-                   [(ngModel)]="password.confirm" />
+            [(ngModel)]="password.current" />
+        <div class="relative mt-4">
+            <input pInputText  placeholder="New password" [(ngModel)]="password.new" [type]="showNewPassword ? 'text' : 'password'" class="w-full pr-10"/>
+                   <button type="button" (click)="toggleNewPasswordVisibility()" 
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 focus:outline-none transition-colors">
+                                <i [class]="showNewPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                            </button>
+            </div>
+            <div class="relative mt-4">
+            <input pInputText placeholder="Confirm new password" [(ngModel)]="password.confirm" [type]="showConfirmPassword ? 'text' : 'password'" class="w-full pr-10"/>
+                   <button type="button" (click)="toggleConfirmPasswordVisibility()" 
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 focus:outline-none transition-colors">
+                                <i [class]="showConfirmPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                            </button>
+            </div>
         </div>
 
         <button pButton class="mt-3"
@@ -102,7 +114,7 @@ import { QRCodeComponent } from 'angularx-qrcode';
     <p-divider></p-divider>
 
     <!-- Phone Verification -->
-    <section>
+    <!-- <section>
         <h3 class="font-semibold mb-3">Phone Verification</h3>
 
         <input pInputText
@@ -129,19 +141,37 @@ import { QRCodeComponent } from 'angularx-qrcode';
                 icon="pi pi-check"
                 (click)="verifyPhone()">
         </button>
-    </section>
+    </section> -->
+
+
+    <app-verification-code-modal
+        [(visible)]="showVerification"
+        title="Email Verification Code"
+        [targetLabel]="verificationTargetLabel"
+        [loading]="verificationLoading"
+        [(code)]="verificationCode"
+        (verify)="onVerify()"
+        (resend)="sendVerificationCode()">
+    </app-verification-code-modal>
 </div>
 `
 })
 export class SettingsSecurityComponent implements OnInit {
 
     saving = false;
-
+    showNewPassword = false;
+    showConfirmPassword = false;
     password = {
         current: '',
         new: '',
         confirm: ''
     };
+
+    showVerification = false;
+    verificationCode = '';
+    verificationTargetLabel = '';
+    verificationContact = '';
+    verificationLoading = false;
 
     security = {
         twoFaEnabled: false,
@@ -149,7 +179,7 @@ export class SettingsSecurityComponent implements OnInit {
     };
 
     twoFaMethods = [
-        { name: 'SMS (Phone)', code: 'sms' },
+        // { name: 'SMS (Phone)', code: 'sms' },
         { name: 'Authenticator App', code: 'totp' }
     ];
 
@@ -170,7 +200,7 @@ export class SettingsSecurityComponent implements OnInit {
     constructor(
         private authService: AuthService,
         private message: MessageService
-    ) {}
+    ) { }
 
     ngOnInit() {
         const user = this.authService.currentUserValue;
@@ -179,7 +209,23 @@ export class SettingsSecurityComponent implements OnInit {
         this.phone.number = user?.phone || '';
     }
 
+    toggleNewPasswordVisibility() {
+        this.showNewPassword = !this.showNewPassword;
+    }
+
+    toggleConfirmPasswordVisibility() {
+        this.showConfirmPassword = !this.showConfirmPassword;
+    }
+
     changePassword() {
+        if (!this.password.current) {
+            this.message.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please enter your current password'
+            });
+            return;
+        }
         if (this.password.new !== this.password.confirm) {
             this.message.add({
                 severity: 'error',
@@ -189,19 +235,127 @@ export class SettingsSecurityComponent implements OnInit {
             return;
         }
 
-        this.saving = true;
-
-        // TODO: API call
-        setTimeout(() => {
-            this.saving = false;
-            this.password = { current: '', new: '', confirm: '' };
-
+        const user = this.authService.currentUserValue;
+        if (!user) {
             this.message.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Password updated successfully'
+                severity: 'error',
+                summary: 'Error',
+                detail: 'User not found'
             });
-        }, 600);
+            return;
+        }
+
+        this.saving = true;
+        this.authService.verifyCurrentPassword(user.id, this.password.current).subscribe({
+            next: (isValid) => {
+                if (!isValid) {
+                    this.message.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Current password is incorrect'
+                    });
+                    this.saving = false;
+                    return;
+                }
+                this.saving = false;
+                this.showVerification = true;
+                this.verificationContact = user.email;
+                this.verificationTargetLabel = user.email;
+                this.sendVerificationCode();
+            },
+            error: (error) => {
+                this.message.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error?.message || 'Failed to verify current password'
+                });
+                this.saving = false;
+            }
+        });
+    }
+
+
+    sendVerificationCode() {
+        if (!this.verificationContact) {
+            return;
+        }
+        this.verificationLoading = true;
+        this.authService.sendVerificationCode(this.verificationContact).subscribe({
+            next: () => {
+                this.verificationCode = '';
+                this.showVerification = true;
+                this.verificationLoading = false;
+            },
+            error: (error) => {
+                this.message.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error?.message || 'Failed to send verification code'
+                });
+                this.verificationLoading = false;
+            }
+        });
+    }
+
+    onVerify() {
+        if (!this.verificationCode || this.verificationCode.length !== 6) {
+            this.message.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please enter a valid 6-digit code'
+            });
+            return;
+        }
+        this.verificationLoading = true;
+        this.authService.verifyCode(this.verificationContact, this.verificationCode).subscribe({
+            next: (isValid) => {
+                if (!isValid) {
+                    this.message.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Invalid verification code'
+                    });
+                    this.verificationLoading = false;
+                    return;
+                }
+                this.resetPasswordWithCode();
+            },
+            error: () => {
+                this.message.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Invalid verification code'
+                });
+                this.verificationLoading = false;
+            }
+        });
+    }
+
+    private resetPasswordWithCode() {
+        this.saving = true;
+        this.authService.resetPassword(this.verificationContact, this.verificationCode, this.password.new).subscribe({
+            next: () => {
+                this.message.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Password updated successfully'
+                });
+                this.password = { current: '', new: '', confirm: '' };
+                this.verificationCode = '';
+                this.showVerification = false;
+                this.saving = false;
+                this.verificationLoading = false;
+            },
+            error: (error) => {
+                this.message.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error?.message || 'Failed to reset password'
+                });
+                this.saving = false;
+                this.verificationLoading = false;
+            }
+        });
     }
 
     toggle2fa() {

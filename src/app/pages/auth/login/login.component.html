@@ -59,3 +59,12 @@
         </div>
     </div>
 </section>
+
+<app-verification-code-modal
+    [(visible)]="otpDialogVisible"
+    title="Confirm with Authenticator"
+    message="Enter the 6-digit code from your authenticator app."
+    [loading]="otpLoading"
+    [(code)]="otpCode"
+    (verify)="confirmOtp()">
+</app-verification-code-modal>

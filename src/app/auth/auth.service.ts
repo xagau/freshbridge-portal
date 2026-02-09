@@ -34,6 +34,13 @@ export class AuthService {
     public currentUser$: Observable<User | null>;
     private jwtHelper = new JwtHelperService();
 
+
+    private authCredentials = {
+        username: 'admin',
+        password: '6f4acf41-b6ad-483f-bc35-abe48b9fd58a'
+      };
+
+      
     constructor(
         private router: Router,
         private http: HttpClient
@@ -59,8 +66,6 @@ export class AuthService {
 
 
     login(usernameOrEmail: string, password: string): Observable<User> {
-        console.log(`AuthService: Logging in with usernameOrEmail: ${usernameOrEmail}`);
-
         return this.http.post<LoginResponse>(`${environment.apiUrl}auth/login`, {
             usernameOrEmail,
             password
@@ -70,7 +75,7 @@ export class AuthService {
                 if (response.error) {
                     throw new Error(response.error); 
                     
-                } 
+                }
                 
                 this.storeAuthData(
                     response.token,
@@ -136,7 +141,7 @@ export class AuthService {
     logout(): void {
         this.clearAuthData();
         this.currentUserSubject.next(null);
-        this.router.navigate(['/']);
+        this.router.navigate(['/auth/login']);
     }
 
     register(userData: any): Observable<any> {
@@ -350,6 +355,16 @@ export class AuthService {
 
     // Verification Email
 
+    verifyCurrentPassword(userId: number | string, password: string): Observable<boolean> {
+        return this.http.post<{ valid: boolean }>(`${environment.apiUrl}auth/verify-code-for-reset-password`, { userId, password }).pipe(
+            map(response => response?.valid || false),
+            catchError(error => {
+                console.error('Verify password error:', error);
+                return throwError(() => new Error(error?.error?.error || 'Failed to verify current password'));
+            })
+        );
+    }
+
     sendVerificationCode(email_phone: string): Observable<any> {
         console.log(email_phone);
 
@@ -389,6 +404,61 @@ export class AuthService {
             resetCode,
             newPassword
         });
+    }
+
+    updateUserSettings(user: any): Observable<any> {
+        const userId = this.currentUserValue?.id;
+        return this.http.put(`${environment.apiUrl}auth/${userId}`, user).pipe(
+            map((response: any) => {
+                console.log("response:", response);
+                if (response) {
+                    this.currentUserSubject.next({
+                        ...this.currentUserValue as User,
+                        fullName: response.fullName,
+                        address: response.address,
+                        bio: response.bio
+                    } as User);
+                }
+                return response;
+            }),
+            catchError(error => {
+                console.error('Update user settings error:', error);
+                return throwError(() => new Error('Failed to update user settings'));
+            })
+        );
+    }
+
+    uploadBanner(banner: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('banner', banner);
+        const userId = this.currentUserValue?.id;
+        const authString = btoa(`${this.authCredentials.username}:${this.authCredentials.password}`);
+        const headers = new HttpHeaders({
+          'Authorization': `Basic ${authString}`
+        });
+
+        return this.http.post(`${environment.apiUrl}auth/${userId}/banner`, formData, { headers }).pipe(
+            map((response: any) => 
+                {
+                    console.log("response:", response);
+                    if (response.bannerUrl) {
+                        this.currentUserSubject.next({
+                            ...this.currentUserValue as User,
+                            bannerUrl: response.bannerUrl
+                        } as User);
+                        localStorage.setItem(this.USER_DATA_KEY, JSON.stringify({
+                            ...this.currentUserValue as User,
+                            bannerUrl: response.bannerUrl
+                        }));
+                    }
+                    return response;
+                }
+            ),
+            catchError(error => {
+                console.error('Upload banner error:', error);
+                return throwError(() => new Error('Failed to upload banner'));
+            })
+        );
     }
 
 }
