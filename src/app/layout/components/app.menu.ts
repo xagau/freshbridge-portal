@@ -79,7 +79,7 @@ export class AppMenu implements OnInit, OnDestroy {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-warehouse',
                         routerLink: ['/dashboard'],
-                        roles: ['MERCHANT', 'BUYER']
+                        roles: ['MERCHANT', 'BUYER', 'COURIER', 'ADMIN']
                     },
                     {
                         label: 'FreshSelect',

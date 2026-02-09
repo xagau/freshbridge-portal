@@ -175,7 +175,7 @@ export class AppShipmentView implements OnInit {
     }
 
     getEvents(shipment: any) {
-        type StatusKey = 'PENDING' | 'ACCEPTED' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED' | 'DELIVERY_FAILED' | 'RETURNED' | 'CANCELLED';
+        type StatusKey = 'PENDING' | 'ACCEPTED' | 'PREPARING' | 'READY_FOR_PICKUP' | 'PICKED_UP' | 'DELIVERING' | 'DELIVERED' | 'DELIVERY_FAILED' | 'RETURNED' | 'CANCELLED';
 
         const statusMap: Record<StatusKey, { display: string; icon: string; color: string; note?: string }> = {
             'PENDING': {
@@ -185,16 +185,26 @@ export class AppShipmentView implements OnInit {
             },
             'ACCEPTED': {
                 display: 'Accepted',
+                icon: 'pi pi-check-circle',
+                color: '#673AB7'
+            },
+            'PREPARING': {
+                display: 'Preparing',
                 icon: 'pi pi-cog',
                 color: '#673AB7'
+            },
+            "READY_FOR_PICKUP": {
+                display: 'Ready for Pickup',
+                icon: 'pi pi-shopping-bag',
+                color: '#3F51B5'
             },
             'PICKED_UP': {
                 display: 'Picked Up',
                 icon: 'pi pi-shopping-bag',
                 color: '#3F51B5'
             },
-            'IN_TRANSIT': {
-                display: 'In Transit',
+            'DELIVERING': {
+                display: 'Delivering',
                 icon: 'pi pi-truck',
                 color: '#FF9800'
             },
@@ -226,8 +236,10 @@ export class AppShipmentView implements OnInit {
         const statusOrder: StatusKey[] = [
             'PENDING',
             'ACCEPTED',
+            'PREPARING',
+            'READY_FOR_PICKUP',
             'PICKED_UP',
-            'IN_TRANSIT',
+            'DELIVERING',
             'DELIVERED'
         ];
 
@@ -246,11 +258,12 @@ export class AppShipmentView implements OnInit {
 
         // Create timeline events for the main flow
         // If cancelled, all icons are grey (#E0E0E0), otherwise use normal color logic
+        console.log("shipment.updatedAt", shipment);
         const events: Array<{ status: string; icon: string; color: string; date: string; note?: string }> = statusOrder.map((status, index) => ({
             status: statusMap[status]?.display || status,
             icon: statusMap[status]?.icon || 'pi pi-info-circle',
             color: isCancelled ? '#E0E0E0' : (index <= currentIndex ? (statusMap[status]?.color || '#4CAF50') : '#E0E0E0'),
-            date: shipment.estimatedDelivery ? new Date(shipment.estimatedDelivery).toLocaleDateString() : 'N/A'
+            date: shipment.estimatedDelivery ? new Date(shipment.updatedAt).toLocaleDateString() : 'N/A'
         }));
 
         // Add error status if applicable (DELIVERY_FAILED, RETURNED, or CANCELLED)

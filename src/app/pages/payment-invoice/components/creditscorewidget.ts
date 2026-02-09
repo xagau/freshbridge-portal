@@ -34,7 +34,7 @@ import { MessageService } from 'primeng/api';
             <div class="p-3.5 flex flex-col gap-3">
                 <div class="flex items-center justify-between gap-4">
                     <span class="body-xsmall">Balance</span>
-                    <span class="label-xsmall text-surface-950 dark:text-surface-0">{{ balance}}</span>
+                    <span class="label-xsmall text-surface-950 dark:text-surface-0">{{ balance }}</span>
                 </div>
                 <p-divider class="!m-0" />
               
@@ -111,10 +111,12 @@ export class CreditScoreWidget implements OnInit {
             next: (response: any) => {
                 // Extract account data from the response
                 const data = response.account;
-
+                // all balance type should be 0.00 tyoe not long, wanna under point two decimal places
+                data.availableBalance = parseFloat(data.availableBalance).toFixed(2);
+                data.balance = parseFloat(data.balance).toFixed(2);
                 this.accountId = data.id;
                 this.accountNumber = data.accountNumber;
-                this.availableBalance = data.availableBalance;
+                this.availableBalance = data.availableBalance || 0;
                 this.balance = data.balance;
                 this.completedTransfers = response.transactions ? response.transactions.length : 0;
                 this.name = data.name;

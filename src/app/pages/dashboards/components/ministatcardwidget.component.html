@@ -12,18 +12,19 @@
                     <tr>
                         <th>{{ currentUser?.role === 'COURIER' ? 'Shipment #' : 'Order #' }}</th>
                         <th>Status</th>
-                        <th>Estimated Delivery</th>
+                        <th>Order Date</th>
                         <th>Actions</th>
                     </tr>
                 </ng-template>
                 <ng-template #body let-shipment>
                     <tr>
                         <td class="min-w-[100px]">
-                            <p-timeline [value]="getEvents(shipment)" layout="horizontal">
+                            <p-timeline [value]="getEvents(shipment)" layout="horizontal" *ngIf="shipment.status !== 'COMPLETED'">
                                 <ng-template pTemplate="marker" let-event>
                                     <span class="custom-marker" [ngStyle]="{'background-color': event.color}"></span>
                                 </ng-template>
                             </p-timeline>
+                            <span *ngIf="shipment.status === 'COMPLETED'" class="text-xs text-gray-500">{{ shipment.updatedAt | date:'mediumDate' }}</span>
                         </td>
                         <td>
                             <span class="p-1 rounded-md text-white text-xs {{ getStatusColor(shipment.status) }}">
