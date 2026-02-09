@@ -106,7 +106,7 @@ export class MiniStatCardWidget implements OnInit {
     }
 
     getEvents(product: any) {
-        const statusOrder = ['PENDING', 'ACCEPTED', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED'];
+        const statusOrder = ['PENDING', 'ACCEPTED', 'PREPARING', 'READY_FOR_PICKUP', 'PICKED_UP', 'DELIVERING', 'DELIVERED'];
         const currentIndex = statusOrder.indexOf(product.status);
 
         return statusOrder.map((status, index) => ({
@@ -138,12 +138,14 @@ export class MiniStatCardWidget implements OnInit {
             // Merchants and Buyers get orders from the shared service
             this.dashboardDataService.orders$.subscribe({
                 next: (data: any) => {
+                    console.log("data", data);
+                    
                     if (data && data.length > 0) {
                         this.shipments = data.map((order: any) => ({
                             id: order.id,
                             orderId: order.id,
                             status: order.status,
-                            estimatedDelivery: order.estimatedDeliveryDate || order.createdAt,
+                            estimatedDelivery: order.estimatedDeliveryDate || order.startDate,
                             trackingNumber: order.trackingNumber || `ORD-${order.id}`
                         }));
                     }
@@ -235,7 +237,7 @@ export class MiniStatCardWidget implements OnInit {
             RETURNED: 'bg-orange-400',
             CANCELLED: 'bg-gray-400'
         };
-        return statusColors[status] || 'bg-gray-200';
+        return statusColors[status] || 'bg-gray-500';
     }
 
     filterOptions = [

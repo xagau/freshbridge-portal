@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { OrdersService } from '@/service/orders.service';
 import { AuthService } from '@/auth/auth.service';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { Order } from '@/model/order.model';
 import { OrderDetailComponent } from './details/order-detail.component';
 
@@ -20,13 +20,17 @@ import { StatusColorPipe } from '@/shared/pipes/status-color.pipe';
 import { ScheduleOrderButton } from '@/components/schedule-order/schedule-order-button';
 import { ShipmentService } from '@/service/shipment.service';
 import { ShipmentSelectDialogComponent } from './shipment-select-dialog/shipment-select-dialog.component';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { VerificationCodeModalComponent } from '@/components/verification-code-modal/verification-code-modal.component';
+
 @Component({
   selector: 'app-order-list',
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss'],
   standalone: true,
-  imports: [DropdownModule, OrderDetailComponent, ScheduleOrderButton, ShipmentSelectDialogComponent, TableModule, StatusColorPipe, ProgressBarModule, DialogModule, ButtonModule, TagModule, ToastModule, CardModule, FormsModule, CommonModule],
-  providers: [MessageService, OrdersService, AuthService]
+  imports: [
+    DropdownModule, OrderDetailComponent, VerificationCodeModalComponent, ScheduleOrderButton, ShipmentSelectDialogComponent, TableModule, StatusColorPipe, ProgressBarModule, DialogModule, ButtonModule, TagModule, ToastModule, CardModule, FormsModule, CommonModule, ConfirmDialogModule],
+  providers: [MessageService, OrdersService, AuthService, ConfirmationService]
 })
 export class OrderListComponent implements OnInit {
   orders: Order[] = [];
@@ -43,6 +47,7 @@ export class OrderListComponent implements OnInit {
     { label: 'Cancelled', value: 'CANCELLED' }
   ];
   loading = true;
+  otpCode = '';
 
   // Modal
   showDetail = false;
@@ -52,11 +57,18 @@ export class OrderListComponent implements OnInit {
     role: "MERCHANT"
   };
   showShipmentDialog = false;
+  showVerification = false;
+  verificationLoading = false;
+  verificationTitle = 'Email Verification Code';
+  verificationMessage = 'Enter the 6-digit verification code sent to your email.';
+  verificationTargetLabel = '';
+  verificationContact = '';
   constructor(
     private ordersSvc: OrdersService,
     public authService: AuthService,
     private toast: MessageService,
-    private shipmentService: ShipmentService
+    private shipmentService: ShipmentService,
+    private confirmationService: ConfirmationService
   ) { }
 
 
@@ -76,13 +88,83 @@ export class OrderListComponent implements OnInit {
     this.fetch();
   }
 
+  confirmOtp(order: any) {
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser) {
+      return;
+    }
+    if (!this.otpCode || this.otpCode.length !== 6) {
+      this.toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Please enter a code.'
+      });
+      return;
+    }
+    this.verificationLoading = true;
+    this.authService.validateTwoFa(currentUser?.id, this.otpCode).subscribe({
+      next: (response) => {
+        this.verificationLoading = false;
+        if (!response.valid) {
+          this.toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Invalid authentication code.'
+          });
+          return;
+        }
+    
+        this.loading = true;
+        this.ordersSvc.markPaid(order.id).subscribe({
+          next: () => {
+            this.loading = false;
+            this.toast.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Order marked as paid successfully.'
+            });
+            this.fetch();
+          },
+          error: (error: Error) => {
+            this.loading = false;
+            this.toast.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.message
+            });
+          }
+        });
+      },
+      error: () => {
+        this.verificationLoading = false;
+        this.toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to verify authentication code.'
+        });
+      }
+    });
+  }
+
   changeStatus(event: Event, order: any, status: string) {
     event.stopPropagation();
     this.ordersSvc.updateStatus(order.id, status).subscribe(() => this.fetch());
   }
   public markOrderPaid(event: Event, order: any): void {
     event.stopPropagation();
-    this.ordersSvc.markPaid(order.id).subscribe(() => this.fetch());
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to mark this order as paid?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Yes',
+      rejectLabel: 'No',
+      accept: () => {
+        this.showVerification = true;
+        this.currentOrder = order;
+        this.verificationTargetLabel = order.buyer?.email;
+        this.verificationContact = order.buyer?.name;
+      } 
+    });
   }
 
 
