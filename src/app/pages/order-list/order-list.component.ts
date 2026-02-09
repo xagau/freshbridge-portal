@@ -115,6 +115,7 @@ export class OrderListComponent implements OnInit {
         }
     
         this.loading = true;
+        this.showVerification = false;
         this.ordersSvc.markPaid(order.id).subscribe({
           next: () => {
             this.loading = false;
