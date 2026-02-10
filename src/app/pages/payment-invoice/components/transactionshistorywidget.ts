@@ -304,7 +304,8 @@ export class TransactionsHistoryWidget {
                 if (response && response.transactions && Array.isArray(response.transactions) && response.transactions.length > 0) {
                     // Store the account name for use in transformTransaction
                     const accountName = response.account?.name || currentUser?.fullName || 'Unknown';
-
+                    console.log("accountName", accountName);
+                    
                     // Use the transactions array from the response
                     this.transactions = response.transactions.map((t: Transaction) => {
                         // Add the account name to each transaction
@@ -334,7 +335,7 @@ export class TransactionsHistoryWidget {
     private transformTransaction(t: any): any {
         // Use the account name passed from loadTransactionsFromAccountInfo
         // This comes from response.account.name in the API response
-        let accountName = t.account.fullName || 'Unknown';
+        let accountName = t.accountName || 'Unknown';
         let accountId = t.account.id || '0000';
         let accountNumber = t.account.accountNumber || '0000';
 

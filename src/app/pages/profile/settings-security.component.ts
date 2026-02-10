@@ -233,6 +233,13 @@ export class SettingsSecurityComponent implements OnInit {
                 detail: 'Passwords do not match'
             });
             return;
+        } if (this.password.new.length < 6) {
+            this.message.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Password must be at least 6 characters long'
+            });
+            return;
         }
 
         const user = this.authService.currentUserValue;
@@ -307,28 +314,7 @@ export class SettingsSecurityComponent implements OnInit {
             return;
         }
         this.verificationLoading = true;
-        this.authService.verifyCode(this.verificationContact, this.verificationCode).subscribe({
-            next: (isValid) => {
-                if (!isValid) {
-                    this.message.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Invalid verification code'
-                    });
-                    this.verificationLoading = false;
-                    return;
-                }
-                this.resetPasswordWithCode();
-            },
-            error: () => {
-                this.message.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Invalid verification code'
-                });
-                this.verificationLoading = false;
-            }
-        });
+        this.resetPasswordWithCode();
     }
 
     private resetPasswordWithCode() {
