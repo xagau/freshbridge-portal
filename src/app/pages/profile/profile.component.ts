@@ -15,6 +15,8 @@ import { AuthService } from '@/auth/auth.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { environment } from '../../../environments/environment';
+import { AccountService } from '@/service/account.service';
+import { Account } from '@/auth/interfaces/user.interface';
 
 @Component({
     selector: 'profile-user',
@@ -83,6 +85,10 @@ import { environment } from '../../../environments/environment';
                         </p-inputgroup>
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.website ? 'www.' + settings.website : 'Not set' }}</div>
                     </div> -->
+                    <div *ngIf="isEditMode" class="col-span-12 flex gap-3">
+                        <button pButton pRipple label="Save Settings" icon="pi pi-check" class="w-auto mt-3" (click)="saveSettings()" [disabled]="saving"></button>
+                        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-outlined w-auto mt-3" (click)="cancelEdit()" [disabled]="saving"></button>
+                    </div>
                     
                     <div class="col-span-12">
                         <p-divider />
@@ -151,7 +157,7 @@ import { environment } from '../../../environments/environment';
                     </div>
                     
                     <div *ngIf="isEditMode" class="col-span-12 flex gap-3">
-                        <button pButton pRipple label="Save Settings" icon="pi pi-check" class="w-auto mt-3" (click)="saveSettings()" [disabled]="saving"></button>
+                        <button pButton pRipple label="Save Settings" icon="pi pi-check" class="w-auto mt-3" (click)="updateAccount()" [disabled]="saving"></button>
                         <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-outlined w-auto mt-3" (click)="cancelEdit()" [disabled]="saving"></button>
                     </div>
                 </div>
@@ -187,7 +193,8 @@ export class ProfileUser implements OnInit {
         accountType: '',
         routingNumber: '',
         iban: '',
-        bankAddress: ''
+        bankAddress: '',
+        accountId: 0,
     };
 
     originalSettings: any = {};
@@ -195,6 +202,7 @@ export class ProfileUser implements OnInit {
         private addressService: AddressService,
         private authService: AuthService,
         private messageService: MessageService,
+        private accountService: AccountService,
         private zone: NgZone
     ) { }
 
@@ -219,8 +227,7 @@ export class ProfileUser implements OnInit {
     loadUserSettings() {
         // Load from AuthService
         const user = this.authService.currentUserValue;
-        console.log("user:", user);
-        
+        let account: Account | null = null;
         if (user) {
             this.settings.email = user.email || '';
             this.settings.role = user.role?.toLowerCase() || '';
@@ -232,6 +239,14 @@ export class ProfileUser implements OnInit {
 
         // TODO: Load banking info and other settings from API
         // For now, we'll keep the structure ready for API integration
+        user?.id && this.accountService.getAccountByUserId(user.id).subscribe((account: Account) => {  
+            console.log("account:", account);
+            account && (this.settings.bankName = account.bankName || '',
+            this.settings.accountId = account.id || 0,
+            this.settings.accountType = account.accountType || '',
+            this.settings.accountNumber = account.accountNumber || '',
+            this.settings.routingNumber = account.routingNumber || '');
+        });
 
         // Store original settings for cancel functionality
         this.originalSettings = JSON.parse(JSON.stringify(this.settings));
@@ -278,9 +293,7 @@ export class ProfileUser implements OnInit {
             this.saving = false;
             return;
         }
-        console.log("this.settings:", this.settings);
-        console.log("this.selectedBanner:", this.selectedBanner);
-        console.log("this.addressQuery:", this.addressQuery);
+
         this.settings.address = this.addressQuery;
         const params = {
             bio: this.settings.bio,
@@ -331,6 +344,45 @@ export class ProfileUser implements OnInit {
         });
     }
 
+    async updateAccount() {
+        this.saving = true;
+        const account: Account = {
+            id: this.settings.accountId,
+            bankName: this.settings.bankName,
+            accountType: this.settings.accountType,
+            accountNumber: this.settings.accountNumber,
+            routingNumber: this.settings.routingNumber,
+            balance: 0,
+            availableBalance: 0,
+            transactions: [],
+            bankTransfers: [],
+            credits: [],
+            createdAt: '',
+            updatedAt: '',
+            name: ''
+        }
+        
+        this.accountService.updateAccount(account).subscribe({
+            next: (response: any) => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: "Account updated successfully"
+                });
+                this.saving = false;
+                this.isEditMode = false;
+                this.loadUserSettings();
+            },
+            error: (error: any) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: error.message
+                });
+                this.saving = false;
+            }
+        });
+    }
 
     getRoleName(roleCode: string): string {
         const role = this.type.find(r => r.code === roleCode);
