@@ -29,7 +29,7 @@ export class BannerWidget implements OnInit {
 
     ngOnInit() {
         this.bannerUrl.set(environment.apiUrl + 'auth/banner/' + this.authService.currentUserValue?.bannerUrl);
-        this.avatarUrl.set(this.authService.currentUserValue?.avatarUrl ? environment.apiUrl + 'auth/avatar/' + this.authService.currentUserValue?.avatarUrl : '');
+        this.avatarUrl.set(environment.apiUrl + 'auth/avatar/' + this.authService.currentUserValue?.avatarUrl);
         this.bio.set(this.authService.currentUserValue?.bio || '');
         this.fullName.set(this.authService.currentUserValue?.fullName || '');
     }
