@@ -7,8 +7,8 @@
             
         </div>
         <div class="md:absolute relative gap-4 p-4 grid grid-cols-12 w-full">
-            <img src="/images/placeholder-avatar.png" alt="Empacadora El Llano - Avocados" class="w-[200px] h-auto col-span-12 md:col-span-3"
-                style="max-height: 250px; border-radius: 10px;">
+            <img [src]="avatarUrl()" alt="Profile Picture" class="w-[200px] h-auto col-span-12 md:col-span-3"
+                style="max-height: 250px; border-radius: 50%;" (error)="setDefaultAvatar($event)">
 
             <div class="text-left col-span-12 md:col-span-9 flex flex-col w-full justify-center">
                 <div class="bg-white/65 backdrop-blur-sm rounded-lg p-6 shadow-lg">

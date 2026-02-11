@@ -9,6 +9,7 @@ export interface UserPreferences {
 export interface User {
     id: number;
     bannerUrl: string;
+    avatarUrl?: string;
     address: string;
     email: string;
     fullName: string;

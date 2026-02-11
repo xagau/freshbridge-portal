@@ -467,4 +467,33 @@ export class AuthService {
         );
     }
 
+    uploadAvatar(avatar: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('avatar', avatar);
+        const userId = this.currentUserValue?.id;
+        const authString = btoa(`${this.authCredentials.username}:${this.authCredentials.password}`);
+        const headers = new HttpHeaders({
+          'Authorization': `Basic ${authString}`
+        });
+
+        return this.http.post(`${environment.apiUrl}auth/${userId}/avatar`, formData, { headers }).pipe(
+            map((response: any) => {
+                if (response.avatarUrl) {
+                    this.currentUserSubject.next({
+                        ...this.currentUserValue as User,
+                        avatarUrl: response.avatarUrl
+                    } as User);
+                    localStorage.setItem(this.USER_DATA_KEY, JSON.stringify({
+                        ...this.currentUserValue as User,
+                        avatarUrl: response.avatarUrl
+                    }));
+                }
+                return response;
+            }),
+            catchError(error => {
+                console.error('Upload avatar error:', error);
+                return throwError(() => new Error('Failed to upload avatar'));
+            })
+        );
+    }
 }
