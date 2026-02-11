@@ -10,6 +10,8 @@ import { ButtonModule } from 'primeng/button';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { RippleModule } from 'primeng/ripple';
 import { DividerModule } from 'primeng/divider';
+import { DialogModule } from 'primeng/dialog';
+import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 import { AddressSearchResult, AddressService } from '@/service/address.service';
 import { AuthService } from '@/auth/auth.service';
 import { MessageService } from 'primeng/api';
@@ -21,7 +23,7 @@ import { Account } from '@/auth/interfaces/user.interface';
 @Component({
     selector: 'profile-user',
     standalone: true,
-    imports: [CommonModule, FormsModule, Select, AutoComplete, InputText, TextareaModule, FileUploadModule, ButtonModule, InputGroupModule, RippleModule, DividerModule, ToastModule],
+    imports: [CommonModule, FormsModule, Select, AutoComplete, InputText, TextareaModule, FileUploadModule, ButtonModule, InputGroupModule, RippleModule, DividerModule, ToastModule, DialogModule, ImageCropperComponent],
     template: `<div class="card">
         <div class="flex items-center justify-between mb-6">
             <span class="text-surface-900 dark:text-surface-0 text-xl font-bold">Profile</span>
@@ -37,9 +39,21 @@ import { Account } from '@/auth/interfaces/user.interface';
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.fullName || 'Not set' }}</div>
                     </div>
                     <div class="mb-6 col-span-12 flex flex-col items-start">
+                        <label for="avatar" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block">Avatar</label>
+                        <!-- Set note for only png images are allowed  and size-->
+                        <small class="text-surface-500 dark:text-surface-400 text-sm">Only PNG images are allowed and size must be less than 1MB</small>
+                        <p-fileupload *ngIf="isEditMode" mode="basic" name="avatar" url="./upload.php" accept="image/*"
+                            [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain" chooseLabel="Upload Avatar"
+                            (onSelect)="onAvatarSelect($event)"></p-fileupload>
+                        <img *ngIf="!isEditMode" [src]="avatarUrl" class="w-24 h-24 object-cover rounded-full"
+                            (error)="setDefaultAvatar($event)" />
+                        <img *ngIf="isEditMode" [src]="avatarUrl" class="w-24 h-24 object-cover rounded-full mt-3"
+                            (error)="setDefaultAvatar($event)" />
+                    </div>
+                    <div class="mb-6 col-span-12 flex flex-col items-start">
                         <label for="banner" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block">Banner</label>
                         <p-fileupload *ngIf="isEditMode" mode="basic" name="banner" url="./upload.php" accept="image/*" [maxFileSize]="1000000" styleClass="p-button-outlined p-button-plain" chooseLabel="Upload Banner" (onSelect)="onBannerSelect($event)"></p-fileupload>
-                        <img *ngIf="!isEditMode" [src]="bannerUrl" class="w-full h-40 object-cover rounded-lg" (error)="setDefaultImage($event)" />
+                        <img *ngIf="!isEditMode" [src]="bannerUrl" class="w-full h-40 object-cover rounded-lg" (error)="setDefaultBanner($event)" />
                     </div>
                     <div class="mb-6 col-span-12">
                         <label for="bio" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Bio </label>
@@ -163,6 +177,25 @@ import { Account } from '@/auth/interfaces/user.interface';
                 </div>
             </div>
         </div>
+
+        <p-dialog [(visible)]="showAvatarCrop" [modal]="true" [closable]="false" width="100%" header="Crop Avatar">
+            <image-cropper
+                [imageBase64]="avatarCropBase64"
+                output="blob"
+                [maintainAspectRatio]="true"
+                [aspectRatio]="1"
+                [resizeToWidth]="256"
+                [cropperMinWidth]="128"
+                [cropperMinHeight]="128"
+                [onlyScaleDown]="true"
+                format="png"
+                (imageCropped)="onAvatarCropped($event)">
+            </image-cropper>
+            <div class="flex gap-3 justify-end mt-4">
+                <button pButton pRipple label="Cancel" class="p-button-outlined" (click)="cancelAvatarCrop()"></button>
+                <button pButton pRipple label="Use Photo" (click)="confirmAvatarCrop()" [disabled]="!croppedAvatarBlob"></button>
+            </div>
+        </p-dialog>
     </div> `,
     providers: [MessageService]
 })
@@ -176,6 +209,13 @@ export class ProfileUser implements OnInit {
     addressSuggestions: AddressSearchResult[] = [];
     selectedBanner: File | null = null;
     bannerUrl: string = '';
+    selectedAvatar: File | null = null;
+    avatarUrl: string = '';
+    showAvatarCrop = false;
+    avatarCropBase64 = '';
+    croppedAvatarBlob: Blob | null = null;
+    croppedAvatarUrl = '';
+    pendingAvatarFileName = 'avatar.png';
 
     environment = environment;
     settings: any = {
@@ -232,6 +272,9 @@ export class ProfileUser implements OnInit {
             this.settings.email = user.email || '';
             this.settings.role = user.role?.toLowerCase() || '';
             this.bannerUrl = environment.apiUrl + 'auth/banner/' + user.bannerUrl;
+            this.avatarUrl = user.avatarUrl
+                ? environment.apiUrl + 'auth/avatar/' + user.avatarUrl
+                : (this.settings.role === 'merchant' ? 'images/avatar/merchant.png' : 'images/avatar/buyer.png');
             this.settings.fullName = user.fullName || '';
             this.settings.bio = user.bio || '';
             this.settings.address = user.address || '';
@@ -266,6 +309,11 @@ export class ProfileUser implements OnInit {
         this.isEditMode = false;
         this.addressQuery = this.settings.address || '';
         this.addressSuggestions = [];
+        this.selectedBanner = null;
+        this.selectedAvatar = null;
+        this.showAvatarCrop = false;
+        this.avatarCropBase64 = '';
+        this.clearCroppedAvatar();
     }
 
     async saveSettings() {
@@ -316,6 +364,24 @@ export class ProfileUser implements OnInit {
                 }
             });
         }
+        if (this.selectedAvatar) {
+            this.authService.uploadAvatar(this.selectedAvatar).subscribe({
+                next: (response: any) => {
+                    if (response?.avatarUrl) {
+                        this.clearCroppedAvatar();
+                        this.avatarUrl = environment.apiUrl + 'auth/avatar/' + response.avatarUrl;
+                    }
+                },
+                error: (error: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: error.message
+                    });
+                    return;
+                }
+            });
+        }
         this.authService.updateUserSettings(params).subscribe({
             next: (response: any) => {
                 this.messageService.add({
@@ -329,6 +395,11 @@ export class ProfileUser implements OnInit {
                     this.originalSettings = JSON.parse(JSON.stringify(this.settings));
                     this.addressQuery = this.settings.address || '';
                     this.addressSuggestions = [];
+                    this.selectedBanner = null;
+                    this.selectedAvatar = null;
+                    this.showAvatarCrop = false;
+                    this.avatarCropBase64 = '';
+                    this.clearCroppedAvatar();
                 }, 1000);
             },
             error: (error: any) => {
@@ -432,12 +503,90 @@ export class ProfileUser implements OnInit {
         this.selectedBanner = event.files[0];
     }
 
-    setDefaultImage(event: Event) {
+    onAvatarSelect(event: any) {
+        const file = event.files?.[0];
+        if (!file) {
+            return;
+        }
+        if (!file.type?.startsWith('image/')) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please select a valid image file'
+            });
+            return;
+        }
+        this.pendingAvatarFileName = file.name || 'avatar.png';
+        const reader = new FileReader();
+        reader.onload = () => {
+            this.avatarCropBase64 = String(reader.result || '');
+            this.clearCroppedAvatar();
+            this.showAvatarCrop = true;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    setDefaultBanner(event: Event) {
         const img = event.target as HTMLImageElement;
         // Set your default image path here
         img.src = 'images/logo/banner.png';
 
         // Optional: Add a CSS class to style broken images differently
         img.classList.add('default-image');
+    }
+
+    setDefaultAvatar(event: Event) {
+        const img = event.target as HTMLImageElement;
+        if(this.settings.role === 'merchant') {
+            img.src = 'images/avatar/merchant.png';
+        } else {
+            img.src = 'images/avatar/buyer.png';
+        }
+        img.classList.add('default-image');
+    }
+
+    onAvatarCropped(event: ImageCroppedEvent) {
+        this.clearCroppedAvatar();
+        if (event.blob) {
+            // now is not correct with position
+            console.log("event:", event);
+            console.log("event.blob:", event.blob);
+            console.log("event.objectUrl:", event.objectUrl);
+            console.log("event.base64:", event.base64);
+            console.log("event.width:", event.width);
+            console.log("event.height:", event.height);
+            // cropperPosition is not correct with position
+            console.log("event.cropperPosition:", event.cropperPosition);
+            this.croppedAvatarBlob = event.blob;
+            this.croppedAvatarUrl = event.objectUrl || URL.createObjectURL(event.blob);
+        }
+    }
+
+    confirmAvatarCrop() {
+        if (!this.croppedAvatarBlob) {
+            return;
+        }
+        this.selectedAvatar = new File([this.croppedAvatarBlob], this.pendingAvatarFileName, {
+            type: this.croppedAvatarBlob.type || 'image/png'
+        });
+        if (this.croppedAvatarUrl) {
+            this.avatarUrl = this.croppedAvatarUrl;
+        }
+        this.showAvatarCrop = false;
+    }
+
+    cancelAvatarCrop() {
+        this.showAvatarCrop = false;
+        this.avatarCropBase64 = '';
+        this.selectedAvatar = null;
+        this.clearCroppedAvatar();
+    }
+
+    private clearCroppedAvatar() {
+        if (this.croppedAvatarUrl) {
+            URL.revokeObjectURL(this.croppedAvatarUrl);
+        }
+        this.croppedAvatarUrl = '';
+        this.croppedAvatarBlob = null;
     }
 }
