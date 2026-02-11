@@ -418,6 +418,12 @@ export class AuthService {
                         address: response.address,
                         bio: response.bio
                     } as User);
+                    localStorage.setItem(this.USER_DATA_KEY, JSON.stringify({
+                        ...this.currentUserValue as User,
+                        fullName: response.fullName,
+                        address: response.address,
+                        bio: response.bio
+                    }));
                 }
                 return response;
             }),
