@@ -6,7 +6,6 @@ import { AutoComplete } from 'primeng/autocomplete';
 import { InputText } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { FileUploadModule } from 'primeng/fileupload';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { ButtonModule } from 'primeng/button';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { RippleModule } from 'primeng/ripple';
@@ -20,7 +19,7 @@ import { environment } from '../../../environments/environment';
 @Component({
     selector: 'profile-user',
     standalone: true,
-    imports: [CommonModule, FormsModule, Select, AutoComplete, InputText, TextareaModule, FileUploadModule, InputGroupAddon, ButtonModule, InputGroupModule, RippleModule, DividerModule, ToastModule],
+    imports: [CommonModule, FormsModule, Select, AutoComplete, InputText, TextareaModule, FileUploadModule, ButtonModule, InputGroupModule, RippleModule, DividerModule, ToastModule],
     template: `<div class="card">
         <div class="flex items-center justify-between mb-6">
             <span class="text-surface-900 dark:text-surface-0 text-xl font-bold">Profile</span>
@@ -279,6 +278,10 @@ export class ProfileUser implements OnInit {
             this.saving = false;
             return;
         }
+        console.log("this.settings:", this.settings);
+        console.log("this.selectedBanner:", this.selectedBanner);
+        console.log("this.addressQuery:", this.addressQuery);
+        this.settings.address = this.addressQuery;
         const params = {
             bio: this.settings.bio,
             fullName: this.settings.fullName,
