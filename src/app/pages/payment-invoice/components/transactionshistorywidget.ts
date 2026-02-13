@@ -217,6 +217,23 @@ enum TransactionType {
                         <p class="font-medium">{{ transaction.description || 'No description provided' }}</p>
                     </div>
                 </div>
+
+                <p-divider />
+
+                <div class="flex items-center justify-center gap-4">
+                    <p-button
+                        label="View Invoice"
+                        icon="pi pi-eye"
+                        severity="info"
+                        (onClick)="viewInvoice(transaction)"
+                    />
+                    <p-button
+                        label="Download Invoice PDF"
+                        icon="pi pi-file-pdf"
+                        severity="primary"
+                        (onClick)="downloadInvoicePDF(transaction)"
+                    />
+                </div>
             </ng-container>
         </p-dialog>
 
@@ -305,12 +322,12 @@ export class TransactionsHistoryWidget {
                     // Store the account name for use in transformTransaction
                     const accountName = response.account?.name || currentUser?.fullName || 'Unknown';
                     console.log("accountName", accountName);
-                    
+
                     // Use the transactions array from the response
                     this.transactions = response.transactions.map((t: Transaction) => {
                         // Add the account name to each transaction
                         return this.transformTransaction({ ...t, accountName: accountName });
-                        
+
                     });
                     this.loading = false;
                 } else {
@@ -343,7 +360,7 @@ export class TransactionsHistoryWidget {
         if (typeof t.account === 'number') {
             accountId = t.account.toString();
         }
-       
+
 
         // Create initials for the avatar
         const capName: string = accountName.split(' ')
@@ -575,22 +592,22 @@ export class TransactionsHistoryWidget {
             unit: 'mm',
             format: 'a4'
         });
-        
+
         // Add title
         doc.setFontSize(18);
         doc.text('Transaction Accounting Report', 14, 22);
-        
+
         // Add date
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
-        doc.text(`Generated on: ${new Date().toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
+        doc.text(`Generated on: ${new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
         })}`, 14, 30);
-        
+
         // Prepare table data
         const tableData = this.transactions.map(t => [
             t.id,
@@ -631,7 +648,7 @@ export class TransactionsHistoryWidget {
             const amount = parseFloat(t.amount.replace(/[+,]/g, ''));
             return sum + amount;
         }, 0);
-        
+
         const finalY = (doc as any).lastAutoTable?.finalY || 35;
         doc.setFontSize(10);
         doc.setTextColor(0, 0, 0);
@@ -640,5 +657,105 @@ export class TransactionsHistoryWidget {
 
         // Save PDF
         doc.save(`transactions_${new Date().toISOString().split('T')[0]}.pdf`);
+    }
+
+    /** Generate invoice PDF for a single transaction and return as blob */
+    private generateInvoicePDFBlob(transaction: any): Blob {
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const margin = 14;
+        let y = 20;
+
+        // Title
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('INVOICE', margin, y);
+        y += 12;
+
+        // Invoice meta
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(80, 80, 80);
+        doc.text(`Invoice #${transaction.id}`, margin, y);
+        doc.text(`Date: ${transaction.date}`, margin, y + 6);
+        y += 18;
+
+        // From / To block
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('From', margin, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text('FreshBridge Portal', margin, y + 6);
+        doc.text('Payment & Invoices', margin, y + 12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Bill To', margin + 90, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(transaction.name?.value ?? 'Customer', margin + 90, y + 6);
+        doc.text(transaction.account ?? '—', margin + 90, y + 12);
+        y += 28;
+
+        // Line items table
+        const tableData = [
+            [
+                this.getTypeDisplay(transaction.type),
+                transaction.description || 'No description',
+                transaction.date,
+                transaction.status ?? '—',
+                transaction.amount
+            ]
+        ];
+        autoTable(doc, {
+            head: [['Type', 'Description', 'Date', 'Status', 'Amount']],
+            body: tableData,
+            startY: y,
+            styles: { fontSize: 9 },
+            headStyles: { fillColor: [66, 139, 202], textColor: 255, fontStyle: 'bold' },
+            columnStyles: {
+                0: { cellWidth: 32 },
+                1: { cellWidth: 65 },
+                2: { cellWidth: 35 },
+                3: { cellWidth: 28 },
+                4: { cellWidth: 30 }
+            },
+            margin: { left: margin, right: margin }
+        });
+
+        const finalY = (doc as any).lastAutoTable?.finalY ?? y;
+        y = finalY + 14;
+
+        // Total
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.text('Total Amount:', margin, y);
+        doc.text(transaction.amount, margin + 90, y);
+        doc.setFont('helvetica', 'normal');
+
+        // Footer note
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text(
+            `Generated on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}. This is a computer-generated invoice for transaction ${transaction.id}.`,
+            margin,
+            doc.internal.pageSize.getHeight() - 12,
+            { maxWidth: doc.internal.pageSize.getWidth() - 2 * margin }
+        );
+
+        return doc.output('blob');
+    }
+
+    viewInvoice(transaction: any): void {
+        const blob = this.generateInvoicePDFBlob(transaction);
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank', 'noopener,noreferrer');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+
+    downloadInvoicePDF(transaction: any): void {
+        const blob = this.generateInvoicePDFBlob(transaction);
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `invoice_${transaction.id}_${(transaction.date ?? 'invoice').replace(/[\s,]/g, '_')}.pdf`;
+        link.click();
+        URL.revokeObjectURL(link.href);
     }
 }
