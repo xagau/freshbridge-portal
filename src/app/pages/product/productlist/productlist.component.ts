@@ -93,22 +93,21 @@ export class ProductList {
 
         productsObservable.subscribe({
             next: (data) => {
-                this.products.set(data);
-                console.log("Products loaded:", data.length);
-
+                const list = Array.isArray(data) ? data : [];
+                this.products.set(list);
                 // If user is a merchant, we can verify the products belong to them
                 if (this.isMerchant() && this.currentUserId()) {
                     const userId = this.currentUserId();
-                    console.log(`Verifying products belong to merchant ID: ${userId}`);
-
+                    
                     // This is just a verification step - the API should already filter correctly
-                    const merchantProducts = data.filter(product => product.merchantId === userId);
-                    if (merchantProducts.length !== data.length) {
-                        console.warn(`Found ${data.length} products, but only ${merchantProducts.length} belong to the current merchant`);
+                    const merchantProducts = list.filter(product => product.merchantId === userId);
+                    if (merchantProducts.length !== list.length) {
+                        console.warn(`Found ${list.length} products, but only ${merchantProducts.length} belong to the current merchant`);
                     }
                 }
-
-                this.filteredProducts.set(data);
+                
+                console.log("data", list);
+                this.filteredProducts.set(list);
                 this.loading.set(false);
             },
             error: (err) => {
@@ -127,7 +126,7 @@ export class ProductList {
     loadMerchants() {
         this.merchantService.getMerchants().subscribe({
             next: (data) => {
-                this.merchants.set(data);
+                this.merchants.set(Array.isArray(data) ? data : []);
                 console.log(data);
 
             },
@@ -150,18 +149,19 @@ export class ProductList {
         console.log(merchantId);
 
         this.selectedMerchantId.set(merchantId);
+        const list = this.products() ?? [];
         if (merchantId) {
             this.filteredProducts.set(
-                this.products().filter(product => product.merchantId === merchantId)
+                list.filter(product => product.merchantId === merchantId)
             );
         } else {
-            this.filteredProducts.set(this.products());
+            this.filteredProducts.set(list);
         }
     }
 
     clearMerchantFilter() {
         this.selectedMerchantId.set(null);
-        this.filteredProducts.set(this.products());
+        this.filteredProducts.set(this.products() ?? []);
     }
 
     viewMerchantProducts(event: Event, merchantId: number) {
