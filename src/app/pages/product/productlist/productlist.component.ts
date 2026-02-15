@@ -76,7 +76,7 @@ export class ProductList {
         this.loadProducts();
 
         // Only load merchants list if user is admin (for filtering)
-        if (this.isAdmin()) {
+        if (this.isAdmin() || this.isBuyer()) {
             this.loadMerchants();
         }
     }
@@ -127,7 +127,6 @@ export class ProductList {
         this.merchantService.getMerchants().subscribe({
             next: (data) => {
                 this.merchants.set(Array.isArray(data) ? data : []);
-                console.log(data);
 
             },
             error: (err) => {
