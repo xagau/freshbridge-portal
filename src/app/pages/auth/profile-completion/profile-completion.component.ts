@@ -9,6 +9,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { LogoWidget } from '@/pages/components/landing/components/logowidget';
+import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
 
 @Component({
     selector: 'app-profile-completion',
@@ -19,7 +20,8 @@ import { LogoWidget } from '@/pages/components/landing/components/logowidget';
         InputTextModule,
         DropdownModule,
         CheckboxModule,
-        LogoWidget
+        LogoWidget,
+        LazyImageWidget
     ],
     templateUrl: './profile-completion.component.html',
     providers: [MessageService]
