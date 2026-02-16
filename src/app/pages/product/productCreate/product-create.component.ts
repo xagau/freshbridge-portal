@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ChipModule } from 'primeng/chip';
 import { EditorModule } from 'primeng/editor';
-import { FileUploadModule } from 'primeng/fileupload';
+import { FileUpload, FileUploadModule } from 'primeng/fileupload';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { SelectModule } from 'primeng/select';
@@ -59,6 +59,8 @@ export class ProductCreateComponent implements OnInit {
     selectedFiles: File[] = [];
     previewUrls: (string | ArrayBuffer)[] = [];
     maxImages = 4;
+
+    @ViewChild(FileUpload) fileUpload!: FileUpload;
 
     // Store the current merchant ID
     // currentMerchantId: number | null = null;
@@ -224,10 +226,13 @@ export class ProductCreateComponent implements OnInit {
     onClearAllImages() {
         this.selectedFiles = [];
         this.previewUrls = [];
+        this.fileUpload?.clear();
     }
 
     onCancel() {
-        this.router.navigate(['/products']);
+        this.resetForm();
+        // this.router.navigate(['/product-management']);
+        this.loading = false;
     }
 
     private resetForm() {
@@ -240,7 +245,6 @@ export class ProductCreateComponent implements OnInit {
             imageUrls: [],
             harvestDate: new Date().toISOString().split('T')[0]
         };
-        this.selectedFiles = [];
         this.onClearAllImages();
     }
 }

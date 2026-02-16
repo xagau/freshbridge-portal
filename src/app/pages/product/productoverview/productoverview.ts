@@ -92,7 +92,6 @@ export class ProductOverview implements OnInit {
 
         this.route.params.subscribe(params => {
             const productId = params['id'];
-            console.log('Product ID from URL:', productId);
 
             // You can now use this productId to fetch product details
             this.product.id = productId;
@@ -102,10 +101,7 @@ export class ProductOverview implements OnInit {
             this.productService.getProduct(productId).subscribe({
                 next: (product) => {
                     this.product = product;
-                    console.log("product", this.product);
-
                     this.images = this.product.imageUrls
-                    console.log("images", this.images);
                     this.loading = false;
                 },
                 error: (err) => {
@@ -119,9 +115,10 @@ export class ProductOverview implements OnInit {
         // Fetch real orders for the buyer (or user)
 
         this.merchantId = this.authService.getProfileId() || 1;
+        if(this.authService.currentUserValue?.role === 'BUYER') {
+            this.merchantId = this.product.merchantId;
+        }
 
-        console.log("this.merchantId", this.merchantId);
-        
         this.orderService.listByRole({ userId: this.merchantId }).subscribe({
             next: (orders: Order[]) => {
                 // Map orders to dropdown format with summary

@@ -12,6 +12,7 @@ export interface Product {
   description: string;
   price: number;
   merchant: any;
+  merchantName?: string;
   unit: string;
   quantityAvailable: number;
   imageUrls: string[];

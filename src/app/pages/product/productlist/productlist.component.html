@@ -26,11 +26,11 @@
     </div>
 
     <!-- Merchant Filter Section - Only visible for admin users when toggled -->
-    <div *ngIf="showMerchantFilter() && isAdmin()" class="mb-6 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg">
+    <div *ngIf="showMerchantFilter() || isAdmin() || isBuyer()" class="mb-6 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg">
         <h3 class="text-xl font-medium mb-4">Filter by Merchant</h3>
         <div class="flex flex-wrap gap-2">
-            <p-button *ngFor="let merchant of merchants()" [label]="merchant.firstName + ' ' + merchant.lastName" [severity]="selectedMerchantId() === merchant.id ? 'primary' : 'info'" (onClick)="filterByMerchant(merchant.id)"></p-button>
-            <p-button label="All Merchants" severity="info" (onClick)="clearMerchantFilter()"></p-button>
+            <p-button label="All Merchants" severity="info" (onClick)="clearMerchantFilter()" styleClass="w-[200px] bg-surface-100 dark:bg-surface-800"></p-button>
+            <p-button styleClass="bg-surface-100 dark:bg-surface-800 w-[200px]" *ngFor="let merchant of merchants()" [label]="merchant.firstName + ' ' + merchant.lastName" [severity]="selectedMerchantId() === merchant.id ? 'primary' : 'info'" (onClick)="filterByMerchant(merchant.id)"></p-button>
         </div>
     </div>
 
@@ -52,7 +52,7 @@
                         <span class="bg-surface-0 dark:bg-surface-900 text-surface-900 dark:text-surface-0 shadow px-4 py-2 absolute rounded-3xl" style="left: 1rem; top: 1rem">
                             {{ product.unit }}
                         </span>
-                        <img [src]="environment.apiUrl + 'merchant-products/' + product.imageUrls[0]" (error)="setDefaultImage($event)" class="w-full" style="height: 270px; object-fit: cover" />
+                        <img [src]="environment.apiUrl + 'merchant-products/' + (product.imageUrls?.length ? product.imageUrls[0] : '')" (error)="setDefaultImage($event)" class="w-full" style="height: 270px; object-fit: cover" />
                     </div>
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ product.name }}</span>
@@ -66,10 +66,10 @@
                         <span class="text-primary text-xl font-medium">${{ product.price | number: '1.2-2' }}</span>
                         <span class="text-sm text-surface-500">Available: {{ product.quantityAvailable }}</span>
                     </div>
-                    <!-- <div class="mt-2">
-                        <p-button label="View Merchant Products" icon="pi pi-home" severity="secondary" size="small"
+                    <div class="mt-2">
+                        <p-button [label]="'Merchant: ' + product.merchantName" icon="pi pi-home" severity="secondary" size="small"
                             (onClick)="viewMerchantProducts($event, product.merchantId)"></p-button>
-                    </div> -->
+                    </div>
                 </div>
             </div>
         </div>
