@@ -47,7 +47,9 @@
                     <p-button *ngIf="currentUser.role === 'MERCHANT' && order.status === 'PENDING'" icon="pi pi-check"
                         styleClass="p-button-sm p-button-danger mr-2" (click)="changeStatus($event, order, 'REJECTED')"
                         label="REJECT"></p-button>
-
+                    <p-button *ngIf="currentUser.role === 'MERCHANT' && order.status === 'ACCEPTED' && order.paid" icon="pi pi-check"
+                        styleClass="p-button-sm p-button-info mr-2" (click)="changeStatus($event, order, 'PREPARING')"
+                        label="PREPARING"></p-button>
                     <p-button *ngIf="currentUser.role === 'BUYER' && order.status === 'ACCEPTED' && !order.paid"
                         label="Pay" icon="pi pi-dollar" styleClass="p-button-sm"
                         (click)="markOrderPaid($event, order)"></p-button>

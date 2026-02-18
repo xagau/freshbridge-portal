@@ -117,6 +117,8 @@ export class ProductOverview implements OnInit {
         this.merchantId = this.authService.getProfileId() || 1;
         if(this.authService.currentUserValue?.role === 'BUYER') {
             this.merchantId = this.product.merchantId;
+            console.log("merchantId", this.merchantId);
+            
         }
 
         this.orderService.listByRole({ userId: this.merchantId }).subscribe({

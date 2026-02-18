@@ -26,14 +26,27 @@ export class OrdersService {
     }): Observable<Order[]> {
         // Remove null or undefined params
         const httpParams: any = {};
+
+        if(params.userId == 0) {
+            return this.http.get<Order[]>(this.API + "/all", {
+                params: httpParams
+            });
+        }
         if (params.userId != null) httpParams.userId = params.userId.toString();
         if (params.buyerId != null) httpParams.buyerId = params.buyerId.toString();
         if (params.merchantId != null) httpParams.merchantId = params.merchantId.toString();
         if (params.status != null) httpParams.status = params.status;
 
-        return this.http.get<Order[]>(this.API + (params.isCourier ? "/all" : ""), {
-            params: httpParams
-        });
+        if(params.isCourier) {
+            return this.http.get<Order[]>(this.API + "/all", {
+                params: httpParams
+            });
+        }
+        else {
+            return this.http.get<Order[]>(this.API, {
+                params: httpParams
+            });
+        }
     }
 
     // Get a specific order by ID
