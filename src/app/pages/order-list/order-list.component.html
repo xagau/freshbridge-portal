@@ -49,7 +49,7 @@
                         label="REJECT"></p-button>
 
                     <p-button *ngIf="currentUser.role === 'BUYER' && order.status === 'ACCEPTED' && !order.paid"
-                        label="MARK PAID" icon="pi pi-dollar" styleClass="p-button-sm"
+                        label="Pay" icon="pi pi-dollar" styleClass="p-button-sm"
                         (click)="markOrderPaid($event, order)"></p-button>
 
                     <p-button *ngIf="currentUser.role === 'MERCHANT' && order.status === 'PREPARING'" severity="info"

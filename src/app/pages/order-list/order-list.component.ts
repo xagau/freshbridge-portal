@@ -160,10 +160,30 @@ export class OrderListComponent implements OnInit {
       acceptLabel: 'Yes',
       rejectLabel: 'No',
       accept: () => {
-        this.showVerification = true;
+        // this.showVerification = true;
+        // this.verificationTargetLabel = order.buyer?.email;
+        // this.verificationContact = order.buyer?.name;
+
+        // for testing, we will mark the order as paid
         this.currentOrder = order;
-        this.verificationTargetLabel = order.buyer?.email;
-        this.verificationContact = order.buyer?.name;
+        this.ordersSvc.markPaid(order.id).subscribe({
+          next: () => {
+            this.toast.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Order marked as paid successfully.'
+            });
+            this.fetch();
+          },
+          error: (error: Error) => {
+            this.toast.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.message
+            });
+          }
+        });
+
       } 
     });
   }
