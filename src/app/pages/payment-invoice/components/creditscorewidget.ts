@@ -10,6 +10,8 @@ import { BankTransferService } from '@/service/banktransfer.service';
 import { TransactionActionDialogComponent } from './transaction-action-dialog.component';
 import { AuthService } from '@/auth/auth.service';
 import { MessageService } from 'primeng/api';
+import { Account } from '@/auth/interfaces/user.interface';
+import { AccountService } from '@/service/account.service';
 
 @Component({
     selector: 'credit-score-widget',
@@ -87,6 +89,7 @@ export class CreditScoreWidget implements OnInit {
 
     constructor(
         private authService: AuthService,
+        private accountService: AccountService,
         private messageService: MessageService
     ) { }
 
@@ -106,6 +109,50 @@ export class CreditScoreWidget implements OnInit {
 
         // Use the current user's ID (11 in your case) instead of hardcoded value
         const userId = currentUser.id;
+
+        // Can't get account by userId, so we need to create a new account if not exists, when failed to get account, create a new account
+        currentUser?.id && this.accountService.getAccountByUserId(currentUser.id).subscribe({
+            next: (account: Account) => {
+                account && (this.balance = account.balance || 0,
+                this.availableBalance = account.availableBalance || 0,
+                this.accountId = account.id);
+            },
+            error: (error: any) => {
+                console.error('Error fetching account info:', error);
+                    const account: Account = {
+                        id: 0,
+                        routingNumber: '',
+                        bankName: '',
+                        balance: 0,
+                        availableBalance: 0,
+                        accountNumber: '',
+                        accountType: '',
+                        name: '',
+                        transactions: [],
+                        bankTransfers: [],
+                        credits: [],
+                        createdAt: '',
+                        updatedAt: '',
+                    };
+                    this.accountService.createAccount(account, userId).subscribe({
+                        next: (response: any) => {
+                            this.messageService.add({
+                                severity: 'success',
+                                summary: 'Success',
+                                detail: "Account created successfully, Now you can add transactions"
+                            });
+
+                        },
+                        error: (error: any) => {
+                            this.messageService.add({
+                                severity: 'error',
+                                summary: 'Error',
+                                detail: error.message
+                            });
+                        }
+                    });
+            }
+        });
 
         this.authService.getAccountInfo(userId).subscribe({
             next: (response: any) => {
@@ -134,6 +181,7 @@ export class CreditScoreWidget implements OnInit {
                 this.availableBalance = 0;
                 this.data = [0];
                 this.labels = ['Balance', 'Pending Transfers'];
+                
                 this.loading = false;
             }
         });

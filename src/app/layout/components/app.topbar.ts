@@ -115,7 +115,9 @@ interface NotificationsBars {
                     </div>
                 </li>
                 <li class="profile-item static sm:relative">
-                    <a class="right-sidebar-button relative z-50" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveActiveClass="animate-fadeout" leaveToClass="hidden" [hideOnOutsideClick]="true">
+                    <a class="right-sidebar-button relative z-50" pStyleClass="@next" enterFromClass="hidden"
+                     enterActiveClass="animate-scalein" leaveActiveClass="animate-fadeout" leaveToClass="hidden" 
+                     [hideOnOutsideClick]="true">
                         <p-avatar styleClass="!w-10 !h-10">
                             <div class="relative w-10 h-10 overflow-hidden bg-neutral-secondary-medium rounded-full">
                                 <svg class="absolute w-12 h-12 text-body-subtle -left-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
@@ -123,19 +125,21 @@ interface NotificationsBars {
                         </p-avatar>
                     </a>
                     <div
+                        #profileMenu
                         class="list-none p-2 m-0 rounded-2xl border border-surface overflow-hidden absolute bg-surface-0 dark:bg-surface-900 hidden origin-top w-52 mt-2 right-0 z-[999] top-auto shadow-[0px_56px_16px_0px_rgba(0,0,0,0.00),0px_36px_14px_0px_rgba(0,0,0,0.01),0px_20px_12px_0px_rgba(0,0,0,0.02),0px_9px_9px_0px_rgba(0,0,0,0.03),0px_2px_5px_0px_rgba(0,0,0,0.04)]"
                     >
                         <ul class="flex flex-col gap-1">
                             <li>
                                 <a 
                                 routerLink="/profile" 
+                                (click)="hideProfileMenu()"
                                 class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
                                     <i class="pi pi-user"></i>
                                     <span>Profile</span>
                                 </a>
                             </li>
                             <li>
-                                <a routerLink="/settings-security" class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
+                                <a routerLink="/settings-security" (click)="hideProfileMenu()" class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
                                     <i class="pi pi-cog"></i>
                                     <span>Settings</span>
                                 </a>
@@ -165,6 +169,7 @@ export class AppTopbar implements OnInit {
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
 
     @ViewChild('menubutton') menuButton!: ElementRef;
+    @ViewChild('profileMenu') profileMenuRef!: ElementRef;
 
     notificationsBars = computed<NotificationsBars[]>(() => {
         const all = this.notificationsList();
@@ -211,6 +216,11 @@ export class AppTopbar implements OnInit {
 
     logout() {
         this.authService.logout();
+    }
+
+    /** Hide the profile/settings dropdown (same as leaveToClass="hidden") when navigating to Profile or Settings */
+    hideProfileMenu() {
+        this.profileMenuRef?.nativeElement?.classList.add('hidden');
     }
     // private setupWebSocket() {
     //     this.notificationService.subscribeToNotifications(this.userId).subscribe(notification => {

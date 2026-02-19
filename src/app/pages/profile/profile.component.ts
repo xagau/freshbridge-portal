@@ -1,7 +1,6 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Select } from 'primeng/select';
 import { AutoComplete } from 'primeng/autocomplete';
 import { InputText } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
@@ -23,7 +22,7 @@ import { Account } from '@/auth/interfaces/user.interface';
 @Component({
     selector: 'profile-user',
     standalone: true,
-    imports: [CommonModule, FormsModule, Select, AutoComplete, InputText, TextareaModule, FileUploadModule, ButtonModule, InputGroupModule, RippleModule, DividerModule, ToastModule, DialogModule, ImageCropperComponent],
+    imports: [CommonModule, FormsModule, AutoComplete, InputText, TextareaModule, FileUploadModule, ButtonModule, InputGroupModule, RippleModule, DividerModule, ToastModule, DialogModule, ImageCropperComponent],
     template: `<div class="card">
         <div class="flex items-center justify-between mb-6">
             <span class="text-surface-900 dark:text-surface-0 text-xl font-bold">Profile</span>
@@ -62,7 +61,9 @@ import { Account } from '@/auth/interfaces/user.interface';
                     </div>
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="email" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Email </label>
-                        <input *ngIf="isEditMode" id="email" type="text" pInputText fluid [(ngModel)]="settings.email" />
+                        <input *ngIf="isEditMode" id="email" name="email" type="email" pInputText fluid [(ngModel)]="settings.email"
+                            (blur)="emailTouched = true" [class.p-invalid]="emailTouched && !isEmailValid()" />
+                        <small *ngIf="isEditMode && emailTouched && !isEmailValid()" class="p-error block mt-1">Please enter a valid email address.</small>
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.email || 'Not set' }}</div>
                     </div>
                     <div class="mb-6 col-span-12 md:col-span-6">
@@ -238,6 +239,9 @@ export class ProfileUser implements OnInit {
     };
 
     originalSettings: any = {};
+    emailTouched = false;
+    /** RFC-style email pattern for validation */
+    emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     constructor(
         private addressService: AddressService,
         private authService: AuthService,
@@ -307,6 +311,7 @@ export class ProfileUser implements OnInit {
         // Restore original settings
         this.settings = JSON.parse(JSON.stringify(this.originalSettings));
         this.isEditMode = false;
+        this.emailTouched = false;
         this.addressQuery = this.settings.address || '';
         this.addressSuggestions = [];
         this.selectedBanner = null;
@@ -338,6 +343,17 @@ export class ProfileUser implements OnInit {
         });
 
         if (isInappropriate) {
+            this.saving = false;
+            return;
+        }
+
+        const email = (this.settings.email || '').trim();
+        if (!email || !this.emailPattern.test(email)) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Validation Error',
+                detail: 'Please enter a valid email address.'
+            });
             this.saving = false;
             return;
         }
@@ -479,6 +495,11 @@ export class ProfileUser implements OnInit {
         }
             
     }
+    isEmailValid(): boolean {
+        const email = (this.settings.email || '').trim();
+        return !!email && this.emailPattern.test(email);
+    }
+
     getRoleName(roleCode: string): string {
         const role = this.type.find(r => r.code === roleCode);
         return role ? role.name : roleCode;
