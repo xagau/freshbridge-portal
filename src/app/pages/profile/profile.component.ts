@@ -134,41 +134,41 @@ import { Account } from '@/auth/interfaces/user.interface';
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.bankName || 'Not set' }}</div>
                     </div>
                     
-                    <div class="mb-6 col-span-12 md:col-span-6">
+                    <!-- <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="accountHolderName" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Account Holder Name </label>
                         <input *ngIf="isEditMode" id="accountHolderName" type="text" pInputText fluid [(ngModel)]="settings.accountHolderName" />
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.accountHolderName || 'Not set' }}</div>
                     </div>
-                    
+                     -->
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="accountNumber" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Account Number </label>
                         <input *ngIf="isEditMode" id="accountNumber" type="text" pInputText fluid [(ngModel)]="settings.accountNumber" />
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.accountNumber ? '••••••••' : 'Not set' }}</div>
                     </div>
-                    
+<!--                     
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="accountType" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Account Type </label>
                         <p-select *ngIf="isEditMode" [options]="accountTypes" optionLabel="name" optionValue="code" placeholder="Select Account Type" class="w-full" [(ngModel)]="settings.accountType" />
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ getAccountTypeName(settings.accountType) || 'Not set' }}</div>
                     </div>
-                    
+                     -->
                     <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="routingNumber" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Routing Number / SWIFT Code </label>
                         <input *ngIf="isEditMode" id="routingNumber" type="text" pInputText fluid [(ngModel)]="settings.routingNumber" />
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.routingNumber || 'Not set' }}</div>
                     </div>
                     
-                    <div class="mb-6 col-span-12 md:col-span-6">
+                    <!-- <div class="mb-6 col-span-12 md:col-span-6">
                         <label for="iban" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> IBAN (Optional) </label>
                         <input *ngIf="isEditMode" id="iban" type="text" pInputText fluid [(ngModel)]="settings.iban" />
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2">{{ settings.iban || 'Not set' }}</div>
                     </div>
-                    
-                    <div class="mb-6 col-span-12">
+                     -->
+                    <!-- <div class="mb-6 col-span-12">
                         <label for="bankAddress" class="font-medium text-surface-900 dark:text-surface-0 mb-2 block"> Bank Address </label>
                         <input *ngIf="isEditMode" pTextarea id="bankAddress" type="text" rows="3" [autoResize]="true" fluid [(ngModel)]="settings.bankAddress" />
                         <div *ngIf="!isEditMode" class="text-surface-700 dark:text-surface-300 py-2 whitespace-pre-line">{{ settings.bankAddress || 'Not set' }}</div>
-                    </div>
+                    </div> -->
                     
                     <div *ngIf="isEditMode" class="col-span-12 flex gap-3">
                         <button pButton pRipple label="Save Settings" icon="pi pi-check" class="w-auto mt-3" (click)="updateAccount()" [disabled]="saving"></button>
