@@ -109,7 +109,7 @@ export class AppMenu implements OnInit, OnDestroy {
                         label: 'Schedule Order',
                         icon: 'pi pi-fw pi-credit-card',
                         routerLink: ['schedule-order'],
-                        roles: ['ADMIN', 'BUYER']
+                        roles: ['BUYER']
                     }
                 ]
             },
@@ -118,12 +118,7 @@ export class AppMenu implements OnInit, OnDestroy {
                 label: 'Insights & Growth',
                 icon: 'pi pi-fw pi-compass',
                 items: [
-                    {
-                        label: 'Analytics',
-                        icon: 'pi pi-fw pi-chart-bar',
-                        routerLink: ['analytics'],
-                        roles: ['ADMIN']
-                    },
+                    
                     {
                         label: 'Audit Logs',
                         icon: 'pi pi-fw pi-file',
@@ -149,18 +144,18 @@ export class AppMenu implements OnInit, OnDestroy {
                         routerLink: ['buyers-management'],
                         roles: ['ADMIN']
                     },
-                    {
-                        label: 'User Directory',
-                        icon: 'pi pi-fw pi-folder-open',
-                        routerLink: ['accounts-management/list'],
-                        roles: ['ADMIN']
-                    },
-                    {
-                        label: 'Add New User',
-                        icon: 'pi pi-fw pi-plus',
-                        routerLink: ['/accounts-management/create'],
-                        roles: ['ADMIN']
-                    }
+                    // {
+                    //     label: 'User Directory',
+                    //     icon: 'pi pi-fw pi-folder-open',
+                    //     routerLink: ['accounts-management/list'],
+                    //     roles: ['ADMIN']
+                    // },
+                    // {
+                    //     label: 'Add New User',
+                    //     icon: 'pi pi-fw pi-plus',
+                    //     routerLink: ['/accounts-management/create'],
+                    //     roles: ['ADMIN']
+                    // }
                 ]
             }
         ];

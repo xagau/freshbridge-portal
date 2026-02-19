@@ -66,20 +66,23 @@
                                 <ul class="flex flex-col gap-1">
                                     <li>
                                         <a class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer"
-                                            [routerLink]="['/dashboard']">
+                                            [routerLink]="['/dashboard']"
+                                            onclick="openMobileMenu = false">
                                             <i class="pi pi-home"></i>
                                             <span>Dashboard</span>
                                         </a>
                                     </li>
                                     <li>
                                         <a class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer"
-                                            [routerLink]="['/profile']">
+                                            [routerLink]="['/profile']"
+                                            onclick="openMobileMenu = false">
                                             <i class="pi pi-user"></i>
                                             <span>Profile</span>
                                         </a>
                                     </li>
                                     <li>
                                         <a routerLink="/settings-security"
+                                            onclick="openMobileMenu = false"
                                             class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
                                             <i class="pi pi-cog"></i>
                                             <span>Settings</span>

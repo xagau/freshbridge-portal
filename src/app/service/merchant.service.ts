@@ -19,8 +19,6 @@ export interface Merchant {
   language: string;
   timezone: string;
   communicationPreference: 'EMAIL' | 'SMS' | 'PHONE' | 'MAIL';
-  emergencyContactName: string;
-  emergencyContactPhone: string;
   organicCertification: boolean;
   certificationDate: string;
 }
