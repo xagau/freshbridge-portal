@@ -28,8 +28,10 @@ export class AccountService {
     getAccountByUserId(userId: number): Observable<Account> {
         return this.http.get<Account>(`${this.API}?userId=${userId}`, { headers: this.getAuthHeaders() });
     }
-    createAccount(account: Account): Observable<Account> {
-        return this.http.post<Account>(this.API, account, { headers: this.getAuthHeaders() });
+    /** POST account and link it to the user. Backend expects body + ?userId= */
+    createAccount(account: Account, userId: number): Observable<Account> {
+        const url = `${this.API}?userId=${userId}`;
+        return this.http.post<Account>(url, account, { headers: this.getAuthHeaders() });
     }
     updateAccount(account: Account): Observable<Account> {
         return this.http.put<Account>(`${this.API}/${account.id}`, account, { headers: this.getAuthHeaders() });

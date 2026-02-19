@@ -234,7 +234,7 @@ export class ProfileUser implements OnInit {
         routingNumber: '',
         iban: '',
         bankAddress: '',
-        accountId: 0,
+        accountId: null,
     };
 
     originalSettings: any = {};
@@ -285,7 +285,7 @@ export class ProfileUser implements OnInit {
         user?.id && this.accountService.getAccountByUserId(user.id).subscribe((account: Account) => {  
             console.log("account:", account);
             account && (this.settings.bankName = account.bankName || '',
-            this.settings.accountId = account.id || 0,
+            this.settings.accountId = account.id || null,
             this.settings.accountType = account.accountType || '',
             this.settings.accountNumber = account.accountNumber || '',
             this.settings.routingNumber = account.routingNumber || '');
@@ -432,29 +432,53 @@ export class ProfileUser implements OnInit {
             updatedAt: '',
             name: ''
         }
-        
-        this.accountService.updateAccount(account).subscribe({
-            next: (response: any) => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: "Account updated successfully"
-                });
-                this.saving = false;
-                this.isEditMode = false;
-                this.loadUserSettings();
-            },
-            error: (error: any) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.message
-                });
-                this.saving = false;
-            }
-        });
+        if(this.settings.accountId == null  ) {
+            const userId = this.authService.currentUserValue?.id || 0;
+            this.accountService.createAccount(account, userId).subscribe({
+                next: (response: any) => {
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: "Account created successfully"
+                    });
+                    this.saving = false;
+                    this.isEditMode = false;
+                    this.loadUserSettings();
+                },
+                error: (error: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: error.message
+                    });
+                    this.saving = false;
+                }
+            });
+        }
+        else {
+            this.accountService.updateAccount(account).subscribe({
+                next: (response: any) => {
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: "Account updated successfully"
+                    });
+                    this.saving = false;
+                    this.isEditMode = false;
+                    this.loadUserSettings();
+                },
+                error: (error: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: error.message
+                    });
+                    this.saving = false;
+                }
+            });
+        }
+            
     }
-
     getRoleName(roleCode: string): string {
         const role = this.type.find(r => r.code === roleCode);
         return role ? role.name : roleCode;
