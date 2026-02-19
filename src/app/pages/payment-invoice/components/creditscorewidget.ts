@@ -1,6 +1,7 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { VerificationCodeModalComponent } from '@/components/verification-code-modal/verification-code-modal.component';
@@ -90,11 +91,18 @@ export class CreditScoreWidget implements OnInit {
     constructor(
         private authService: AuthService,
         private accountService: AccountService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private router: Router
     ) { }
 
     ngOnInit() {
         this.initAccountInfo();
+    }
+
+    private navigateToCreateAccount() {
+        this.router.navigate(['/auth/create-account'], {
+            queryParams: { returnUrl: '/pi/transfer-history' }
+        });
     }
 
     initAccountInfo() {
@@ -113,52 +121,31 @@ export class CreditScoreWidget implements OnInit {
         // Can't get account by userId, so we need to create a new account if not exists, when failed to get account, create a new account
         currentUser?.id && this.accountService.getAccountByUserId(currentUser.id).subscribe({
             next: (account: Account) => {
-                account && (this.balance = account.balance || 0,
-                this.availableBalance = account.availableBalance || 0,
-                this.accountId = account.id);
+                if (account) {
+                    this.balance = account.balance || 0;
+                    this.availableBalance = account.availableBalance || 0;
+                    this.accountId = account.id;
+                    this.loadAccountDetails(userId);
+                } else {
+                    this.loading = false;
+                    this.navigateToCreateAccount();
+                }
             },
-            error: (error: any) => {
-                console.error('Error fetching account info:', error);
-                    const account: Account = {
-                        id: 0,
-                        routingNumber: '',
-                        bankName: '',
-                        balance: 0,
-                        availableBalance: 0,
-                        accountNumber: '',
-                        accountType: '',
-                        name: '',
-                        transactions: [],
-                        bankTransfers: [],
-                        credits: [],
-                        createdAt: '',
-                        updatedAt: '',
-                    };
-                    this.accountService.createAccount(account, userId).subscribe({
-                        next: (response: any) => {
-                            this.messageService.add({
-                                severity: 'success',
-                                summary: 'Success',
-                                detail: "Account created successfully, Now you can add transactions"
-                            });
-
-                        },
-                        error: (error: any) => {
-                            this.messageService.add({
-                                severity: 'error',
-                                summary: 'Error',
-                                detail: error.message
-                            });
-                        }
-                    });
+            error: () => {
+                this.loading = false;
+                this.navigateToCreateAccount();
             }
         });
+    }
 
+    private loadAccountDetails(userId: number) {
         this.authService.getAccountInfo(userId).subscribe({
             next: (response: any) => {
-                // Extract account data from the response
-                const data = response.account;
-                // all balance type should be 0.00 tyoe not long, wanna under point two decimal places
+                const data = response?.account;
+                if (!data) {
+                    this.loading = false;
+                    return;
+                }
                 data.availableBalance = parseFloat(data.availableBalance).toFixed(2);
                 data.balance = parseFloat(data.balance).toFixed(2);
                 this.accountId = data.id;
@@ -176,12 +163,10 @@ export class CreditScoreWidget implements OnInit {
             },
             error: (err) => {
                 console.error('Error fetching account info:', err);
-                // Add fallback values in case of error
                 this.balance = 0;
                 this.availableBalance = 0;
                 this.data = [0];
                 this.labels = ['Balance', 'Pending Transfers'];
-                
                 this.loading = false;
             }
         });

@@ -159,6 +159,10 @@ export const appRoutes: Routes = [
             {
                 path: 'callback',
                 loadComponent: () => import('@/pages/auth/google-callback').then((c) => c.GoogleCallback)
+            },
+            {
+                path: 'create-account',
+                loadComponent: () => import('@/pages/auth/create-account/create-account.component').then((c) => c.CreateAccountComponent)
             }
         ]
     },
