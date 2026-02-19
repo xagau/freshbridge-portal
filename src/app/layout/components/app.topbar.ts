@@ -125,19 +125,21 @@ interface NotificationsBars {
                         </p-avatar>
                     </a>
                     <div
+                        #profileMenu
                         class="list-none p-2 m-0 rounded-2xl border border-surface overflow-hidden absolute bg-surface-0 dark:bg-surface-900 hidden origin-top w-52 mt-2 right-0 z-[999] top-auto shadow-[0px_56px_16px_0px_rgba(0,0,0,0.00),0px_36px_14px_0px_rgba(0,0,0,0.01),0px_20px_12px_0px_rgba(0,0,0,0.02),0px_9px_9px_0px_rgba(0,0,0,0.03),0px_2px_5px_0px_rgba(0,0,0,0.04)]"
                     >
                         <ul class="flex flex-col gap-1">
                             <li>
                                 <a 
                                 routerLink="/profile" 
+                                (click)="hideProfileMenu()"
                                 class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
                                     <i class="pi pi-user"></i>
                                     <span>Profile</span>
                                 </a>
                             </li>
                             <li>
-                                <a routerLink="/settings-security" class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
+                                <a routerLink="/settings-security" (click)="hideProfileMenu()" class="label-small dark:text-surface-400 flex gap-2 py-2 px-2.5 rounded-lg items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
                                     <i class="pi pi-cog"></i>
                                     <span>Settings</span>
                                 </a>
@@ -167,6 +169,7 @@ export class AppTopbar implements OnInit {
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
 
     @ViewChild('menubutton') menuButton!: ElementRef;
+    @ViewChild('profileMenu') profileMenuRef!: ElementRef;
 
     notificationsBars = computed<NotificationsBars[]>(() => {
         const all = this.notificationsList();
@@ -213,6 +216,11 @@ export class AppTopbar implements OnInit {
 
     logout() {
         this.authService.logout();
+    }
+
+    /** Hide the profile/settings dropdown (same as leaveToClass="hidden") when navigating to Profile or Settings */
+    hideProfileMenu() {
+        this.profileMenuRef?.nativeElement?.classList.add('hidden');
     }
     // private setupWebSocket() {
     //     this.notificationService.subscribeToNotifications(this.userId).subscribe(notification => {
