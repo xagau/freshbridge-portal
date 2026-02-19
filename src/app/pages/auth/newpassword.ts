@@ -28,10 +28,24 @@ import { MessageService } from 'primeng/api';
                         <p class="body-small mt-3.5 text-center lg:text-left">Enter your reset code and choose a new password</p>
                         <form [formGroup]="passwordForm" (ngSubmit)="onSubmit()">
                             <input pInputText formControlName="contact" type="text" class="w-full mt-7" placeholder="Email or Phone" />
+                            
                             <input pInputText formControlName="resetCode" type="text" class="w-full mt-4" placeholder="Reset Code" />
-                            <input pInputText formControlName="password" type="password" class="w-full mt-4" placeholder="Password" />
-                            <input pInputText formControlName="repeatPassword" type="password" class="w-full mt-4" placeholder="Repeat Password" />
-
+                            <div class="relative mt-4">
+                                <input pInputText formControlName="password" [type]="showPassword ? 'text' : 'password'" class="w-full" placeholder="Password" 
+                                required />
+                                <button type="button" (click)="togglePasswordVisibility()" 
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 focus:outline-none transition-colors">
+                                    <i [class]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                                </button>
+                            </div>
+                            <div class="relative mt-4">
+                                <input pInputText formControlName="repeatPassword" [type]="showConfirmPassword ? 'text' : 'password'" class="w-full" placeholder="Repeat Password" 
+                                required />
+                                <button type="button" (click)="toggleConfirmPasswordVisibility()" 
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 focus:outline-none transition-colors">
+                                    <i [class]="showConfirmPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                                </button>
+                            </div>
                             <div class="flex items-center gap-4 mt-8">
                                 <button type="button" (click)="goToLogin()" class="body-button border border-surface-200 dark:border-surface-800 bg-transparent hover:bg-surface-100 dark:hover:bg-surface-800 text-surface-950 dark:text-surface-0 flex-1">Cancel</button>
                                 <button type="submit" class="body-button flex-1" [disabled]="passwordForm.invalid || loading">
@@ -57,7 +71,15 @@ export class NewPassword {
     currentYear: number = new Date().getFullYear();
     passwordForm: FormGroup;
     loading = false;
+    showPassword = false;
+    showConfirmPassword = false;
 
+    togglePasswordVisibility(): void {
+        this.showPassword = !this.showPassword;
+    }
+    toggleConfirmPasswordVisibility(): void {
+        this.showConfirmPassword = !this.showConfirmPassword;
+    }
     constructor(
         private fb: FormBuilder,
         private authService: AuthService,
