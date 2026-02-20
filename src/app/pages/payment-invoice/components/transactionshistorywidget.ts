@@ -140,7 +140,6 @@ enum TransactionType {
                     </tr>
                 </ng-template>
             </p-table>
-            <p-progressSpinner *ngIf="loading" styleClass="w-full h-full" [style]="{ 'min-height': '200px' }" mode="indeterminate" />
         </div>
 
         <p-dialog 
@@ -304,6 +303,7 @@ export class TransactionsHistoryWidget {
                         const accountName = t.account?.name || 'Unknown';
                         return this.transformTransaction({ ...t, accountName });
                     });
+                    this.loading = false;
                 },
                 error: (err) => {
                     console.error('Error fetching transactions:', err);
@@ -346,6 +346,8 @@ export class TransactionsHistoryWidget {
                 this.loading = false;
             }
         });
+
+        this.loading = false;
 
     }
 

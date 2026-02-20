@@ -90,7 +90,7 @@ export const appRoutes: Routes = [
             {
                 path: 'pi',
                 loadChildren: () => import('@/pages/payment-invoice/payment.routes'),
-                data: { breadcrumb: 'Dashboard', roles: ['MERCHANT', 'BUYER'] }
+                data: { breadcrumb: 'Dashboard', roles: ['MERCHANT', 'BUYER', 'ADMIN'] }
             },
             {
                 path: 'schedule-order',
@@ -159,6 +159,10 @@ export const appRoutes: Routes = [
             {
                 path: 'callback',
                 loadComponent: () => import('@/pages/auth/google-callback').then((c) => c.GoogleCallback)
+            },
+            {
+                path: 'create-account',
+                loadComponent: () => import('@/pages/auth/create-account/create-account.component').then((c) => c.CreateAccountComponent)
             }
         ]
     },

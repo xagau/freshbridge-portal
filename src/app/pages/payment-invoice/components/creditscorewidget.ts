@@ -1,6 +1,7 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { VerificationCodeModalComponent } from '@/components/verification-code-modal/verification-code-modal.component';
@@ -12,11 +13,14 @@ import { AuthService } from '@/auth/auth.service';
 import { MessageService } from 'primeng/api';
 import { Account } from '@/auth/interfaces/user.interface';
 import { AccountService } from '@/service/account.service';
+import { DropdownModule } from 'primeng/dropdown';
+import { BuyerService, Buyer } from '@/service/buyer.service';
+import { MerchantService, Merchant } from '@/service/merchant.service';
 
 @Component({
     selector: 'credit-score-widget',
     standalone: true,
-    imports: [CommonModule, FormsModule, DividerModule, ButtonModule, GaugeChart, TransactionActionDialogComponent, ProgressSpinnerModule, VerificationCodeModalComponent],
+    imports: [CommonModule, FormsModule, DividerModule, ButtonModule, GaugeChart, TransactionActionDialogComponent, ProgressSpinnerModule, VerificationCodeModalComponent, DropdownModule],
     providers: [MessageService],
     template: ` <div class="card xl:w-auto w-full !mb-0 min-w-80 !px-6 !pb-6 !pt-4 rounded-3xl border border-surface relative">
         <div *ngIf="loading" class="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-surface-950/60 z-10">
@@ -47,11 +51,26 @@ import { AccountService } from '@/service/account.service';
             </div>
         </div>
         <!-- <p-button styleClass="mt-6 w-full !text-surface-950 dark:!text-surface-0 !rounded-lg" label="View account detail" outlined severity="secondary" /> -->
-        <button pButton label="Add Transaction" class="mt-4 w-full" (click)="showDialog = true"></button>
-        <transaction-action-dialog 
-            [(visible)]="showDialog"
-            (submitTransaction)="handleTransaction($event)">
-        </transaction-action-dialog>
+        <ng-container *ngIf="canAddTransaction()">
+            <div *ngIf="isAdmin && !targetUserId" class="mt-4 space-y-2">
+                <label class="block label-small text-surface-700 dark:text-surface-300">Credit account for</label>
+                <p-dropdown
+                        [options]="targetUserOptions"
+                        [(ngModel)]="selectedTargetUserId"
+                        optionLabel="label"
+                        optionValue="id"
+                        placeholder="Select user"
+                        [filter]="true"
+                        filterPlaceholder="Search"
+                        class="w-full">
+                </p-dropdown>
+            </div>
+            <button pButton label="Add Transaction" class="mt-4 w-full" (click)="openAddTransaction()"></button>
+            <transaction-action-dialog 
+                [(visible)]="showDialog"
+                (submitTransaction)="handleTransaction($event)">
+            </transaction-action-dialog>
+        </ng-container>
         <app-verification-code-modal
             [(visible)]="otpDialogVisible"
             title="Confirm with Authenticator"
@@ -85,16 +104,72 @@ export class CreditScoreWidget implements OnInit {
 
     pendingTransaction: { type: string; amount: number; description: string } | null = null;
 
+    /** When set (e.g. on admin viewing a specific user), transactions are applied to this user. */
+    @Input() targetUserId: number | null = null;
     @Output() transactionSubmitted = new EventEmitter<void>();
+
+    isAdmin = false;
+    targetUserOptions: { id: number; label: string }[] = [];
+    selectedTargetUserId: number | null = null;
 
     constructor(
         private authService: AuthService,
         private accountService: AccountService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private router: Router,
+        private buyerService: BuyerService,
+        private merchantService: MerchantService
     ) { }
 
     ngOnInit() {
+        const user = this.authService.getStoredUser() ?? this.authService.currentUserValue;
+        this.isAdmin = user?.role === 'ADMIN';
+        if (this.isAdmin && !this.targetUserId) {
+            this.loadTargetUserOptions();
+        }
         this.initAccountInfo();
+    }
+
+    canAddTransaction(): boolean {
+        return this.isAdmin;
+    }
+
+    openAddTransaction() {
+        if (this.isAdmin && !this.targetUserId && this.selectedTargetUserId == null) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Select user',
+                detail: 'Please select a user to credit or debit.'
+            });
+            return;
+        }
+        this.showDialog = true;
+    }
+
+    private loadTargetUserOptions() {
+        const options: { id: number; label: string }[] = [];
+        this.buyerService.getBuyers().subscribe({
+            next: (buyers: Buyer[]) => {
+                buyers.forEach(b => options.push({ id: b.id, label: `Buyer: ${b.name}` }));
+                this.merchantService.getMerchants().subscribe({
+                    next: (merchants: Merchant[]) => {
+                        merchants.forEach(m => {
+                            const name = [m.firstName, m.lastName].filter(Boolean).join(' ') || m.email;
+                            options.push({ id: m.id, label: `Merchant: ${name}` });
+                        });
+                        this.targetUserOptions = options;
+                    },
+                    error: () => { this.targetUserOptions = options; }
+                });
+            },
+            error: () => { this.targetUserOptions = options; }
+        });
+    }
+
+    private navigateToCreateAccount() {
+        this.router.navigate(['/auth/create-account'], {
+            queryParams: { returnUrl: '/pi/transfer-history' }
+        });
     }
 
     initAccountInfo() {
@@ -113,52 +188,31 @@ export class CreditScoreWidget implements OnInit {
         // Can't get account by userId, so we need to create a new account if not exists, when failed to get account, create a new account
         currentUser?.id && this.accountService.getAccountByUserId(currentUser.id).subscribe({
             next: (account: Account) => {
-                account && (this.balance = account.balance || 0,
-                this.availableBalance = account.availableBalance || 0,
-                this.accountId = account.id);
+                if (account) {
+                    this.balance = account.balance || 0;
+                    this.availableBalance = account.availableBalance || 0;
+                    this.accountId = account.id;
+                    this.loadAccountDetails(userId);
+                } else {
+                    this.loading = false;
+                    this.navigateToCreateAccount();
+                }
             },
-            error: (error: any) => {
-                console.error('Error fetching account info:', error);
-                    const account: Account = {
-                        id: 0,
-                        routingNumber: '',
-                        bankName: '',
-                        balance: 0,
-                        availableBalance: 0,
-                        accountNumber: '',
-                        accountType: '',
-                        name: '',
-                        transactions: [],
-                        bankTransfers: [],
-                        credits: [],
-                        createdAt: '',
-                        updatedAt: '',
-                    };
-                    this.accountService.createAccount(account, userId).subscribe({
-                        next: (response: any) => {
-                            this.messageService.add({
-                                severity: 'success',
-                                summary: 'Success',
-                                detail: "Account created successfully, Now you can add transactions"
-                            });
-
-                        },
-                        error: (error: any) => {
-                            this.messageService.add({
-                                severity: 'error',
-                                summary: 'Error',
-                                detail: error.message
-                            });
-                        }
-                    });
+            error: () => {
+                this.loading = false;
+                this.navigateToCreateAccount();
             }
         });
+    }
 
+    private loadAccountDetails(userId: number) {
         this.authService.getAccountInfo(userId).subscribe({
             next: (response: any) => {
-                // Extract account data from the response
-                const data = response.account;
-                // all balance type should be 0.00 tyoe not long, wanna under point two decimal places
+                const data = response?.account;
+                if (!data) {
+                    this.loading = false;
+                    return;
+                }
                 data.availableBalance = parseFloat(data.availableBalance).toFixed(2);
                 data.balance = parseFloat(data.balance).toFixed(2);
                 this.accountId = data.id;
@@ -176,34 +230,40 @@ export class CreditScoreWidget implements OnInit {
             },
             error: (err) => {
                 console.error('Error fetching account info:', err);
-                // Add fallback values in case of error
                 this.balance = 0;
                 this.availableBalance = 0;
                 this.data = [0];
                 this.labels = ['Balance', 'Pending Transfers'];
-                
                 this.loading = false;
             }
         });
     }
 
+    /** Resolve which user id to apply the transaction to (current user, or admin-selected target). */
+    private getEffectiveTargetUserId(): number | null {
+        const currentUser = this.authService.currentUserValue;
+        if (!currentUser) return null;
+        if (this.isAdmin && (this.targetUserId != null || this.selectedTargetUserId != null)) {
+            return (this.targetUserId ?? this.selectedTargetUserId) ?? null;
+        }
+        return currentUser.id;
+    }
+
     handleTransaction(event: { type: string, amount: number, description: string }) {
-        // Get the current user's ID
         const currentUser = this.authService.currentUserValue;
         if (!currentUser) {
             console.error('No user is currently logged in');
             return;
         }
 
-        // Use the current user's ID instead of the stored accountId
-        const userId = currentUser.id;
-
-        if (!userId) {
+        const userId = this.getEffectiveTargetUserId();
+        if (userId == null) {
             console.error('User ID is not available');
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please select a user to credit or debit.' });
             return;
         }
 
-        if (currentUser.twoFaEnabled) {
+        if (!this.isAdmin && currentUser.twoFaEnabled) {
             this.pendingTransaction = event;
             this.otpDialogVisible = true;
             this.otpCode = '';
@@ -226,6 +286,8 @@ export class CreditScoreWidget implements OnInit {
             });
             return;
         }
+        const userId = this.getEffectiveTargetUserId();
+        if (userId == null) return;
         this.otpLoading = true;
         this.authService.validateTwoFa(currentUser.id, this.otpCode).subscribe({
             next: (response) => {
@@ -242,7 +304,7 @@ export class CreditScoreWidget implements OnInit {
                 this.otpDialogVisible = false;
                 this.pendingTransaction = null;
                 if (transaction) {
-                    this.executeTransaction(currentUser.id, transaction);
+                    this.executeTransaction(userId, transaction);
                 }
             },
             error: () => {

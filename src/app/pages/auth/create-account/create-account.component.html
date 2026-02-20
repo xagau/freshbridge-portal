@@ -1,0 +1,52 @@
+<p-toast></p-toast>
+
+<section
+    class="min-h-screen flex items-center lg:items-start lg:py-20 justify-center animate-fadein animate-duration-300 animate-ease-in max-w-[100rem] mx-auto bg-[url('/images/landing/auth-image.png')] bg-cover bg-center bg-no-repeat lg:bg-none">
+    <div class="flex w-full h-full justify-center gap-12">
+        <div class="flex flex-col p-20 min-w-[20rem] lg:min-w-[40rem] bg-yellow-100 bg-opacity-70 rounded-3xl dark:bg-gray-800 xl:bg-transparent">
+            <a routerLink="/" class="flex items-center justify-center lg:justify-start mb-8">
+                <logo-widget></logo-widget>
+            </a>
+            <div class="flex flex-col justify-center flex-grow">
+                <div class="max-w-md mx-auto w-full">
+                    <h5 class="title-h5 text-center lg:text-left">Create account</h5>
+                    <p class="body-small mt-3.5 text-center lg:text-left">Add your banking details to start using payments and transactions</p>
+
+                    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-8">
+                        <input type="text" formControlName="bankName" pInputText class="w-full" placeholder="Bank name" />
+                        <small *ngIf="form.get('bankName')?.invalid && form.get('bankName')?.touched" class="p-error block mt-1">Bank name is required</small>
+
+                        <input type="text" formControlName="accountNumber" pInputText class="w-full mt-4" placeholder="Account number" />
+                        <small *ngIf="form.get('accountNumber')?.invalid && form.get('accountNumber')?.touched" class="p-error block mt-1">Account number is required</small>
+
+                        <input type="text" formControlName="routingNumber" pInputText class="w-full mt-4" placeholder="Routing number / SWIFT code" />
+                        <small *ngIf="form.get('routingNumber')?.invalid && form.get('routingNumber')?.touched" class="p-error block mt-1">Routing number is required</small>
+
+                        <input type="text" formControlName="accountType" pInputText class="w-full mt-4" placeholder="Account type (e.g. checking, savings)" />
+
+                        <input type="text" formControlName="name" pInputText class="w-full mt-4" placeholder="Account name (optional)" />
+
+                        <button type="submit" class="body-button w-full mt-8" [disabled]="loading || form.invalid">
+                            <span *ngIf="loading">Creating...</span>
+                            <span *ngIf="!loading">Create account</span>
+                        </button>
+                    </form>
+
+                    <div class="mt-8 body-small text-center lg:text-left">
+                        <a [routerLink]="['/profile']" class="text-primary-500 hover:underline">Back to Profile</a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 text-center lg:text-start block relative text-surface-400 dark:text-surface-500 text-sm">
+                ©{{ currentYear }} FreshBridge
+            </div>
+        </div>
+        <div class="hidden lg:flex h-full py-20">
+            <div
+                class="h-full w-full lg:max-w-[32.5rem] xl:max-w-[60.5rem] mx-auto flex items-center justify-center shadow-[0px_1px_2px_0px_rgba(18,18,23,0.05)] rounded-3xl border border-surface overflow-hidden">
+                <app-lazy-image-widget className="w-auto h-[500px] xl:h-[650px] object-contain object-left"
+                    src="/images/landing/auth-image.png" alt="Auth Image" />
+            </div>
+        </div>
+    </div>
+</section>

@@ -71,6 +71,7 @@ export class Login {
                         this.otpLoading = false;
                     } else {
                         const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'] || '/dashboard';
+                        
                         this.router.navigateByUrl(returnUrl);
                     }
                 } else {
