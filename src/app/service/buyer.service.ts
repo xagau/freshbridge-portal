@@ -11,6 +11,7 @@ export interface Buyer {
   phoneNumber: string;
   email: string;
   website: string;
+  userId: number;
   active: boolean;
   createdAt: string;
   updatedAt: string;

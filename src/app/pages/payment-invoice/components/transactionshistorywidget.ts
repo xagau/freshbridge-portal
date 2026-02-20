@@ -299,10 +299,14 @@ export class TransactionsHistoryWidget {
         if (currentUser.role === 'ADMIN') {
             this.transactionService.getTransactions().subscribe({
                 next: (transactions: Transaction[]) => {
+                    console.log("transactions: - loadTransactions", transactions);
                     this.transactions = transactions.map((t: any) => {
                         const accountName = t.account?.name || 'Unknown';
                         return this.transformTransaction({ ...t, accountName });
                     });
+
+                    this.transactions = this.transactions.sort((a: any, b: any) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime());
+                    console.log("this.transactions: - loadTransactions", this.transactions);
                     this.loading = false;
                 },
                 error: (err) => {
@@ -391,6 +395,7 @@ export class TransactionsHistoryWidget {
                 capName: capName
             },
             date: formattedDate,
+            transactionDate: t.transactionDate,
             type: t.type,
             status: t.status,
             description: t.description || 'No description provided',

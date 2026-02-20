@@ -6,6 +6,7 @@ import { delay } from 'rxjs/operators';
 
 export interface Merchant {
   id: number;
+  userId: number;
   firstName: string;
   lastName: string;
   email: string;

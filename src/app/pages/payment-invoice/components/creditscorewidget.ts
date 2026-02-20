@@ -16,13 +16,15 @@ import { AccountService } from '@/service/account.service';
 import { DropdownModule } from 'primeng/dropdown';
 import { BuyerService, Buyer } from '@/service/buyer.service';
 import { MerchantService, Merchant } from '@/service/merchant.service';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'credit-score-widget',
     standalone: true,
-    imports: [CommonModule, FormsModule, DividerModule, ButtonModule, GaugeChart, TransactionActionDialogComponent, ProgressSpinnerModule, VerificationCodeModalComponent, DropdownModule],
+    imports: [CommonModule, FormsModule, DividerModule, ButtonModule, GaugeChart, TransactionActionDialogComponent, ProgressSpinnerModule, VerificationCodeModalComponent, DropdownModule, ToastModule],
     providers: [MessageService],
     template: ` <div class="card xl:w-auto w-full !mb-0 min-w-80 !px-6 !pb-6 !pt-4 rounded-3xl border border-surface relative">
+        <p-toast></p-toast>
         <div *ngIf="loading" class="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-surface-950/60 z-10">
             <p-progressSpinner styleClass="w-full h-full" [style]="{ 'min-height': '200px' }" mode="indeterminate" />
         </div>
@@ -122,6 +124,7 @@ export class CreditScoreWidget implements OnInit {
     ) { }
 
     ngOnInit() {
+        
         const user = this.authService.getStoredUser() ?? this.authService.currentUserValue;
         this.isAdmin = user?.role === 'ADMIN';
         if (this.isAdmin && !this.targetUserId) {
@@ -148,14 +151,17 @@ export class CreditScoreWidget implements OnInit {
 
     private loadTargetUserOptions() {
         const options: { id: number; label: string }[] = [];
+
+        
         this.buyerService.getBuyers().subscribe({
             next: (buyers: Buyer[]) => {
-                buyers.forEach(b => options.push({ id: b.id, label: `Buyer: ${b.name}` }));
+                buyers.forEach(b => options.push({ id: b.userId, label: `Buyer: ${b.name}` }));
                 this.merchantService.getMerchants().subscribe({
                     next: (merchants: Merchant[]) => {
+                        console.log("merchants: - loadTargetUserOptions", merchants);
                         merchants.forEach(m => {
                             const name = [m.firstName, m.lastName].filter(Boolean).join(' ') || m.email;
-                            options.push({ id: m.id, label: `Merchant: ${name}` });
+                            options.push({ id: m.userId, label: `Merchant: ${name}` });
                         });
                         this.targetUserOptions = options;
                     },
@@ -242,7 +248,7 @@ export class CreditScoreWidget implements OnInit {
     /** Resolve which user id to apply the transaction to (current user, or admin-selected target). */
     private getEffectiveTargetUserId(): number | null {
         const currentUser = this.authService.currentUserValue;
-        if (!currentUser) return null;
+        if (!currentUser) return null;     
         if (this.isAdmin && (this.targetUserId != null || this.selectedTargetUserId != null)) {
             return (this.targetUserId ?? this.selectedTargetUserId) ?? null;
         }
@@ -327,17 +333,38 @@ export class CreditScoreWidget implements OnInit {
         if (event.type === 'WITHDRAWAL') {
             this.authService.withdraw(userId, event.amount).subscribe({
                 next: onSuccess,
-                error: err => console.error('Withdrawal failed', err)
+                error: err => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'The user have not setup their bank account yet.'
+                    });
+                }
             });
         } else if (event.type === 'CREDIT') {
             this.authService.deposit(userId, event.amount).subscribe({
                 next: onSuccess,
-                error: err => console.error('Deposit failed', err)
+                error: err => {
+                    console.log("err: - executeTransaction", err);
+                    return this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'The user have not setup their bank account yet.'
+                    });
+                }
             });
         } else if (event.type === 'REFUND') {
             this.authService.refund(userId, event.amount).subscribe({
                 next: onSuccess,
-                error: err => console.error('Refund failed', err)
+                error: err => {
+                    console.log("err: - executeTransaction", err);
+                    
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'The user have not setup their bank account yet.'
+                    });
+                }
             });
         }
     }
