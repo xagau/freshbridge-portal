@@ -90,7 +90,7 @@ export const appRoutes: Routes = [
             {
                 path: 'pi',
                 loadChildren: () => import('@/pages/payment-invoice/payment.routes'),
-                data: { breadcrumb: 'Dashboard', roles: ['MERCHANT', 'BUYER'] }
+                data: { breadcrumb: 'Dashboard', roles: ['MERCHANT', 'BUYER', 'ADMIN'] }
             },
             {
                 path: 'schedule-order',
