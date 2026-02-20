@@ -1,5 +1,16 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { marked, Renderer } from 'marked';
+
+const renderer = new Renderer();
+
+// Open all links from AI responses in a new tab
+renderer.link = ({ href, title, text }: { href: string; title?: string | null; text: string }) => {
+    const titleAttr = title ? ` title="${title}"` : '';
+    return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+};
+
+marked.use({ renderer });
 
 @Pipe({
     name: 'formatText'
@@ -9,13 +20,7 @@ export class FormatTextPipe implements PipeTransform {
 
     transform(text: string): SafeHtml {
         if (!text) return '';
-
-        // Convert line breaks to <br>
-        let formattedText = text.replace(/\n/g, '<br>');
-
-        // Format numbered lists (1., 2., etc.)
-        formattedText = formattedText.replace(/(\d+\.\s)/g, '<strong>$1</strong>');
-
-        return this.sanitizer.bypassSecurityTrustHtml(formattedText);
+        const html = marked.parse(text) as string;
+        return this.sanitizer.bypassSecurityTrustHtml(html);
     }
 }
