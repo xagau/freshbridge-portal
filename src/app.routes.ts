@@ -105,6 +105,7 @@ export const appRoutes: Routes = [
             {
                 path: 'audit-logs',
                 loadComponent: () => import('@/pages/audit-logs/audit-logs.component').then((c) => c.AuditLogsComponent),
+                canActivate: [AuthGuard],
                 data: { breadcrumb: 'Audit Logs', roles: ['ADMIN'] }
             },
             {
