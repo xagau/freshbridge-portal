@@ -342,14 +342,29 @@ export class AuthService {
     }
 
     withdraw(accountId: number, amount: number) {
-        return this.http.post(`${environment.apiUrl}auth/${accountId}/withdraw`, { amount });
+        return this.http.post(`${environment.apiUrl}auth/${accountId}/withdraw`, { amount }).pipe(
+            catchError(error => {
+                console.error('Withdraw error:', error);
+                return throwError(() => new Error('Failed to withdraw'));
+            })
+        );
     }
 
     deposit(accountId: number, amount: number) {
-        return this.http.post(`${environment.apiUrl}auth/${accountId}/deposit`, { amount });
+        return this.http.post(`${environment.apiUrl}auth/${accountId}/deposit`, { amount }).pipe(
+            catchError(error => {
+                console.error('Deposit error:', error);
+                return throwError(() => new Error('Failed to deposit'));
+            })
+        );
     }
     refund(accountId: number, amount: number) {
-        return this.http.post(`${environment.apiUrl}auth/${accountId}/refund`, { amount });
+        return this.http.post(`${environment.apiUrl}auth/${accountId}/refund`, { amount }).pipe(
+            catchError(error => {
+                console.error('Refund error:', error);
+                return throwError(() => new Error('Failed to refund'));
+            })
+        );
     }
 
 
