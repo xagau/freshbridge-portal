@@ -102,13 +102,13 @@ export class AppMenu implements OnInit, OnDestroy {
                     {
                         label: 'Payments & Invoices',
                         icon: 'pi pi-fw pi-credit-card',
-                        routerLink: ['pi/transfer-history'],
+                        routerLink: ['/pi/transfer-history'],
                         roles: ['MERCHANT', 'BUYER', 'ADMIN']
                     },
                     {
                         label: 'Schedule Order',
                         icon: 'pi pi-fw pi-credit-card',
-                        routerLink: ['schedule-order'],
+                        routerLink: ['/schedule-order'],
                         roles: ['BUYER']
                     }
                 ]
@@ -122,7 +122,7 @@ export class AppMenu implements OnInit, OnDestroy {
                     {
                         label: 'Audit Logs',
                         icon: 'pi pi-fw pi-file',
-                        routerLink: ['audit-logs'],
+                        routerLink: ['/audit-logs'],
                         roles: ['ADMIN']
                     }
                 ]
@@ -135,13 +135,13 @@ export class AppMenu implements OnInit, OnDestroy {
                     {
                         label: 'Merchants Management',
                         icon: 'pi pi-fw pi-users',
-                        routerLink: ['merchants-management'],
+                        routerLink: ['/merchants-management'],
                         roles: ['ADMIN']
                     },
                     {
                         label: 'Buyers Management',
                         icon: 'pi pi-fw pi-users',
-                        routerLink: ['buyers-management'],
+                        routerLink: ['/buyers-management'],
                         roles: ['ADMIN']
                     },
                     // {
