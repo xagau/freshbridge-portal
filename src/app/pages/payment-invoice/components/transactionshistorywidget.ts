@@ -95,6 +95,7 @@ enum TransactionType {
                     <tr>
                         <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
                         <th>Name</th>
+                        <th>Account Type</th>
                         <th>Date</th>
                         <th>Amount</th>
                         <th>Account</th>
@@ -117,6 +118,10 @@ enum TransactionType {
                                 <div class="label-xsmall text-surface-950 dark:text-surface-0">{{ data.name.value }}</div>
                             </div>
                         </td>
+                        <td>
+                            <div class="text-left">
+                                {{ data.accountType }}
+                            </div>
                         <td>
                             <div class="body-xsmall text-left">
                                 {{ data.date }}
@@ -299,14 +304,11 @@ export class TransactionsHistoryWidget {
         if (currentUser.role === 'ADMIN') {
             this.transactionService.getTransactions().subscribe({
                 next: (transactions: Transaction[]) => {
-                    console.log("transactions: - loadTransactions", transactions);
                     this.transactions = transactions.map((t: any) => {
                         const accountName = t.account?.name || 'Unknown';
                         return this.transformTransaction({ ...t, accountName });
                     });
-
                     this.transactions = this.transactions.sort((a: any, b: any) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime());
-                    console.log("this.transactions: - loadTransactions", this.transactions);
                     this.loading = false;
                 },
                 error: (err) => {
@@ -387,6 +389,7 @@ export class TransactionsHistoryWidget {
         const isPositive = ['CREDIT', 'REFUND', 'DEPOSIT'].includes(t.type);
         const amountSign = isPositive ? '+' : '-';
 
+        console.log("t: - transformTransaction", t);
         return {
             id: t.id.toString(),
             name: {
@@ -394,6 +397,7 @@ export class TransactionsHistoryWidget {
                 bgColor: this.getRandomColor(),
                 capName: capName
             },
+            accountType: t.account?.type || 'Unknown',
             date: formattedDate,
             transactionDate: t.transactionDate,
             type: t.type,
