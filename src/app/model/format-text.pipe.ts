@@ -11,7 +11,8 @@ export class FormatTextPipe implements PipeTransform {
     transform(text: string): SafeHtml {
         if (!text) return '';
         try {
-            const html = marked.parse(text) as string;
+            const html = (marked.parse(text) as string)
+                .replace(/<a\s+href=/g, '<a target="_blank" rel="noopener noreferrer" href=');
             return this.sanitizer.bypassSecurityTrustHtml(html);
         } catch {
             // Fallback: basic newline-to-br conversion
