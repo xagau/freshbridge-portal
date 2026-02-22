@@ -169,18 +169,6 @@ export class BuyerManagementComponent implements OnInit {
         this.submitted = true;
         console.log(this.buyer);
         
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;;
-        if (!emailRegex.test(this.buyer.email)) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Please enter a valid email address',
-                life: 3000
-            });
-            return;
-        }
-
-        // validate with website regex
         const websiteRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
         if (!websiteRegex.test(this.buyer.website)) {
             this.messageService.add({
