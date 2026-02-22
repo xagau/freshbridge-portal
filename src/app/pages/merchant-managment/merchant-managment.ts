@@ -162,6 +162,17 @@ export class MerchantList implements OnInit {
     saveMerchant() {
         this.submitted = true;
 
+        // Validate the merchant with mail regex
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;;
+        if (!emailRegex.test(this.merchant.email)) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please enter a valid email address',
+                life: 3000
+            });
+            return;
+        }
         if (this.merchant.firstName?.trim() && this.merchant.lastName?.trim()) {
             if (this.merchant.id) {
                 // Update existing merchant

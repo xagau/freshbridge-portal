@@ -15,6 +15,7 @@ export interface Buyer {
   active: boolean;
   createdAt: string;
   updatedAt: string;
+  accountbalance?: number;
 }
 
 @Injectable({
