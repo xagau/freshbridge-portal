@@ -23,6 +23,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
+import { AuthService } from '@/auth/auth.service';
 
 @Component({
     selector: 'app-merchant-list',
@@ -51,7 +52,7 @@ import { IconFieldModule } from 'primeng/iconfield';
         IconFieldModule
     ],
     templateUrl: './merchant-managment.component.html',
-    providers: [MessageService, ConfirmationService, MerchantService]
+    providers: [MessageService, ConfirmationService, MerchantService, AuthService]
 })
 export class MerchantList implements OnInit {
     merchants = signal<Merchant[]>([]);
@@ -88,7 +89,8 @@ export class MerchantList implements OnInit {
     constructor(
         private merchantService: MerchantService,
         private messageService: MessageService,
-        private confirmationService: ConfirmationService
+        private confirmationService: ConfirmationService,
+        private authService: AuthService
     ) { }
 
     ngOnInit() {
@@ -100,8 +102,22 @@ export class MerchantList implements OnInit {
         this.merchantService.getMerchants().subscribe({
             next: (data) => {
                 this.merchants.set(data);
-                this.loading.set(false);
-            },
+                data.forEach(merchant => {
+                    this.authService.getAccountInfo(merchant.userId).subscribe({
+                        next: (response: any) => {
+                            merchant.accountbalance = response?.account?.balance.toFixed(2) || 0;
+                        },
+                        error: (err) => {
+                            merchant.accountbalance = 0.00;
+                        },
+                        complete: () => {
+                            console.log("complete: - loadMerchants");
+                            this.loading.set(false);
+                        }
+                    });
+                });
+                // this.loading.set(false);
+            },  
             error: (err) => {
                 this.messageService.add({
                     severity: 'error',
