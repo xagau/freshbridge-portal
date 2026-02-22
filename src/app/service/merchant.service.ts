@@ -22,6 +22,7 @@ export interface Merchant {
   communicationPreference: 'EMAIL' | 'SMS' | 'PHONE' | 'MAIL';
   organicCertification: boolean;
   certificationDate: string;
+  accountbalance?: number;
 }
 
 @Injectable({

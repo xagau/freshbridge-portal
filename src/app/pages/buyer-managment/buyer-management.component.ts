@@ -23,6 +23,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
+import { AuthService } from '@/auth/auth.service';
+
 
 @Component({
     selector: 'app-buyer-management',
@@ -74,7 +76,8 @@ export class BuyerManagementComponent implements OnInit {
     constructor(
         private buyerService: BuyerService,
         private messageService: MessageService,
-        private confirmationService: ConfirmationService
+        private confirmationService: ConfirmationService,
+        private authService: AuthService
     ) { }
 
     ngOnInit() {
@@ -86,7 +89,24 @@ export class BuyerManagementComponent implements OnInit {
         this.buyerService.getBuyers().subscribe({
             next: (data) => {
                 this.buyers.set(data);
-                this.loading.set(false);
+                data.forEach(buyer => {
+                    this.authService.getAccountInfo(buyer.userId).subscribe({
+                        next: (response: any) => {
+                            buyer.accountbalance = response?.account?.balance.toFixed(2) || 0;
+
+                        },
+                        error: (err) => {
+                            buyer.accountbalance = 0.00;
+                        },
+                        complete: () => {
+                            console.log("complete: - loadBuyers");
+                            
+                            this.loading.set(false);
+                        }
+                    });
+                });
+                
+                // this.loading.set(false);
             },
             error: (err) => {
                 this.messageService.add({
@@ -149,6 +169,29 @@ export class BuyerManagementComponent implements OnInit {
         this.submitted = true;
         console.log(this.buyer);
         
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;;
+        if (!emailRegex.test(this.buyer.email)) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please enter a valid email address',
+                life: 3000
+            });
+            return;
+        }
+
+        // validate with website regex
+        const websiteRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+        if (!websiteRegex.test(this.buyer.website)) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please enter a valid website',
+                life: 3000
+            });
+            return;
+        }
+
         if (this.buyer.name?.trim()) {
             if (this.buyer.id) {
                 // Update existing buyer

@@ -22,8 +22,8 @@
                         <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                     </th>
                     <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-                    <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName"></p-sortIcon></th>
-                    <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
+                    <th pSortableColumn="firstName">Name <p-sortIcon field="firstName"></p-sortIcon></th>
+                    <th pSortableColumn="accountbalance">Account Balance <p-sortIcon field="accountbalance"></p-sortIcon></th>
                     <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
                     <th pSortableColumn="phoneNumber">Phone <p-sortIcon field="phoneNumber"></p-sortIcon></th>
                     <th pSortableColumn="merchantType">Merchant Type <p-sortIcon field="merchantType"></p-sortIcon></th>
@@ -37,8 +37,8 @@
                         <p-tableCheckbox [value]="merchant"></p-tableCheckbox>
                     </td>
                     <td>{{merchant.id}}</td>
-                    <td>{{merchant.firstName}}</td>
-                    <td>{{merchant.lastName}}</td>
+                    <td>{{merchant.firstName}} &nbsp; {{merchant.lastName}}</td>
+                    <td>{{merchant.accountbalance}}</td>
                     <td>{{merchant.email}}</td>
                     <td>{{merchant.phoneNumber}}</td>
                     <td>{{merchant.merchantType}}</td>
