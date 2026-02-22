@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { marked } from 'marked';
 
 @Pipe({
     name: 'formatText'
@@ -9,13 +10,13 @@ export class FormatTextPipe implements PipeTransform {
 
     transform(text: string): SafeHtml {
         if (!text) return '';
-
-        // Convert line breaks to <br>
-        let formattedText = text.replace(/\n/g, '<br>');
-
-        // Format numbered lists (1., 2., etc.)
-        formattedText = formattedText.replace(/(\d+\.\s)/g, '<strong>$1</strong>');
-
-        return this.sanitizer.bypassSecurityTrustHtml(formattedText);
+        try {
+            const html = (marked.parse(text) as string)
+                .replace(/<a\s+href=/g, '<a target="_blank" rel="noopener noreferrer" href=');
+            return this.sanitizer.bypassSecurityTrustHtml(html);
+        } catch {
+            // Fallback: basic newline-to-br conversion
+            return this.sanitizer.bypassSecurityTrustHtml(text.replace(/\n/g, '<br>'));
+        }
     }
 }

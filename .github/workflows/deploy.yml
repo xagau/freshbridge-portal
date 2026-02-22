@@ -1,0 +1,110 @@
+name: Test & Deploy Portal
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests (headless)
+        run: npx ng test --watch=false --browsers=ChromeHeadless
+
+  deploy:
+    name: Build & Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: test          # only runs if unit tests pass
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npx ng build --configuration production
+
+      - name: Deploy to Vercel
+        run: npx vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  e2e-smoke:
+    name: Post-deploy E2E smoke
+    runs-on: ubuntu-latest
+    needs: deploy        # only runs after successful deploy
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: FreshBridge-Inc/freshbridge-selenium
+          token: ${{ secrets.GH_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Chrome
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub \
+            | gpg --dearmor | sudo tee /usr/share/keyrings/google-chrome.gpg > /dev/null
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] \
+            http://dl.google.com/linux/chrome/deb/ stable main" \
+            | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update -qq && sudo apt-get install -y google-chrome-stable
+
+      - name: Install test dependencies
+        run: pip install -r requirements.txt pytest-html
+
+      - name: Run smoke tests (post-deploy verification)
+        env:
+          BASE_URL: https://portal.freshbridge.ca
+          BROWSER: chrome
+          HEADLESS: 1
+          TEST_TIMEOUT: 30
+          ALLOW_MUTATIONS: 0
+          FB_ADMIN_EMAIL: ${{ secrets.FB_ADMIN_EMAIL }}
+          FB_ADMIN_PASSWORD: ${{ secrets.FB_ADMIN_PASSWORD }}
+          FB_MERCHANT_EMAIL: ${{ secrets.FB_MERCHANT_EMAIL }}
+          FB_MERCHANT_PASSWORD: ${{ secrets.FB_MERCHANT_PASSWORD }}
+          FB_BUYER_EMAIL: ${{ secrets.FB_BUYER_EMAIL }}
+          FB_BUYER_PASSWORD: ${{ secrets.FB_BUYER_PASSWORD }}
+          FB_COURIER_EMAIL: ${{ secrets.FB_COURIER_EMAIL }}
+          FB_COURIER_PASSWORD: ${{ secrets.FB_COURIER_PASSWORD }}
+        # Run the fast smoke tests: public routes + authenticated routes only
+        run: |
+          pytest tests/test_public_routes.py tests/test_authenticated_routes.py \
+            tests/test_access_control.py \
+            -v --tb=short --html=smoke-report.html --self-contained-html
+
+      - name: Upload smoke report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-report-${{ github.run_number }}
+          path: smoke-report.html
+          retention-days: 14
