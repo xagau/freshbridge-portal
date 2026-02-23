@@ -105,10 +105,10 @@ export class MerchantList implements OnInit {
                 data.forEach(merchant => {
                     this.authService.getAccountInfo(merchant.userId).subscribe({
                         next: (response: any) => {
-                            merchant.accountbalance = response?.account?.balance.toFixed(2) || 0;
+                            merchant.accountbalance = response?.account?.balance.toFixed(0) || 0;
                         },
                         error: (err) => {
-                            merchant.accountbalance = 0.00;
+                            merchant.accountbalance = NaN;
                         },
                         complete: () => {
                             console.log("complete: - loadMerchants");
