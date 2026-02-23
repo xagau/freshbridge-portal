@@ -115,10 +115,10 @@ export class ProductOverview implements OnInit {
         // Fetch real orders for the buyer (or user)
 
         this.merchantId = this.authService.getProfileId() || 1;
-        if(this.authService.currentUserValue?.role === 'BUYER') {
+        if (this.authService.currentUserValue?.role === 'BUYER') {
             this.merchantId = this.product.merchantId;
             console.log("merchantId", this.merchantId);
-            
+
         }
 
         this.orderService.listByRole({ userId: this.merchantId }).subscribe({
@@ -126,42 +126,45 @@ export class ProductOverview implements OnInit {
                 // Map orders to dropdown format with summary
                 console.log(orders);
 
-                this.existingOrders = orders.map(order => {
-                    // Parse repeatOnDays string to array, e.g. "TUESDAY,WEDNESDAY" => ["TUESDAY", "WEDNESDAY"]
-                    const repeatDays = (order.repeatOnDays || '')
-                        .split(',')
-                        .map(day => day.trim().toLowerCase())
-                        .filter(day => !!day);
+                this.existingOrders = orders
+                    .filter(order => order.status !== 'CANCELLED' && order.status !== 'COMPLETED' && order.status !== 'REFUNDED')
+                    .map(order => {
 
-                    // Define all week days
-                    const allWeekDays = [
-                        { label: 'Monday', value: 'monday' },
-                        { label: 'Tuesday', value: 'tuesday' },
-                        { label: 'Wednesday', value: 'wednesday' },
-                        { label: 'Thursday', value: 'thursday' },
-                        { label: 'Friday', value: 'friday' },
-                        { label: 'Saturday', value: 'saturday' },
-                        { label: 'Sunday', value: 'sunday' }
-                    ];
+                        // Parse repeatOnDays string to array, e.g. "TUESDAY,WEDNESDAY" => ["TUESDAY", "WEDNESDAY"]
+                        const repeatDays = (order.repeatOnDays || '')
+                            .split(',')
+                            .map(day => day.trim().toLowerCase())
+                            .filter(day => !!day);
 
-                    // Mark selected days
-                    const weekDays = allWeekDays.map(day => ({
-                        ...day,
-                        selected: repeatDays.includes(day.value)
-                    }));
+                        // Define all week days
+                        const allWeekDays = [
+                            { label: 'Monday', value: 'monday' },
+                            { label: 'Tuesday', value: 'tuesday' },
+                            { label: 'Wednesday', value: 'wednesday' },
+                            { label: 'Thursday', value: 'thursday' },
+                            { label: 'Friday', value: 'friday' },
+                            { label: 'Saturday', value: 'saturday' },
+                            { label: 'Sunday', value: 'sunday' }
+                        ];
 
-                    return {
-                        id: order.id.toString(),
-                        name: this.orderService.getScheduleSummary({
-                            selectedFrequency: { value: order.frequency?.toLowerCase() ?? '', label: order.frequency },
-                            weekDays: weekDays,
-                            startDate: new Date(order.startDate),
-                            endCondition: order.openEnd ? 'never' : (order.endDate ? 'date' : ''),
-                            endDate: order.endDate ? new Date(order.endDate) : null,
-                            deliveryAddress: order.deliveryAddress
-                        })
-                    };
-                });
+                        // Mark selected days
+                        const weekDays = allWeekDays.map(day => ({
+                            ...day,
+                            selected: repeatDays.includes(day.value)
+                        }));
+
+                        return {
+                            id: order.id.toString(),
+                            name: this.orderService.getScheduleSummary({
+                                selectedFrequency: { value: order.frequency?.toLowerCase() ?? '', label: order.frequency },
+                                weekDays: weekDays,
+                                startDate: new Date(order.startDate),
+                                endCondition: order.openEnd ? 'never' : (order.endDate ? 'date' : ''),
+                                endDate: order.endDate ? new Date(order.endDate) : null,
+                                deliveryAddress: order.deliveryAddress
+                            })
+                        };
+                    });
             },
             error: (err) => {
                 console.error('Failed to fetch existing orders:', err);
@@ -175,23 +178,23 @@ export class ProductOverview implements OnInit {
     }
     buyerId = 1;
     merchantId = 1;
-    
+
     isProductOwner(): boolean {
         const currentUser = this.authService.currentUserValue;
         if (!currentUser || !this.product) return false;
-        
+
         // Admin can edit/delete any product
         if (currentUser.role === 'ADMIN') return true;
-        
+
         // Merchant can only edit/delete their own products
         if (currentUser.role === 'MERCHANT') {
             const currentMerchantId = this.authService.getProfileMerchantId();
             return currentMerchantId !== null && this.product.merchantId === currentMerchantId;
         }
-        
+
         return false;
     }
-    
+
     addToOrder() {
         const orderItem = {
             productId: this.product.id,
