@@ -37,8 +37,8 @@
                         <p-tableCheckbox [value]="merchant"></p-tableCheckbox>
                     </td>
                     <td>{{merchant.id}}</td>
-                    <td>{{merchant.firstName}} &nbsp; {{merchant.lastName}}</td>
-                    <td>{{merchant.accountbalance}}</td>
+                    <td>{{merchant.firstName}} {{merchant.lastName}}</td>
+                    <td>{{merchant.accountbalance ? merchant.accountbalance : 'Not set bank account yet' }}</td>
                     <td>{{merchant.email}}</td>
                     <td>{{merchant.phoneNumber}}</td>
                     <td>{{merchant.merchantType}}</td>

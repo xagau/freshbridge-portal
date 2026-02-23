@@ -92,11 +92,11 @@ export class BuyerManagementComponent implements OnInit {
                 data.forEach(buyer => {
                     this.authService.getAccountInfo(buyer.userId).subscribe({
                         next: (response: any) => {
-                            buyer.accountbalance = response?.account?.balance.toFixed(2) || 0;
+                            buyer.accountbalance = response?.account?.balance.toFixed(0) || 0;
 
                         },
                         error: (err) => {
-                            buyer.accountbalance = 0.00;
+                            buyer.accountbalance = NaN;
                         },
                         complete: () => {
                             console.log("complete: - loadBuyers");
