@@ -1,265 +1,110 @@
-// chat.component.scss
 .chat-container {
     display: flex;
-    height: calc(100dvh - 200px);
-    position: relative;
-}
-
-.sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid #eee;
-}
-
-.conversation-list {
-    padding: 0.5rem;
-}
-
-.conversation-item {
-    padding: 0.75rem;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-bottom: 0.25rem;
-
-    &:hover {
-        background-color: #f5f5f5;
-    }
-
-    &.active {
-        background-color: #e0e0e0;
-        font-weight: 500;
-    }
+    flex-direction: column;
+    height: calc(100dvh - 120px);
+    min-height: 400px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .chat-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 1rem;
-    height: 100%;
-
+    min-height: 0;
+    padding: 0 1rem;
     &.centered {
         justify-content: center;
         align-items: center;
         text-align: center;
-
-        .chat-title {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .chat-input {
-            width: 100%;
-            max-width: 600px;
-        }
+        .chat-title { font-size: 2rem; margin-bottom: 2rem; font-weight: 600; color: #333; }
+        .chat-input-wrapper { width: 100%; max-width: 600px; }
     }
 }
 
 .chat-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    flex-shrink: 0;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--p-color-border, #e5e7eb);
 }
 
 .chat-title {
-    font-size: 1.5rem;
-    font-weight: 500;
+    font-size: 1.25rem;
+    font-weight: 600;
     margin: 0;
-    color: #444;
+    color: var(--p-color-text, #111);
 }
 
-.chat-window {
+.chat-messages {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
-    margin-bottom: 1rem;
+    overflow-x: hidden;
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.chat-message {
+.loading-inline {
     display: flex;
-    margin-bottom: 1rem;
+    justify-content: center;
+    padding: 0.5rem 0;
+    color: var(--p-color-text-muted, #6b7280);
+}
 
-    &.user {
-        justify-content: flex-end;
-
-        p-card {
-            color: white;
-            max-width: 60%;
-            border: 1px solid #1acc23;
-            border-radius: var(--p-card-border-radius);
-        }
-    }
-
-    &.assistant {
-        justify-content: flex-start;
-
-        p-card {
-            color: #333;
-            max-width: 60%;
-            border-radius: var(--p-card-border-radius);
-            border: 1px solid #ccc01a;
-        }
-    }
+.chat-input-wrapper {
+    flex-shrink: 0;
+    padding: 1rem 0 1.5rem;
+    border-top: 1px solid var(--p-color-border, #e5e7eb);
 }
 
 .chat-input {
     display: flex;
     gap: 0.5rem;
+    align-items: center;
     width: 100%;
-
-    input {
-        flex: 1;
-    }
+    max-width: 100%;
+    input { flex: 1; min-width: 0; }
 }
 
-.loading-indicator {
+.chat-message {
     display: flex;
-    justify-content: center;
-    padding: 1rem;
+    width: 100%;
+    &.user {
+        justify-content: flex-end;
+        p-card { color: white; max-width: 85%; border: 1px solid #1acc23; border-radius: var(--p-card-border-radius); }
+    }
+    &.assistant {
+        justify-content: flex-start;
+        p-card { color: #333; max-width: 85%; border-radius: var(--p-card-border-radius); border: 1px solid #e5e7eb; }
+    }
 }
 
 .message-content {
     word-wrap: break-word;
     line-height: 1.6;
-
-    // Paragraphs
-    p {
-        margin: 0 0 0.75rem;
-        &:last-child { margin-bottom: 0; }
-    }
-
-    // Headings
-    h1, h2, h3, h4, h5, h6 {
-        font-weight: 600;
-        margin: 1rem 0 0.5rem;
-        line-height: 1.3;
-        &:first-child { margin-top: 0; }
-    }
-    h1 { font-size: 1.4rem; }
-    h2 { font-size: 1.2rem; }
-    h3 { font-size: 1.1rem; }
-    h4, h5, h6 { font-size: 1rem; }
-
-    // Lists
-    ul, ol {
-        margin: 0.5rem 0 0.75rem 1.25rem;
-        padding: 0;
-        li {
-            margin-bottom: 0.25rem;
-        }
-    }
-    ul { list-style-type: disc; }
-    ol { list-style-type: decimal; }
-
-    // Inline code
-    code {
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 0.875em;
-        background: rgba(0, 0, 0, 0.08);
-        padding: 0.1em 0.35em;
-        border-radius: 3px;
-    }
-
-    // Code blocks
-    pre {
-        background: rgba(0, 0, 0, 0.06);
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: 6px;
-        padding: 0.75rem 1rem;
-        overflow-x: auto;
-        margin: 0.5rem 0 0.75rem;
-
-        code {
-            background: none;
-            padding: 0;
-            font-size: 0.85em;
-            border-radius: 0;
-        }
-    }
-
-    // Blockquotes
-    blockquote {
-        border-left: 3px solid #ccc;
-        margin: 0.5rem 0 0.75rem;
-        padding: 0.25rem 0.75rem;
-        color: #666;
-        font-style: italic;
-    }
-
-    // Tables
-    table {
-        border-collapse: collapse;
-        width: 100%;
-        margin: 0.5rem 0 0.75rem;
-        font-size: 0.9em;
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 0.4rem 0.75rem;
-            text-align: left;
-        }
-        th {
-            background: rgba(0, 0, 0, 0.05);
-            font-weight: 600;
-        }
-    }
-
-    // Horizontal rules
-    hr {
-        border: none;
-        border-top: 1px solid #e0e0e0;
-        margin: 0.75rem 0;
-    }
-
-    // Links
-    a {
-        color: #1a8c1e;
-        text-decoration: underline;
-        &:hover { opacity: 0.8; }
-    }
-
-    // Bold / italic
-    strong { font-weight: 600; }
-    em { font-style: italic; }
+    p { margin: 0 0 0.75rem; &:last-child { margin-bottom: 0; } }
+    h1, h2, h3, h4, h5, h6 { font-weight: 600; margin: 1rem 0 0.5rem; line-height: 1.3; &:first-child { margin-top: 0; } }
+    h1 { font-size: 1.4rem; } h2 { font-size: 1.2rem; } h3 { font-size: 1.1rem; } h4, h5, h6 { font-size: 1rem; }
+    ul, ol { margin: 0.5rem 0 0.75rem 1.25rem; padding: 0; li { margin-bottom: 0.25rem; } }
+    ul { list-style-type: disc; } ol { list-style-type: decimal; }
+    code { font-family: 'Courier New', Courier, monospace; font-size: 0.875em; background: rgba(0,0,0,.08); padding: 0.1em 0.35em; border-radius: 3px; }
+    pre { background: rgba(0,0,0,.06); border: 1px solid rgba(0,0,0,.1); border-radius: 6px; padding: 0.75rem 1rem; overflow-x: auto; margin: 0.5rem 0 0.75rem; code { background: none; padding: 0; font-size: 0.85em; border-radius: 0; } }
+    blockquote { border-left: 3px solid #ccc; margin: 0.5rem 0 0.75rem; padding: 0.25rem 0.75rem; color: #666; font-style: italic; }
+    table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 0.75rem; font-size: 0.9em; th, td { border: 1px solid #ddd; padding: 0.4rem 0.75rem; text-align: left; } th { background: rgba(0,0,0,.05); font-weight: 600; } }
+    hr { border: none; border-top: 1px solid #e0e0e0; margin: 0.75rem 0; }
+    a { color: #1a8c1e; text-decoration: underline; &:hover { opacity: 0.8; } }
+    strong { font-weight: 600; } em { font-style: italic; }
 }
 
-/* Conversation header styling */
 .conversation-header {
     width: 100%;
     text-align: center;
     margin: 1.5rem 0;
     position: relative;
-
-    &::before,
-    &::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        height: 1px;
-        background-color: #e0e0e0;
-        width: 30%;
-    }
-
-    &::before {
-        left: 0;
-    }
-
-    &::after {
-        right: 0;
-    }
-
-    .conversation-title {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        background-color: #f5f5f5;
-        border-radius: 1rem;
-        color: #666;
-        font-size: 0.9rem;
-        position: relative;
-        z-index: 1;
-    }
+    &::before, &::after { content: ''; position: absolute; top: 50%; height: 1px; background: #e0e0e0; width: 30%; }
+    &::before { left: 0; } &::after { right: 0; }
+    .conversation-title { display: inline-block; padding: 0.5rem 1rem; background: #f5f5f5; border-radius: 1rem; color: #666; font-size: 0.9rem; position: relative; z-index: 1; }
 }

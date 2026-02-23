@@ -1,12 +1,11 @@
 // chat.component.ts
-import { Component, inject, ViewChild, ElementRef, AfterViewChecked, OnInit } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, AfterViewChecked, OnInit, signal, effect } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { ChatService } from '@/service/chat.service';
 import { AvatarModule } from 'primeng/avatar';
 import { DividerModule } from 'primeng/divider';
@@ -21,7 +20,6 @@ import { AuthService } from '@/auth/auth.service';
         InputTextModule,
         ButtonModule,
         CardModule,
-        ScrollPanelModule,
         AvatarModule,
         DividerModule,
         FormatTextPipe
@@ -30,50 +28,66 @@ import { AuthService } from '@/auth/auth.service';
     styleUrls: ['./chat.component.scss']
 })
 export class ChatComponent implements AfterViewChecked, OnInit {
-    @ViewChild('scrollPanel') scrollPanel: any;
+    @ViewChild('messagesContainer', { read: ElementRef }) messagesContainer?: ElementRef<HTMLElement>;
     private route = inject(ActivatedRoute);
     private router = inject(Router);
 
+    /** React useEffect-style: run pending ?q= when loading becomes false. */
+    private runPendingQueryEffect = effect(() => {
+        if (!this.loading() && this.pendingQuery()) {
+            const query = this.pendingQuery();
+            this.pendingQuery.set(null);
+            this.input = query ?? '';
+            setTimeout(() => this.sendMessage(), 100);
+            this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+        }
+    });
+
     ngAfterViewChecked(): void {
-        this.scrollToBottom();
     }
 
     ngOnInit(): void {
-        // Check for query parameter 'q' and populate input field
+        let userId = 1;
+        this.authService.currentUser$.subscribe(user => {
+            userId = user?.id || 1;
+        })
+
+        this.chatService.loadConversations(userId).subscribe(conversations => {
+            this.chatService.updateConversations(conversations);
+            this.allConversations = conversations;
+
+            // Load all conversation histories
+            if (conversations.length > 0) {
+                this.loading.set(true);
+                this.loadAllConversationHistories(conversations);
+            }
+        });
         this.route.queryParams.subscribe(params => {
             if (params['q']) {
-                this.input = params['q'];
-                // Optionally auto-send the message or just populate the input
-                // Uncomment the line below if you want to auto-send:
-                // setTimeout(() => this.sendMessage(), 100);
-                
-                // Clear the query parameter from URL after reading it
-                this.router.navigate([], {
-                    relativeTo: this.route,
-                    queryParams: {},
-                    replaceUrl: true
-                });
+                this.pendingQuery.set(params['q']);
             }
         });
     }
 
-    private scrollToBottom(): void {
-        try {
-            if (this.scrollPanel) {
-                // PrimeNG ScrollPanel has a different API
-                const scrollableElement = this.scrollPanel.el.nativeElement.querySelector('.p-scrollpanel-content');
-                if (scrollableElement) {
-                    scrollableElement.scrollTop = scrollableElement.scrollHeight;
-                }
+    /** Only scroll to bottom if user was already at bottom (avoids overriding when they scrolled up). */
+    private scrollToBottom(force = false): void {
+        requestAnimationFrame(() => {
+            const el = this.messagesContainer?.nativeElement;
+            if (el) {
+                el.scrollTop = el.scrollHeight;
             }
-        } catch (err) {
-            console.error('Error scrolling to bottom:', err);
-        }
+        });
     }
+
+    /** Run on scroll: track if user is near bottom so we can avoid auto-scroll when they scrolled up. */
+ 
+
     private chatService = inject(ChatService);
     private authService = inject(AuthService);
     input = '';
-    loading = false;
+    loading = signal(true);
+    private pendingQuery = signal<string | null>(null);
+    /** When true, scrollToBottom() will run; when false (user scrolled up), we skip auto-scroll. */
     allMessages: any[] = [];
     allConversations: any[] = [];
 
@@ -91,21 +105,7 @@ export class ChatComponent implements AfterViewChecked, OnInit {
 
     constructor() {
         // Load conversations for the current user
-        let userId = 1;
-        this.authService.currentUser$.subscribe(user => {
-            userId = user?.id || 1;
-        })
 
-        this.chatService.loadConversations(userId).subscribe(conversations => {
-            this.chatService.updateConversations(conversations);
-            this.allConversations = conversations;
-
-            // Load all conversation histories
-            if (conversations.length > 0) {
-                this.loading = true;
-                this.loadAllConversationHistories(conversations);
-            }
-        });
     }
 
     loadAllConversationHistories(conversations: any[]) {
@@ -145,16 +145,15 @@ export class ChatComponent implements AfterViewChecked, OnInit {
 
                     // If all conversations are loaded, set loading to false
                     if (loadedCount === conversations.length) {
-                        this.loading = false;
-                        // Scroll to bottom after all conversations are loaded
-                        setTimeout(() => this.scrollToBottom(), 100);
+                        this.loading.set(false);
+                        setTimeout(() => this.scrollToBottom(true), 100);
                     }
                 },
                 error: (err) => {
                     console.error(`Error loading conversation ${conv.conversationId}:`, err);
                     loadedCount++;
                     if (loadedCount === conversations.length) {
-                        this.loading = false;
+                        this.loading.set(false);
                     }
                 }
             });
@@ -162,12 +161,11 @@ export class ChatComponent implements AfterViewChecked, OnInit {
     }
 
     loadConversation(conversationId: number) {
-        this.loading = true;
-        // Store the active conversation ID in localStorage
+        this.loading.set(true);
         localStorage.setItem('activeConversationId', conversationId.toString());
         this.chatService.loadChatHistory(conversationId).subscribe(history => {
             this.chatService.setActiveConversation(history);
-            this.loading = false;
+            this.loading.set(false);
         });
     }
 
@@ -188,8 +186,7 @@ export class ChatComponent implements AfterViewChecked, OnInit {
 
         this.allMessages.push(newChatHeader);
 
-        // Scroll to bottom after adding new chat header
-        setTimeout(() => this.scrollToBottom(), 100);
+        setTimeout(() => this.scrollToBottom(true), 100);
     }
 
     // Update the sendMessage method in ChatComponent
@@ -238,7 +235,7 @@ export class ChatComponent implements AfterViewChecked, OnInit {
             conversationId: this.activeConversation?.conversationId || null
         };
 
-        this.loading = true;
+        this.loading.set(true);
         this.input = '';
 
         this.chatService.sendMessage(payload).subscribe({
@@ -306,13 +303,12 @@ export class ChatComponent implements AfterViewChecked, OnInit {
                     });
                 }
 
-                this.loading = false;
-                // Scroll to bottom after message is sent
-                setTimeout(() => this.scrollToBottom(), 100);
+                this.loading.set(false);
+                setTimeout(() => this.scrollToBottom(true), 100);
             },
             error: (error) => {
                 console.error('Error sending message:', error);
-                this.loading = false;
+                this.loading.set(false);
             }
         });
     }

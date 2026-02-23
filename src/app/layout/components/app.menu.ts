@@ -110,6 +110,12 @@ export class AppMenu implements OnInit, OnDestroy {
                         icon: 'pi pi-fw pi-credit-card',
                         routerLink: ['/schedule-order'],
                         roles: ['BUYER']
+                    },
+                    {
+                        label: 'Notifications',
+                        icon: 'pi pi-fw pi-bell',
+                        routerLink: ['/notifications'],
+                        roles: ['MERCHANT', 'BUYER']
                     }
                 ]
             },
