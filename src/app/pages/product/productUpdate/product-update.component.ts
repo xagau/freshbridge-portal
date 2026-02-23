@@ -16,6 +16,9 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '@/auth/auth.service';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { environment } from '../../../../environments/environment';
+
+
 @Component({
     selector: 'app-product-update',
     standalone: true,
@@ -132,7 +135,7 @@ export class ProductUpdateComponent implements OnInit {
             // Check if the URL is already a full URL or just a path
             const fullUrl = url.startsWith('http') 
                 ? url 
-                : `https://api.freshbridge.ca/api/v1/merchant-products/${url}`;
+                : `${environment.apiUrl}merchant-products/${url}`;
             
             console.log("Fetching image from:", fullUrl);
             
@@ -227,6 +230,7 @@ export class ProductUpdateComponent implements OnInit {
                 // Split the comma-separated string if needed
                 this.product.imageUrls = response.imageUrls;
                 this.onSuccess();
+                
             },
             error: (err) => {
                 this.handleError('Product updated but image upload failed');

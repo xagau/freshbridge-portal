@@ -242,12 +242,9 @@ export class OrderListComponent implements OnInit {
         };
       }
     })
-    console.log("params", params)
     this.ordersSvc.listByRole(params).subscribe({
       next: (data) => {
         this.orders = data;
-        console.log("data", data);
-
         this.loading = false;
       },
       error: () => {
