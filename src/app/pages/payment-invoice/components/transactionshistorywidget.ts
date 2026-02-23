@@ -308,7 +308,6 @@ export class TransactionsHistoryWidget {
                         const accountName = t.account?.name || 'Unknown';
                         return this.transformTransaction({ ...t, accountName });
                     });
-                    this.transactions = this.transactions.sort((a: any, b: any) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime());
                     this.loading = false;
                 },
                 error: (err) => {
