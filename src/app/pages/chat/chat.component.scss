@@ -1,8 +1,12 @@
-// chat.component.scss
+// chat.component.scss - ChatGPT-style layout
 .chat-container {
     display: flex;
-    height: calc(100dvh - 200px);
-    position: relative;
+    flex-direction: column;
+    height: calc(100dvh - 120px);
+    min-height: 400px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .sidebar-header {
@@ -37,8 +41,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 1rem;
-    height: 100%;
+    min-height: 0;
+    padding: 0 1rem;
 
     &.centered {
         justify-content: center;
@@ -52,7 +56,7 @@
             color: #333;
         }
 
-        .chat-input {
+        .chat-input-wrapper {
             width: 100%;
             max-width: 600px;
         }
@@ -60,35 +64,66 @@
 }
 
 .chat-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    flex-shrink: 0;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--p-color-border, #e5e7eb);
 }
 
 .chat-title {
-    font-size: 1.5rem;
-    font-weight: 500;
+    font-size: 1.25rem;
+    font-weight: 600;
     margin: 0;
-    color: #444;
+    color: var(--p-color-text, #111);
 }
 
-.chat-window {
+/* Scrollable messages area - ChatGPT style */
+.chat-messages {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
-    margin-bottom: 1rem;
+    overflow-x: hidden;
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.loading-inline {
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem 0;
+    color: var(--p-color-text-muted, #6b7280);
+}
+
+.chat-input-wrapper {
+    flex-shrink: 0;
+    padding: 1rem 0 1.5rem;
+    border-top: 1px solid var(--p-color-border, #e5e7eb);
+}
+
+.chat-input {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+
+    input {
+        flex: 1;
+        min-width: 0;
+    }
 }
 
 .chat-message {
     display: flex;
-    margin-bottom: 1rem;
+    width: 100%;
 
     &.user {
         justify-content: flex-end;
 
         p-card {
             color: white;
-            max-width: 60%;
+            max-width: 85%;
             border: 1px solid #1acc23;
             border-radius: var(--p-card-border-radius);
         }
@@ -99,20 +134,10 @@
 
         p-card {
             color: #333;
-            max-width: 60%;
+            max-width: 85%;
             border-radius: var(--p-card-border-radius);
-            border: 1px solid #ccc01a;
+            border: 1px solid #e5e7eb;
         }
-    }
-}
-
-.chat-input {
-    display: flex;
-    gap: 0.5rem;
-    width: 100%;
-
-    input {
-        flex: 1;
     }
 }
 
