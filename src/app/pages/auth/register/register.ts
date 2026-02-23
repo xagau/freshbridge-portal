@@ -16,6 +16,7 @@ import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { VerificationCodeModalComponent } from '@/components/verification-code-modal/verification-code-modal.component';
 import { AddressSearchResult, AddressService } from '@/service/address.service';
+import { COUNTRY_DIAL_CODES } from '@/constants/country-dial-codes';
 
 @Component({
     selector: 'app-register',
@@ -66,6 +67,8 @@ export class Register {
         { label: 'Aquaponic', value: 'AQUAPONIC' }
     ];
 
+    countryDialCodes = COUNTRY_DIAL_CODES;
+
     constructor(
         private router: Router,
         private fb: FormBuilder,
@@ -80,6 +83,7 @@ export class Register {
             password: ['', [Validators.required, Validators.minLength(6)]],
             fullName: ['', Validators.required],
             address: ['', Validators.required],
+            phoneCountryCode: ['+1'],
             phoneNumber: ['', Validators.required],
             userType: ['', Validators.required],
             terms: [false, Validators.requiredTrue],
@@ -114,12 +118,11 @@ export class Register {
             return;
         }
 
-        // Add + prefix to phone number if not present
-        let phoneNumber = this.registerForm.value.phoneNumber;
-        if (phoneNumber && !phoneNumber.startsWith('+')) {
-            phoneNumber = '+' + phoneNumber;
-            this.registerForm.patchValue({ phoneNumber: phoneNumber });
-        }
+        // Build full phone: country code + digits only
+        const code = this.registerForm.value.phoneCountryCode || '+1';
+        const local = (this.registerForm.value.phoneNumber || '').replace(/\D/g, '');
+        const fullPhone = code + local;
+        this.registerForm.patchValue({ phoneNumber: fullPhone });
 
         this.showVerificationType = true;
     }

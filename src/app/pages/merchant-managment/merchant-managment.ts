@@ -24,6 +24,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { AuthService } from '@/auth/auth.service';
+import { PhonePipe } from '@/pipes/phone.pipe';
 
 @Component({
     selector: 'app-merchant-list',
@@ -49,7 +50,8 @@ import { AuthService } from '@/auth/auth.service';
         ProgressSpinnerModule,
         ToggleSwitchModule,
         InputIconModule,
-        IconFieldModule
+        IconFieldModule,
+        PhonePipe
     ],
     templateUrl: './merchant-managment.component.html',
     providers: [MessageService, ConfirmationService, MerchantService, AuthService]

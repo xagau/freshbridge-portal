@@ -18,8 +18,14 @@
                         </p-dropdown>
 
                         <!-- Common Fields -->
-                        <input type="text" pInputText formControlName="phoneNumber" class="w-full"
-                            placeholder="Phone Number" />
+                        <div class="flex gap-2 w-full mb-4">
+                            <p-dropdown formControlName="phoneCountryCode" [options]="countryDialCodes"
+                                optionLabel="label" optionValue="dialCode" placeholder="Country"
+                                styleClass="flex-shrink-0" [style]="{ 'min-width': '11rem' }">
+                            </p-dropdown>
+                            <input type="tel" pInputText formControlName="phoneNumber" class="flex-1 min-w-0"
+                                placeholder="Phone number" />
+                        </div>
 
                         <!-- Dynamic Fields Based on User Type -->
                         <ng-container *ngIf="profileForm.get('userType')?.value === 'MERCHANT'">
