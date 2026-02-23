@@ -28,67 +28,67 @@ import { ToastModule } from 'primeng/toast';
         <div *ngIf="loading" class="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-surface-950/60 z-10">
             <p-progressSpinner styleClass="w-full h-full" [style]="{ 'min-height': '200px' }" mode="indeterminate" />
         </div>
-        <ng-container *ngIf="!loading">
-        <div class="mb-2 flex items-start gap-2">
-            <span class="flex-1 label-medium">Account Overview</span>
-            <button><i class="pi pi-ellipsis-h text-surface-500 hover:text-surface-950 dark:hover:text-surface-0 transition-all"></i></button>
-        </div>
-        <gauge-chart [data]="data" [labels]="labels" />
-        <div class="mt-8 rounded-lg border border-surface">
-            <div class="border-b border-surface flex items-center justify-between px-3.5 py-2">
-                <span class="label-small text-surface-950 dark:text-surface-0">Summary</span>
+        <ng-container>
+            <div class="mb-2 flex items-start gap-2">
+                <span class="flex-1 label-medium">Account Overview</span>
                 <button><i class="pi pi-ellipsis-h text-surface-500 hover:text-surface-950 dark:hover:text-surface-0 transition-all"></i></button>
             </div>
-            <div class="p-3.5 flex flex-col gap-3">
-                <div class="flex items-center justify-between gap-4">
-                    <span class="body-xsmall">Balance</span>
-                    <span class="label-xsmall text-surface-950 dark:text-surface-0">{{ balance }}</span>
+            <gauge-chart [data]="data" [labels]="labels" />
+            <div class="mt-8 rounded-lg border border-surface">
+                <div class="border-b border-surface flex items-center justify-between px-3.5 py-2">
+                    <span class="label-small text-surface-950 dark:text-surface-0">Summary</span>
+                    <button><i class="pi pi-ellipsis-h text-surface-500 hover:text-surface-950 dark:hover:text-surface-0 transition-all"></i></button>
                 </div>
-                <p-divider class="!m-0" />
-              
-                <div class="flex items-center justify-between gap-4">
-                    <span class="body-xsmall">Available </span>
-                    <span class="px-2 py-1 rounded-lg text-green-700 bg-green-100 text-sm dark:text-surface-0">{{ availableBalance }}</span>
+                <div class="p-3.5 flex flex-col gap-3">
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="body-xsmall">Balance</span>
+                        <span class="label-xsmall text-surface-950 dark:text-surface-0">{{ loading ? '...' : balance }}</span>
+                    </div>
+                    <p-divider class="!m-0" />
+                
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="body-xsmall">Available </span>
+                        <span class="px-2 py-1 rounded-lg text-green-700 bg-green-100 text-sm dark:text-surface-0">{{ loading ? '...' : availableBalance }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <!-- <p-button styleClass="mt-6 w-full !text-surface-950 dark:!text-surface-0 !rounded-lg" label="View account detail" outlined severity="secondary" /> -->
-        <ng-container *ngIf="canAddTransaction()">
-            <div *ngIf="isAdmin && !targetUserId" class="mt-4 space-y-2">
-                <label class="block label-small text-surface-700 dark:text-surface-300">Credit account for</label>
-                <p-dropdown
-                        [options]="targetUserOptions"
-                        [(ngModel)]="selectedTargetUserId"
-                        optionLabel="label"
-                        optionValue="id"
-                        placeholder="Select user"
-                        [filter]="true"
-                        filterPlaceholder="Search"
-                        class="w-full">
-                </p-dropdown>
-            </div>
-            <button pButton label="Add Transaction" class="mt-4 w-full" (click)="openAddTransaction()"></button>
-            <transaction-action-dialog 
-                [(visible)]="showDialog"
-                (submitTransaction)="handleTransaction($event)">
-            </transaction-action-dialog>
-        </ng-container>
-        <app-verification-code-modal
-            [(visible)]="otpDialogVisible"
-            title="Confirm with Authenticator"
-            message="Enter the 6-digit code from your authenticator app."
-            [loading]="otpLoading"
-            [(code)]="otpCode"
-            (verify)="confirmOtp()">
-        </app-verification-code-modal>
+            <!-- <p-button styleClass="mt-6 w-full !text-surface-950 dark:!text-surface-0 !rounded-lg" label="View account detail" outlined severity="secondary" /> -->
+            <ng-container *ngIf="canAddTransaction()">
+                <div *ngIf="isAdmin && !targetUserId" class="mt-4 space-y-2">
+                    <label class="block label-small text-surface-700 dark:text-surface-300">Credit account for</label>
+                    <p-dropdown
+                            [options]="targetUserOptions"
+                            [(ngModel)]="selectedTargetUserId"
+                            optionLabel="label"
+                            optionValue="id"
+                            placeholder="Select user"
+                            [filter]="true"
+                            filterPlaceholder="Search"
+                            class="w-full">
+                    </p-dropdown>
+                </div>
+                <button pButton label="Add Transaction" class="mt-4 w-full" (click)="openAddTransaction()"></button>
+                <transaction-action-dialog 
+                    [(visible)]="showDialog"
+                    (submitTransaction)="handleTransaction($event)">
+                </transaction-action-dialog>
+            </ng-container>
+            <app-verification-code-modal
+                [(visible)]="otpDialogVisible"
+                title="Confirm with Authenticator"
+                message="Enter the 6-digit code from your authenticator app."
+                [loading]="otpLoading"
+                [(code)]="otpCode"
+                (verify)="confirmOtp()">
+            </app-verification-code-modal>
         </ng-container>
     </div>`
 })
 export class CreditScoreWidget implements OnInit {
     accountId!: number;
     accountNumber!: string;
-    availableBalance!: number;
-    balance!: number;
+    availableBalance: number = 0;
+    balance: number = 0;
     completedTransfers!: number;
     pendingTransfers!: number;
     totalTransferred!: number;
@@ -96,7 +96,7 @@ export class CreditScoreWidget implements OnInit {
     name!: string;
     accountType!: string;
 
-    data: number[] = [];
+    data: number[] = [0];
     labels: string[] = [];
     showDialog = false;
     loading = false;
