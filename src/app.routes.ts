@@ -98,6 +98,11 @@ export const appRoutes: Routes = [
                 data: { breadcrumb: 'Schedule Order', roles: ['ADMIN', 'BUYER'] }
             },
             {
+                path: 'notifications',
+                loadComponent: () => import('@/pages/notifications/notifications.component').then((c) => c.NotificationsPageComponent),
+                data: { breadcrumb: 'Notifications', roles: ['MERCHANT', 'BUYER'] }
+            },
+            {
                 path: 'analytics',
                 loadComponent: () => import('@/pages/analytics/analytics').then((c) => c.AnalyticsComponent),
                 data: { breadcrumb: 'Analytics', roles: ['ADMIN'] }

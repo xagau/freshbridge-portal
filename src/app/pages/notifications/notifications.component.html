@@ -1,0 +1,65 @@
+<div class="notifications-page">
+    <div class="notifications-header">
+        <h1 class="page-title">Notifications</h1>
+        <p-button
+            label="Mark all as read"
+            icon="pi pi-check"
+            [outlined]="true"
+            [disabled]="!hasUnread()"
+            (onClick)="markAllAsRead()"
+        ></p-button>
+    </div>
+
+    <div class="tabs-row">
+        @for (tab of tabs(); track tab.id) {
+            <button
+                type="button"
+                class="tab-button"
+                [class.tab-active]="selectedTab() === tab.id"
+                (click)="setTab(tab.id)"
+            >
+                <span>{{ tab.label }}</span>
+                @if (tab.badge) {
+                    <p-badge [value]="tab.badge" severity="success" size="small" class="tab-badge" />
+                }
+            </button>
+        }
+    </div>
+
+    <div class="notifications-content">
+        @if (loading()) {
+            <div class="loading-wrap">
+                <p-progressSpinner styleClass="w-12 h-12" strokeWidth="4" />
+            </div>
+        } @else if (filteredNotifications().length === 0) {
+            <div class="empty-state">
+                <i class="pi pi-bell-slash text-4xl text-surface-400 mb-3"></i>
+                <p class="text-surface-600 dark:text-surface-400">No notifications in this tab.</p>
+            </div>
+        } @else {
+            <ul class="notification-list">
+                @for (item of filteredNotifications(); track item.id) {
+                    <li>
+                        <div
+                            class="notification-item"
+                            [class.notification-read]="item.read"
+                            (click)="onNotificationClick(item)"
+                        >
+                            <p-overlay-badge [value]="''" [severity]="item.read ? 'info' : 'danger'" class="notification-icon">
+                                <p-avatar size="large">
+                                    <img [src]="item.read ? '/images/icon/check.png' : '/images/icon/info.webp'" class="rounded-lg" alt="" />
+                                </p-avatar>
+                            </p-overlay-badge>
+                            <div class="notification-body">
+                                <span class="notification-title">{{ item.title }}</span>
+                                <p class="notification-text">{{ item.body }}</p>
+                                <span class="notification-date">{{ item.createdAt | date:'short' }}</span>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>
+<p-toast></p-toast>
