@@ -40,7 +40,7 @@
                     <td>{{merchant.firstName}} {{merchant.lastName}}</td>
                     <td>{{merchant.accountbalance ? merchant.accountbalance : 'Not set bank account yet' }}</td>
                     <td>{{merchant.email}}</td>
-                    <td>{{merchant.phoneNumber}}</td>
+                    <td>{{ merchant.phoneNumber | phone }}</td>
                     <td>{{merchant.merchantType}}</td>
                     <td>
                         <p-tag [value]="merchant.active ? 'Active' : 'Inactive'"

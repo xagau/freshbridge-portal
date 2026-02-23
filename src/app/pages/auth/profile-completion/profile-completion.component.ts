@@ -10,6 +10,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { LogoWidget } from '@/pages/components/landing/components/logowidget';
 import { LazyImageWidget } from '@/pages/components/landing/components/lazyimagewidget';
+import { COUNTRY_DIAL_CODES } from '@/constants/country-dial-codes';
 
 @Component({
     selector: 'app-profile-completion',
@@ -38,6 +39,8 @@ export class ProfileCompletionComponent implements OnInit {
         // { label: 'Courier', value: 'COURIER' }
     ];
 
+    countryDialCodes = COUNTRY_DIAL_CODES;
+
     constructor(
         private route: ActivatedRoute,
         private router: Router,
@@ -47,6 +50,7 @@ export class ProfileCompletionComponent implements OnInit {
     ) {
         this.profileForm = this.fb.group({
             userType: ['', Validators.required],
+            phoneCountryCode: ['+1'],
             phoneNumber: ['', Validators.required],
 
             // Merchant specific
@@ -85,9 +89,13 @@ export class ProfileCompletionComponent implements OnInit {
 
         this.loading = true;
 
+        const code = this.profileForm.value.phoneCountryCode || '+1';
+        const local = (this.profileForm.value.phoneNumber || '').replace(/\D/g, '');
+        const fullPhoneNumber = code + local;
+
         const formData = {
             userType: this.profileForm.value.userType,
-            phoneNumber: this.profileForm.value.phoneNumber,
+            phoneNumber: fullPhoneNumber,
             ...(this.profileForm.value.userType === 'MERCHANT' && {
                 merchantEstablishedDate: this.profileForm.value.merchantEstablishedDate,
                 merchantType: this.profileForm.value.merchantType,

@@ -34,7 +34,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
         DropdownModule,
         CalendarModule,
         ToastModule,
-        ProgressSpinnerModule
+        ProgressSpinnerModule,
     ],
     providers: [OrdersService, MessageService, ProductService, AuthService],
     templateUrl: './productoverview.component.html',
