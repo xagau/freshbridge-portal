@@ -61,6 +61,9 @@ export class ChatComponent implements AfterViewChecked, OnInit {
                 this.loading.set(true);
                 this.loadAllConversationHistories(conversations);
             }
+            else {
+                this.loading.set(false);
+            }
         });
         this.route.queryParams.subscribe(params => {
             if (params['q']) {
@@ -155,6 +158,9 @@ export class ChatComponent implements AfterViewChecked, OnInit {
                     if (loadedCount === conversations.length) {
                         this.loading.set(false);
                     }
+                },
+                complete: () => {
+                    this.loading.set(false);
                 }
             });
         });
