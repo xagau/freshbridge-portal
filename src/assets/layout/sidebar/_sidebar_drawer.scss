@@ -118,106 +118,106 @@
             }
         }
 
-        // &.layout-sidebar-active {
-        //     .layout-sidebar {
-        //         width: 16rem;
+        &.layout-sidebar-active {
+            .layout-sidebar {
+                width: 16rem;
 
-        //         .layout-menu-container {
-        //             overflow: auto;
-        //         }
+                .layout-menu-container {
+                    overflow: auto;
+                }
 
-        //         .sidebar-header {
-        //             justify-content: space-between;
-        //             padding: 1rem;
-        //             .logo {
-        //                 width: 100%;
-        //                 border: none;
-        //                 justify-content: flex-start;
+                .sidebar-header {
+                    justify-content: space-between;
+                    padding: 1rem;
+                    .logo {
+                        width: 100%;
+                        border: none;
+                        justify-content: flex-start;
 
-        //                 .app-name {
-        //                     display: inline-block;
-        //                     opacity: 1;
-        //                     width: auto;
-        //                     transition: all 0.15s;
-        //                 }
-        //             }
+                        .app-name {
+                            display: inline-block;
+                            opacity: 1;
+                            width: auto;
+                            transition: all 0.15s;
+                        }
+                    }
 
-        //             .layout-sidebar-anchor {
-        //                 display: flex;
-        //                 flex-shrink: 0;
-        //             }
-        //         }
+                    .layout-sidebar-anchor {
+                        display: flex;
+                        flex-shrink: 0;
+                    }
+                }
 
-        //         .layout-menu {
-        //             .layout-root-menuitem {
-        //                 > .layout-menuitem-root-text {
-        //                     font-size: 0.75rem;
-        //                     text-transform: uppercase;
-        //                     font-weight: 500;
-        //                     padding: 0.5rem 0 0.5rem 0;
-        //                     opacity: 1;
-        //                     transition: all 0.3s;
-        //                     > .layout-menuitem-root-icon {
-        //                         display: none;
-        //                     }
-        //                 }
-        //             }
+                .layout-menu {
+                    .layout-root-menuitem {
+                        > .layout-menuitem-root-text {
+                            font-size: 0.75rem;
+                            text-transform: uppercase;
+                            font-weight: 500;
+                            padding: 0.5rem 0 0.5rem 0;
+                            opacity: 1;
+                            transition: all 0.3s;
+                            > .layout-menuitem-root-icon {
+                                display: none;
+                            }
+                        }
+                    }
 
-        //             ul {
-        //                 a {
-        //                     padding: 0.45rem 0.75rem;
-        //                     .layout-submenu-toggler {
-        //                         display: block;
-        //                     }
-        //                     span {
-        //                         opacity: 1;
-        //                         transition: all 0.3s;
-        //                     }
-        //                 }
-        //                 ul {
-        //                     overflow: hidden;
-        //                     border-radius: var(--border-radius);
+                    ul {
+                        a {
+                            padding: 0.45rem 0.75rem;
+                            .layout-submenu-toggler {
+                                display: block;
+                            }
+                            span {
+                                opacity: 1;
+                                transition: all 0.3s;
+                            }
+                        }
+                        ul {
+                            overflow: hidden;
+                            border-radius: var(--border-radius);
 
-        //                     li {
-        //                         a {
-        //                             padding-left: 2.5rem;
-        //                         }
+                            li {
+                                a {
+                                    padding-left: 2.5rem;
+                                }
 
-        //                         li {
-        //                             a {
-        //                                 padding-left: 3rem;
-        //                             }
+                                li {
+                                    a {
+                                        padding-left: 3rem;
+                                    }
 
-        //                             li {
-        //                                 a {
-        //                                     padding-left: 3.5rem;
-        //                                 }
+                                    li {
+                                        a {
+                                            padding-left: 3.5rem;
+                                        }
 
-        //                                 li {
-        //                                     a {
-        //                                         padding-left: 4rem;
-        //                                     }
+                                        li {
+                                            a {
+                                                padding-left: 4rem;
+                                            }
 
-        //                                     li {
-        //                                         a {
-        //                                             padding-left: 5.5rem;
-        //                                         }
+                                            li {
+                                                a {
+                                                    padding-left: 5.5rem;
+                                                }
 
-        //                                         li {
-        //                                             a {
-        //                                                 padding-left: 5rem;
-        //                                             }
-        //                                         }
-        //                                     }
-        //                                 }
-        //                             }
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+                                                li {
+                                                    a {
+                                                        padding-left: 5rem;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         &.layout-sidebar-anchored {
             .sidebar-header {
