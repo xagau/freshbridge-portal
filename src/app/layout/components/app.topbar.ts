@@ -61,7 +61,7 @@ interface NotificationsBars {
                 </li> -->
                 <li class="right-sidebar-item static sm:relative">
                     <a class="right-sidebar-button relative z-50" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveActiveClass="animate-fadeout" leaveToClass="hidden" [hideOnOutsideClick]="true">
-                        <span class="w-2 h-2 rounded-full bg-red-500 absolute top-2 right-2.5"></span>
+                        <span *ngIf="unReadCount > 0" class="w-2 h-2 rounded-full bg-red-500 absolute top-2 right-2.5"></span>
                         <i class="pi pi-bell"></i>
                     </a>
                     <div
@@ -164,6 +164,7 @@ export class AppTopbar implements OnInit {
     notificationService = inject(NotificationService);
     messageService = inject(MessageService);
     authService = inject(AuthService);
+    unReadCount = 0
 
 
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
@@ -173,7 +174,7 @@ export class AppTopbar implements OnInit {
 
     notificationsBars = computed<NotificationsBars[]>(() => {
         const all = this.notificationsList();
-        const unReadCount = all.filter(n => !n.read).length;
+        this.unReadCount = all.filter(n => !n.read).length;
         return [
             {
                 id: 'inbox',
@@ -183,7 +184,7 @@ export class AppTopbar implements OnInit {
             {
                 id: 'unread',
                 label: 'Unread',
-                badge: unReadCount > 0 ? unReadCount.toString() : undefined
+                badge: this.unReadCount > 0 ? this.unReadCount.toString() : undefined
             },
             {
                 id: 'read',
