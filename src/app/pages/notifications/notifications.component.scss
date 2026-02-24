@@ -1,13 +1,12 @@
 .notifications-page {
     max-width: 720px;
     margin: 0 auto;
-    padding: 1.5rem 0;
 }
 
 .notifications-header {
     display: flex;
     align-items: center;
-    justify-content: end;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1.5rem;

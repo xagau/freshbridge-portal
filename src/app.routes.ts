@@ -100,7 +100,7 @@ export const appRoutes: Routes = [
             {
                 path: 'notifications',
                 loadComponent: () => import('@/pages/notifications/notifications.component').then((c) => c.NotificationsPageComponent),
-                data: { breadcrumb: 'Notifications', roles: ['MERCHANT', 'BUYER'] }
+                data: { breadcrumb: '', roles: ['MERCHANT', 'BUYER'] }
             },
             {
                 path: 'analytics',
