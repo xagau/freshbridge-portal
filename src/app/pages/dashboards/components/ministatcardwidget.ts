@@ -128,7 +128,8 @@ export class MiniStatCardWidget implements OnInit {
                         orderId: shipment.merchantOrder?.id,
                         status: shipment.status,
                         estimatedDelivery: shipment.estimatedDeliveryDate,
-                        trackingNumber: shipment.trackingNumber
+                        trackingNumber: shipment.trackingNumber,
+                        endDate: shipment.endDate
                     }));
                     this.loading.shipments = false;
                 },
@@ -146,7 +147,8 @@ export class MiniStatCardWidget implements OnInit {
                             orderId: order.id,
                             status: order.status,
                             estimatedDelivery: order.estimatedDeliveryDate || order.startDate,
-                            trackingNumber: order.trackingNumber || `ORD-${order.id}`
+                            trackingNumber: order.trackingNumber || `ORD-${order.id}`,
+                            endDate: order.endDate
                         }));
                     }
                     this.loading.shipments = false;

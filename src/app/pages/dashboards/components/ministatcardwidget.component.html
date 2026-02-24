@@ -24,7 +24,9 @@
                                     <span class="custom-marker" [ngStyle]="{'background-color': event.color}"></span>
                                 </ng-template>
                             </p-timeline>
-                            <span *ngIf="shipment.status === 'COMPLETED'" class="text-xs text-gray-500">{{ shipment.updatedAt | date:'mediumDate' }}</span>
+                            <span *ngIf="shipment.status === 'COMPLETED'" class="text-sm">{{ shipment.endDate | date:'mediumDate' }} 
+                                <i class="pi pi-check-circle"></i>
+                            </span>
                         </td>
                         <td>
                             <span class="p-1 rounded-md text-white text-xs {{ getStatusColor(shipment.status) }}">
