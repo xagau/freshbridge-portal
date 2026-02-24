@@ -69,14 +69,14 @@ interface NotificationsBars {
                         style="right: -100px"
                     >
                         <div class="p-4 flex items-center justify-between border-b border-surface">
-                            <span class="label-small text-surface-950 dark:text-surface-0">Notifications</span>
-                            <button
+                            <span class="label-small text-surface-950 dark:text-surface-0">{{ totalCount == 0 ? "No" : totalCount }} Notifications</span>
+                            <!-- <button
                                 pRipple
                                 class="py-1 px-2 text-surface-950 dark:text-surface-0 label-x-small hover:bg-emphasis border border-surface rounded-lg shadow-[0px_1px_2px_0px_rgba(18,18,23,0.05)] transition-all"
                                 (click)="markAllAsRead()"
                             >
                                 Mark all as read
-                            </button>
+                            </button> -->
                         </div>
                         <div class="flex items-center border-b border-surface">
                             @for (item of notificationsBars(); track item.id; let i = $index) {
@@ -165,7 +165,7 @@ export class AppTopbar implements OnInit {
     messageService = inject(MessageService);
     authService = inject(AuthService);
     unReadCount = 0
-
+    totalCount = 0
 
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
 
@@ -174,12 +174,13 @@ export class AppTopbar implements OnInit {
 
     notificationsBars = computed<NotificationsBars[]>(() => {
         const all = this.notificationsList();
+        this.totalCount = all.length;
         this.unReadCount = all.filter(n => !n.read).length;
         return [
             {
                 id: 'inbox',
                 label: 'Inbox',
-                badge: all.length > 0 ? all.length.toString() : undefined
+                badge: this.totalCount > 0 ? this.totalCount.toString() : undefined
             },
             {
                 id: 'unread',
@@ -304,6 +305,7 @@ export class AppTopbar implements OnInit {
                             : n
                     )
                 );
+                this.unReadCount = this.notificationsList().filter(n => !n.read).length;
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
