@@ -7,7 +7,7 @@ import { DividerModule } from 'primeng/divider';
 import { ButtonModule } from 'primeng/button';
 import { MeterChart } from '@/components/charts/meterchart';
 import { OrdersService } from '@/service/orders.service';
-import { format, subDays, parseISO, startOfDay, addDays, eachDayOfInterval, isWithinInterval, isAfter } from 'date-fns';
+import { format, subDays, parseISO, startOfDay, addDays, eachDayOfInterval, isAfter } from 'date-fns';
 import { AuthService } from '@/auth/auth.service';
 import { DashboardDataService } from '@/service/dashboard-data.service';
 
@@ -128,7 +128,7 @@ export class OrderByBuyerWidget implements OnInit {
         this.dashboardDataService.orders$.subscribe(orders => {
             if (orders && orders.length > 0) {
                 // Filter completed orders
-                const completedOrders = orders.filter(order => order.status === 'DELIVERED');
+                const completedOrders = orders.filter(order => order.status === 'DELIVERED' || order.status === 'COMPLETED');
 
                 // Process daily data
                 this.processDailyData(completedOrders);
@@ -208,9 +208,12 @@ export class OrderByBuyerWidget implements OnInit {
         }));
 
         const maxValue = Math.max(
-            ...this.dailyData.map(day => day.revenue + day.spending),
-            1000
+            ...this.dailyData.map(day => day.revenue + day.spending)
         );
+        console.log("maxValue", maxValue);
+        console.log("yAxis", this.generateYAxis(maxValue));
+
+        console.log("chartData", chartData);
         this.meterOptionsProps.set({
             data: chartData,
             timeUnit: 'day',

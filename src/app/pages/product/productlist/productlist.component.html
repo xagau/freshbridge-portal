@@ -61,7 +61,7 @@
                             <span class="font-medium">{{ product.rating }}</span>
                         </span>
                     </div>
-                    <p class="mt-0 mb-4 text-surface-700 dark:text-surface-100 leading-normal">{{ product.description }}</p>
+                    <p class="mt-0 mb-4 text-surface-700 dark:text-surface-100 leading-normal line-clamp-3 min-h-[63px]">{{ product.description }}</p>
                     <div class="flex justify-between items-center">
                         <span class="text-primary text-xl font-medium">${{ product.price | number: '1.2-2' }}</span>
                         <span class="text-sm text-surface-500">Available: {{ product.quantityAvailable }}</span>

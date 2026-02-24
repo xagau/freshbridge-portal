@@ -11,7 +11,7 @@ import { sampleDataByFixedLength, trackByFn } from '@/lib/utils';
         <div *ngIf="meterOptions?.showY" class="flex flex-col justify-between" [ngClass]="meterOptions.showX ? (meterOptionsProps().xAxisPosition === 'top' ? 'pt-8' : 'pb-8') : 'p-0'">
             @for (val of meterOptions.yAxis; track trackByFn(); let idx = $index) {
                 <div class="body-xsmall leading-none text-right">
-                    {{ idx === meterOptions?.yAxis.length - 1 ? 0 : (val / 1000).toFixed(1) + 'K' }}
+                    {{ idx === meterOptions?.yAxis.length - 1 ? 0 : val }}
                 </div>
             }
         </div>
