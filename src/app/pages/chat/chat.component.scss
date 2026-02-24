@@ -3,7 +3,6 @@
     flex-direction: column;
     height: calc(100dvh - 120px);
     min-height: 400px;
-    max-width: 900px;
     margin: 0 auto;
     width: 100%;
 }
@@ -26,6 +25,7 @@
 .chat-header {
     flex-shrink: 0;
     padding: 1rem 0;
+    text-align: center;
     border-bottom: 1px solid var(--p-color-border, #e5e7eb);
 }
 

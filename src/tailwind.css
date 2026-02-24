@@ -108,6 +108,24 @@
             'liga' off,
             'calt' off;
     }
+
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--p-color-border, #e5e7eb);
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--p-color-text, #111);
+    }
     .body-large {
         @apply text-xl text-center text-surface-500;
         font-family: 'InterDisplay', sans-serif;
