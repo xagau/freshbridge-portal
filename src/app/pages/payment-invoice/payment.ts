@@ -11,6 +11,10 @@ import { TransactionsHistoryWidget } from '@/pages/payment-invoice/components/tr
         CreditScoreWidget,
         TransactionsHistoryWidget],
     template: `<section>
+        <div class="page-header">
+            <h1 class="page-title">Payments & Invoices</h1>
+        </div>
+        
         <div class="flex flex-col gap-7">
             <!-- <currency-card-widget /> -->
             <div class="flex xl:flex-row flex-col gap-6">

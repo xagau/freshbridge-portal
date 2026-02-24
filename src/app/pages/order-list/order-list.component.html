@@ -1,4 +1,8 @@
-<p-card [header]="currentUser.role === 'COURIER' ? 'deliveries available' : 'Orders'">
+<div class="page-header">
+    <h1 class="page-title">Orders Management</h1>
+</div>
+
+<p-card [header]="currentUser.role === 'COURIER' ? 'deliveries available' : 'My Orders'">
     <div class="flex justify-content-between align-items-center mb-3">
         <div>
             <p-dropdown [options]="statuses" [(ngModel)]="selectedStatus" (onChange)="fetch()"

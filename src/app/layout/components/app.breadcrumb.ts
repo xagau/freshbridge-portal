@@ -16,8 +16,8 @@ interface Breadcrumb {
     template: `<nav class="layout-breadcrumb">
         <ol>
             <ng-template ngFor let-item let-last="last" [ngForOf]="breadcrumbs$ | async">
-                <li class="text-surface-950 dark:text-surface-0 title-h7 text-xl">{{ item.label }}</li>
-                <li *ngIf="!last" class="layout-breadcrumb-chevron">/</li>
+                <!-- <li class="text-surface-950 dark:text-surface-0 title-h7 text-xl">{{ item.label }}</li> -->
+                <!-- <li *ngIf="!last" class="layout-breadcrumb-chevron">/</li> -->
             </ng-template>
         </ol>
     </nav> `

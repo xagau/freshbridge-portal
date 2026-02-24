@@ -12,6 +12,10 @@ import { BannerWidget } from '@/pages/dashboards/components/bannerwidget';
     standalone: true,
     imports: [BuyerRevenueWidget, MiniStatCardWidget, OrderByBuyerWidget, GoogleLikeCalendarComponent, BannerWidget],
     template: `<section class="flex flex-col gap-7">
+        <div class="page-header">
+            <h1 class="page-title">Dashboard</h1>
+        </div>
+        
         <div class="flex flex-wrap gap-7">
             <banner-widget />
             <mini-stat-card-widget />

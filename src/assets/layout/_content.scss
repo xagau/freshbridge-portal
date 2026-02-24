@@ -21,3 +21,9 @@
     flex: 1 1 auto;
     position: relative;
 }
+
+@media screen and (max-width: 768px) {
+    .layout-content {
+        padding: 1rem 1rem 1rem 1rem;
+    }
+}

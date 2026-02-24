@@ -68,7 +68,7 @@ export const appRoutes: Routes = [
             {
                 path: 'order-management',
                 loadComponent: () => import('@/pages/order-list/order-list.component').then((c) => c.OrderListComponent),
-                data: { breadcrumb: 'Dashboard', roles: ['MERCHANT', 'BUYER', 'COURIER'] }
+                data: { breadcrumb: 'Orders Management', roles: ['MERCHANT', 'BUYER', 'COURIER'] }
             },
             {
                 path: 'product-management',
@@ -79,28 +79,28 @@ export const appRoutes: Routes = [
                 path: 'merchants-management',
                 loadComponent: () => import('@/pages/merchant-managment/merchant-managment').then((c) => c.MerchantList),
                 canActivate: [AuthGuard],
-                data: { breadcrumb: 'Dashboard', roles: ['ADMIN'] }
+                data: { breadcrumb: 'Merchants Management', roles: ['ADMIN'] }
             },
             {
                 path: 'buyers-management',
                 loadComponent: () => import('@/pages/buyer-managment/buyer-management.component').then((c) => c.BuyerManagementComponent),
                 canActivate: [AuthGuard],
-                data: { breadcrumb: 'Dashboard', roles: ['ADMIN'] }
+                data: { breadcrumb: 'Buyers Management', roles: ['ADMIN'] }
             },
             {
                 path: 'pi',
                 loadChildren: () => import('@/pages/payment-invoice/payment.routes'),
-                data: { breadcrumb: 'Dashboard', roles: ['MERCHANT', 'BUYER', 'ADMIN'] }
+                data: { breadcrumb: 'Payments & Invoices', roles: ['MERCHANT', 'BUYER', 'ADMIN'] }
             },
             {
                 path: 'schedule-order',
                 loadComponent: () => import('@/pages/schedule-order/schedule-order').then((c) => c.ScheduleRepeatOrder),
-                data: { breadcrumb: 'Schedule Order', roles: ['ADMIN', 'BUYER'] }
+                data: { breadcrumb: 'Schedule Orders', roles: ['ADMIN', 'BUYER'] }
             },
             {
                 path: 'notifications',
                 loadComponent: () => import('@/pages/notifications/notifications.component').then((c) => c.NotificationsPageComponent),
-                data: { breadcrumb: 'Notifications', roles: ['MERCHANT', 'BUYER'] }
+                data: { breadcrumb: '', roles: ['MERCHANT', 'BUYER'] }
             },
             {
                 path: 'analytics',

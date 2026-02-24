@@ -61,7 +61,7 @@ interface NotificationsBars {
                 </li> -->
                 <li class="right-sidebar-item static sm:relative">
                     <a class="right-sidebar-button relative z-50" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveActiveClass="animate-fadeout" leaveToClass="hidden" [hideOnOutsideClick]="true">
-                        <span class="w-2 h-2 rounded-full bg-red-500 absolute top-2 right-2.5"></span>
+                        <span *ngIf="unReadCount > 0" class="w-2 h-2 rounded-full bg-red-500 absolute top-2 right-2.5"></span>
                         <i class="pi pi-bell"></i>
                     </a>
                     <div
@@ -69,14 +69,14 @@ interface NotificationsBars {
                         style="right: -100px"
                     >
                         <div class="p-4 flex items-center justify-between border-b border-surface">
-                            <span class="label-small text-surface-950 dark:text-surface-0">Notifications</span>
-                            <button
+                            <span class="label-small text-surface-950 dark:text-surface-0">{{ totalCount == 0 ? "No" : totalCount }} Notifications</span>
+                            <!-- <button
                                 pRipple
                                 class="py-1 px-2 text-surface-950 dark:text-surface-0 label-x-small hover:bg-emphasis border border-surface rounded-lg shadow-[0px_1px_2px_0px_rgba(18,18,23,0.05)] transition-all"
                                 (click)="markAllAsRead()"
                             >
                                 Mark all as read
-                            </button>
+                            </button> -->
                         </div>
                         <div class="flex items-center border-b border-surface">
                             @for (item of notificationsBars(); track item.id; let i = $index) {
@@ -164,7 +164,8 @@ export class AppTopbar implements OnInit {
     notificationService = inject(NotificationService);
     messageService = inject(MessageService);
     authService = inject(AuthService);
-
+    unReadCount = 0
+    totalCount = 0
 
     isDarkTheme = computed(() => this.layoutService.isDarkTheme());
 
@@ -173,17 +174,18 @@ export class AppTopbar implements OnInit {
 
     notificationsBars = computed<NotificationsBars[]>(() => {
         const all = this.notificationsList();
-        const unReadCount = all.filter(n => !n.read).length;
+        this.totalCount = all.length;
+        this.unReadCount = all.filter(n => !n.read).length;
         return [
             {
                 id: 'inbox',
                 label: 'Inbox',
-                badge: all.length > 0 ? all.length.toString() : undefined
+                badge: this.totalCount > 0 ? this.totalCount.toString() : undefined
             },
             {
                 id: 'unread',
                 label: 'Unread',
-                badge: unReadCount > 0 ? unReadCount.toString() : undefined
+                badge: this.unReadCount > 0 ? this.unReadCount.toString() : undefined
             },
             {
                 id: 'read',
@@ -303,6 +305,7 @@ export class AppTopbar implements OnInit {
                             : n
                     )
                 );
+                this.unReadCount = this.notificationsList().filter(n => !n.read).length;
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
