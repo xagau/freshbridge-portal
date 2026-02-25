@@ -94,7 +94,7 @@ export class AppMenu implements OnInit, OnDestroy {
                         roles: ['MERCHANT', 'BUYER', 'COURIER']
                     },
                     {
-                        label: 'Product Listings',
+                        label: 'Merchant & Products',
                         icon: 'pi pi-fw pi-box',
                         routerLink: ['/product-management'],
                         roles: ['MERCHANT', 'BUYER']

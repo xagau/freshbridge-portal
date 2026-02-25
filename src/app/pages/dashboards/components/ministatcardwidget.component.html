@@ -71,6 +71,7 @@
                         <th>Name</th>
                         <th>Cost</th>
                         <th>Savings</th>
+                        <th>Merchant</th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-item>
@@ -79,6 +80,7 @@
                         <td>{{ item.name }}</td>
                         <td>{{ item.cost | currency }}</td>
                         <td>{{ item.savings | currency }}</td>
+                        <td>{{ item.merchantName }}</td>
                     </tr>
                 </ng-template>
             </p-table>

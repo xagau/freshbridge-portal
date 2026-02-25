@@ -59,7 +59,9 @@ export class Login {
 
         const { email, password } = this.loginForm.value;
 
-        this.authService.login(email!, password!).subscribe({
+        // the mail should be trim
+        const emailTrim = email!.trim();
+        this.authService.login(emailTrim, password).subscribe({
             next: (success) => {
                 if (success) {
                     // implement two factor authentication with verification modal

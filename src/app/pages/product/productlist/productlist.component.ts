@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { RippleModule } from 'primeng/ripple';
 import { TabsModule } from 'primeng/tabs';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { Router } from '@angular/router';
 import { ProductService, Product } from '@/service/product.service';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -13,6 +14,8 @@ import { ToastModule } from 'primeng/toast';
 import { environment } from '../../../../environments/environment';
 import { MerchantService, Merchant } from '@/service/merchant.service';
 import { AuthService } from '@/auth/auth.service';
+
+type MerchantOption = Merchant & { name: string };
 
 @Component({
     selector: 'app-product-list',
@@ -24,6 +27,7 @@ import { AuthService } from '@/auth/auth.service';
         ButtonModule,
         RippleModule,
         TabsModule,
+        MultiSelectModule,
         ProgressSpinnerModule,
         ToastModule,
     ],
@@ -33,10 +37,11 @@ import { AuthService } from '@/auth/auth.service';
 export class ProductList {
     products = signal<Product[]>([]);
     filteredProducts = signal<Product[]>([]);
-    merchants = signal<Merchant[]>([]);
+    merchants = signal<MerchantOption[]>([]);
     loading = signal<boolean>(true);
-    showMerchantFilter = signal<boolean>(false);
     selectedMerchantId = signal<number | null>(null);
+    /** Bound to multiSelect; selected merchants shown as chips. */
+    selectedMerchantList: MerchantOption[] = [];
 
     // User role signals
     isAdmin = signal<boolean>(false);
@@ -80,6 +85,7 @@ export class ProductList {
             this.loadMerchants();
         }
     }
+
 
     loadProducts() {
         this.loading.set(true);
@@ -126,8 +132,8 @@ export class ProductList {
     loadMerchants() {
         this.merchantService.getMerchants().subscribe({
             next: (data) => {
-                this.merchants.set(Array.isArray(data) ? data : []);
-
+                const list = Array.isArray(data) ? data : [];
+                this.merchants.set(list.map((m: Merchant) => ({ ...m, name: `${m.firstName} ${m.lastName}`.trim() || `Merchant ${m.id}` })));
             },
             error: (err) => {
                 this.messageService.add({
@@ -140,33 +146,33 @@ export class ProductList {
         });
     }
 
-    toggleMerchantFilter() {
-        this.showMerchantFilter.update(prev => !prev);
+    onMerchantSelectionChange(): void {
+        this.filterByMerchants();
     }
 
-    filterByMerchant(merchantId: number | null) {
-        console.log(merchantId);
-
-        this.selectedMerchantId.set(merchantId);
+    filterByMerchants(): void {
         const list = this.products() ?? [];
-        if (merchantId) {
-            this.filteredProducts.set(
-                list.filter(product => product.merchantId === merchantId)
-            );
+        if (this.selectedMerchantList.length > 0) {
+            const ids = this.selectedMerchantList.map(m => m.id);
+            this.filteredProducts.set(list.filter(product => ids.includes(product.merchantId)));
         } else {
             this.filteredProducts.set(list);
         }
     }
 
-    clearMerchantFilter() {
+    clearMerchantFilter(): void {
+        this.selectedMerchantList = [];
         this.selectedMerchantId.set(null);
         this.filteredProducts.set(this.products() ?? []);
     }
 
-    viewMerchantProducts(event: Event, merchantId: number) {
-        event.stopPropagation(); // Prevent the product click event from firing
-        this.selectedMerchantId.set(merchantId);
-        this.filterByMerchant(merchantId);
+    viewMerchantProducts(event: Event, merchantId: number): void {
+        event.stopPropagation();
+        const option = this.merchants().find(m => m.id === merchantId);
+        if (option && !this.selectedMerchantList.some(m => m.id === merchantId)) {
+            this.selectedMerchantList = [...this.selectedMerchantList, option];
+            this.filterByMerchants();
+        }
     }
 
     goToProduct(product: Product) {
