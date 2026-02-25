@@ -104,13 +104,31 @@ export class ProductCreateComponent implements OnInit {
             return;
         }
 
-        // check validation of the form
-        if (this.product.name === '' || this.product.description === '' || this.product.price === 0 || this.product.unit === '' || this.product.quantityAvailable === 0 || this.product.harvestDate === '') {
-            this.handleError('Please fill all required fields');
-            return;
+        // check validation of the form,  tell them which field needs to be filled
+        let errorMessage = '';
+        if (this.product.name === '') {
+            errorMessage += 'Product name is required\n';
+        }
+        if (this.product.description === '') {
+            errorMessage += 'Description is required\n';
+        }
+        if (this.product.price === 0) {
+            errorMessage += 'Price is required\n';
         }
         if (this.selectedFiles.length === 0) {
-            this.handleError('Please upload at least one image');
+            errorMessage += 'Please upload at least one image\n';
+        }
+        if (this.product.unit === '') {
+            errorMessage += 'Unit is required\n';
+        }
+        if (this.product.quantityAvailable === 0) {
+            errorMessage += 'Quantity is required\n';
+        }
+        if (this.product.harvestDate === '') {
+            errorMessage += 'Harvest date is required\n';
+        }
+        if (errorMessage !== '') {
+            this.handleError(errorMessage);
             return;
         }
 
