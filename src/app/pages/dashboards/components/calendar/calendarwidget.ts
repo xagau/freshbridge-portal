@@ -50,6 +50,7 @@ export class GoogleLikeCalendarComponent implements OnInit {
 
         // Use the shared dashboard data service instead of making a separate API call
         this.dashboardDataService.orders$.subscribe((orders: Order[]) => {
+            this.loadingOrder = false;
             if (!orders || orders.length === 0) {
                 return;
             }
