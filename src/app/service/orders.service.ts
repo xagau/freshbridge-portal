@@ -152,7 +152,7 @@ export class OrdersService {
 
             let endText = '';
             if (order.endCondition === 'date' && order.endDate) {
-                endText = ` until ${order.endDate.toLocaleDateString()}`;
+                endText = ` until ${order.endDate.toLocaleString('en-US', { timeZone: 'GMT-0' })}`;
             }
 
             summary = `Delivers every ${selectedDays.join(', ')}${endText}`;
@@ -170,7 +170,7 @@ export class OrdersService {
             summary = `Delivers every ${order.customFrequencyValue} ${order.customFrequencyUnit.label}${this.getEndText(order)}`;
         }
         if (order.selectedFrequency.value === 'once') {
-            summary = `Delivers once on ${order.startDate.toLocaleDateString()}`;
+            summary = `Delivers once on ${order.startDate.toLocaleString('en-US', { timeZone: 'GMT-0' })}`;
         }
 
         if (order.deliveryAddress) {
@@ -185,7 +185,7 @@ export class OrdersService {
         occurrences?: number
     }): string {
         if (order.endCondition === 'date' && order.endDate) {
-            return ` until ${order.endDate.toLocaleDateString()}`;
+            return ` until ${order.endDate.toLocaleString('en-US', { timeZone: 'GMT-0' })}`;
         }
         return '';
     }
