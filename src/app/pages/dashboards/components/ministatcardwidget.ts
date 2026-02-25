@@ -160,7 +160,7 @@ export class MiniStatCardWidget implements OnInit {
 
     loadProducts(filter: string = 'all') {
         this.loading.products = true;
-        this.productService.getProducts().subscribe({
+        this.productService.getProductsAll().subscribe({
             next: (products: any) => {
                 this.products = products;
                 this.processSavingsItems(products, filter);
