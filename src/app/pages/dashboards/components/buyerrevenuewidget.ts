@@ -165,14 +165,20 @@ export class BuyerRevenueWidget implements OnInit {
                     } else if (order.frequency === 'BIWEEKLY' && order.startDate) {
                         // For biweekly orders, calculate every 2 weeks from start date
                         const startDate = new Date(order.startDate);
-                        const endDate = order.endDate ? new Date(order.endDate) : addMonths(today, 3);
-
+                        const deliveryDay = new Date(order.endDate).getDay();
+                        const endDate = order.endDate ? new Date(order.endDate) : addMonths(today, 6); // Default to 6 months ahead
+                
                         let currentDate = new Date(startDate);
-                        while (isAfter(endDate, currentDate)) {
-                            if (isAfter(currentDate, today)) {
-                                this.addToRevenueMap(revenueMap, currentDate, order.totalAmount);
-                            }
-                            currentDate = addWeeks(currentDate, 2);
+                
+                        // Find the first occurrence of the delivery day after start date
+                        while (currentDate.getDay() !== deliveryDay) {
+                            currentDate = addDays(currentDate, 1);
+                        }
+                
+                        while (currentDate <= endDate) {
+                            this.addToRevenueMap(revenueMap, currentDate, order.totalAmount);
+                            // Move forward 2 weeks
+                            currentDate = addDays(currentDate, 14);
                         }
                     } else if (order.frequency === 'MONTHLY' && order.startDate) {
                         // For monthly orders, calculate same day each month
