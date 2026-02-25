@@ -53,15 +53,16 @@ export class GoogleLikeCalendarComponent implements OnInit {
             }
 
             this.events = [];
-            console.log("orders=====", orders);
             
-
+            console.log("orders=====", orders);
             orders.forEach(order => {
                 if (order.frequency === 'ONCE') {
                     // For one-time orders, use expectedDeliveryDate if available, otherwise orderDate
+                    // now is -1 day when change Date GMT -
                     const eventDate = order.expectedDeliveryDate ?
                         new Date(order.expectedDeliveryDate) :
                         new Date(order.startDate);
+                    eventDate.setDate(eventDate.getDate() + 1);
                     this.addEventIfInMonth(order, eventDate);
                 }
                 else if (order.frequency === 'WEEKLY') {
