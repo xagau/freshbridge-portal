@@ -4,6 +4,7 @@ export interface Order {
     status: string;
     items: {
         id: number;
+        productId: number;
         order: string;
         productName: string;
         productUnit: string;

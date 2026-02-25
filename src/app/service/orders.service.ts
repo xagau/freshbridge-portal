@@ -121,6 +121,14 @@ export class OrdersService {
         );
     }
 
+    updateOrderItem(orderId: number, itemId: number, productId: number, quantity: number): Observable<any> {
+        return this.http.put<any>(`${this.API}/${orderId}/items/${itemId}`, { productId, quantity });
+    }
+
+    removeOrderItem(orderId: number, itemId: number): Observable<void> {
+        return this.http.delete<void>(`${this.API}/${orderId}/items/${itemId}`);
+    }
+
     // Signal-based cart functionality
     get order() {
         return this._order();
