@@ -32,6 +32,7 @@ export class GoogleLikeCalendarComponent implements OnInit {
     private dashboardDataService = inject(DashboardDataService);
 
     ngOnInit(): void {
+        this.loadingOrder = true;
         this.generateCalendar();
         this.loadEventsForMonth();
     }
@@ -52,6 +53,8 @@ export class GoogleLikeCalendarComponent implements OnInit {
             }
 
             this.events = [];
+            console.log("orders=====", orders);
+            
 
             orders.forEach(order => {
                 if (order.frequency === 'ONCE') {
@@ -71,6 +74,7 @@ export class GoogleLikeCalendarComponent implements OnInit {
                     this.handleMonthlyOrder(order);
                 }
             });
+            this.loadingOrder = false;
         });
     }
 
@@ -123,10 +127,10 @@ export class GoogleLikeCalendarComponent implements OnInit {
     }
 
     private handleBiweeklyOrder(order: Order) {
-        if (!order.startDate || !order.expectedDeliveryDate) return;
-
+        if (!order.startDate || !order.endDate) return;
+        
         const startDate = new Date(order.startDate);
-        const deliveryDay = new Date(order.expectedDeliveryDate).getDay();
+        const deliveryDay = new Date(order.endDate).getDay();
         const endDate = order.endDate ? new Date(order.endDate) : addMonths(this.currentMonth, 6); // Default to 6 months ahead
 
         let currentDate = new Date(startDate);

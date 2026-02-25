@@ -51,6 +51,7 @@ export class ProductOverview implements OnInit {
     quantity: number = 1;
     showOrderDialog: boolean = false;
     loading: boolean = true;
+    loading_add_to_order: boolean = false;
     constructor(
         private router: Router,
         private messageService: MessageService,
@@ -102,11 +103,9 @@ export class ProductOverview implements OnInit {
                 next: (product) => {
                     this.product = product;
                     this.images = this.product.imageUrls
-                    this.loading = false;
                 },
                 error: (err) => {
                     console.error('Failed to fetch product details:', err);
-                    this.loading = false;
                     // Handle error, maybe show a message to the user
                 }
             });
@@ -153,6 +152,8 @@ export class ProductOverview implements OnInit {
                             selected: repeatDays.includes(day.value)
                         }));
 
+                        this.loading = false;
+
                         return {
                             id: order.id.toString(),
                             name: this.orderService.getScheduleSummary({
@@ -164,6 +165,7 @@ export class ProductOverview implements OnInit {
                                 deliveryAddress: order.deliveryAddress
                             })
                         };
+                        
                     });
             },
             error: (err) => {
@@ -172,9 +174,25 @@ export class ProductOverview implements OnInit {
         });
     }
 
-    createNewOrder() {
+    /** Single entry for "Add to Order": add directly if one order, else show dialog (pick order or create one). */
+    onAddToOrderClick(): void {
+        if (this.existingOrders.length === 0) {
+            this.showOrderDialog = true;
+            return;
+        }
+        if (this.existingOrders.length === 1) {
+            this.selectedOrder = this.existingOrders[0];
+            this.addToOrder();
+            return;
+        }
+        this.showOrderDialog = true;
+    }
+
+    createNewOrder(): void {
         this.showOrderDialog = false;
-        this.router.navigate(['/schedule-order']);
+
+        // set product id to the query params
+        this.router.navigate(['/schedule-order'], { queryParams: { productId: this.product.id } });
     }
     buyerId = 1;
     merchantId = 1;
@@ -195,7 +213,17 @@ export class ProductOverview implements OnInit {
         return false;
     }
 
-    addToOrder() {
+    addToOrder(): void {
+        this.loading_add_to_order = true;
+        if (this.existingOrders.length > 1 && !this.selectedOrder) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Select order',
+                detail: 'Please select an order to add this item to.'
+            });
+            this.loading_add_to_order = false;
+            return;
+        }
         const orderItem = {
             productId: this.product.id,
             quantity: this.quantity
@@ -211,6 +239,7 @@ export class ProductOverview implements OnInit {
                     });
                     this.showOrderDialog = false;
                     this.resetOrderForm();
+                    this.loading_add_to_order = false;
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Success',
@@ -219,6 +248,7 @@ export class ProductOverview implements OnInit {
                 },
                 error: (err) => {
                     console.error('Failed to add item to order:', err);
+                    this.loading_add_to_order = false;
                     this.messageService.add({
                         severity: 'error',
                         summary: 'Error',

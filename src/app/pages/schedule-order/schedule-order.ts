@@ -17,6 +17,7 @@ import { ToastModule } from 'primeng/toast';
 import { AuthService } from '@/auth/auth.service';
 import { AutoComplete } from 'primeng/autocomplete';
 import { AddressSearchResult, AddressService } from '@/service/address.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
     selector: 'app-schedule-repeat-order',
@@ -240,16 +241,21 @@ export class ScheduleRepeatOrder {
         private messageService: MessageService,
         private authService: AuthService,
         private addressService: AddressService,
-        private zone: NgZone
+        private zone: NgZone,
+        private route: ActivatedRoute,
+        private router: Router
     ) {
         this.startDate = new Date();
         this.minStartDate = new Date();
+        this.route.queryParams.subscribe(params => {
+            this.productId_create_order = params['productId'] || null;
+        });
     }
 
     // 📅 Start Date
     startDate: Date = new Date();
     minStartDate: Date = new Date();
-
+    productId_create_order: string | null = null;
     // ⏱ Repeat Frequency
     frequencyOptions = [
         { label: 'One-time', value: 'once' },
@@ -518,20 +524,9 @@ export class ScheduleRepeatOrder {
 
         // Get the current user and update IDs
         this.authService.currentUser$.subscribe(user => {
-            console.log(user);
 
-            /* if (user?.role === "BUYER") {
-                this.buyerId = this.authService.getProfileId() || 0;
-                console.log("buyerId", this.authService.getProfileId())
-            }
-            else if (user?.role === "MERCHANT") {
-                this.merchantId = this.authService.getProfileId() || 0;
-                console.log("merchantId", this.authService.getProfileId())
-            } */
             this.userId = this.authService.getProfileId() || 0;
-            // console.log(this.merchantId)
-            // console.log(this.buyerId)
-            // Validate IDs after getting them
+          
             if (this.userId === 0) {
                 this.messageService.add({
                     severity: 'error',
@@ -564,6 +559,9 @@ export class ScheduleRepeatOrder {
                     });
                     this.isSubmitting = false;
                     this.reset();
+                    if(this.productId_create_order) {
+                        this.router.navigate(['/product-management/overview/', this.productId_create_order]);
+                    }
                 },
                 error: (err) => {
                     this.messageService.add({

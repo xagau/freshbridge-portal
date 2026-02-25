@@ -169,6 +169,9 @@ export class OrdersService {
         if (order.selectedFrequency.value === 'custom' && order.customFrequencyValue && order.customFrequencyUnit) {
             summary = `Delivers every ${order.customFrequencyValue} ${order.customFrequencyUnit.label}${this.getEndText(order)}`;
         }
+        if (order.selectedFrequency.value === 'once') {
+            summary = `Delivers once on ${order.startDate.toLocaleDateString()}`;
+        }
 
         if (order.deliveryAddress) {
             summary += ` | Address: ${order.deliveryAddress}`;

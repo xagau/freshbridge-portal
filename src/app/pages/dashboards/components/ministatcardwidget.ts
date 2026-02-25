@@ -78,6 +78,7 @@ export class MiniStatCardWidget implements OnInit {
     products: any[] = [];
     revenueData: any;
     savingsItems: any[] = [];
+    selectedFilter: string = 'all';
 
     constructor(
         private shipmentService: ShipmentService,
@@ -157,28 +158,47 @@ export class MiniStatCardWidget implements OnInit {
         }
     }
 
-    loadProducts() {
+    loadProducts(filter: string = 'all') {
         this.loading.products = true;
         this.productService.getProducts().subscribe({
             next: (products: any) => {
                 this.products = products;
-                this.processSavingsItems(products);
+                this.processSavingsItems(products, filter);
                 this.loading.products = false;
             },
             error: () => this.loading.products = false
         });
     }
 
-    processSavingsItems(products: any[]) {
+    processSavingsItems(products: any[], filter: string = 'all') {
         this.savingsItems = products
             .map((product: any) => ({
                 sku: `FP${product.id.toString().padStart(5, '0')}`,
                 name: product.name,
-                savings: (product.price * 0.15), // Example calculation
+                cost: product.price,
+                savings: Math.floor(Math.random() * product.price), // random number than 0 and less than cost
                 productId: product.id
-            }))
-            .sort((a: any, b: any) => b.savings - a.savings)
+            }));
+        if (filter === 'saving') {
+            this.savingsItems = this.savingsItems.sort((a, b) => b.savings - a.savings)
             .slice(0, 5);
+        } else if (filter === 'cost') {
+            this.savingsItems = this.savingsItems.sort((a, b) => b.cost - b.cost)
+            .slice(0, 5);
+        } else {
+            this.savingsItems = this.savingsItems.slice(0, 5);
+        }
+    }
+
+    onFilterChange(event: any) {
+
+        if (event.value === 'saving') {
+            this.loadProducts('saving');
+        } else if (event.value === 'cost') {
+            this.loadProducts('cost');
+        } else {
+            this.loadProducts('all');
+        }
     }
 
     chartOptions = {
@@ -242,9 +262,9 @@ export class MiniStatCardWidget implements OnInit {
     }
 
     filterOptions = [
-        { label: 'Filter', value: 'all' },
-        { label: 'Top 5', value: 'top5' },
-        { label: 'Top 10', value: 'top10' }
+        { label: 'All', value: 'all' },
+        { label: 'Saving', value: 'saving' },
+        { label: 'Cost', value: 'cost' }
     ];
 
     merchantOptions = [

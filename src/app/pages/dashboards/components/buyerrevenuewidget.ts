@@ -16,8 +16,8 @@ import { DashboardDataService } from '@/service/dashboard-data.service';
     standalone: true,
     imports: [CommonModule, ChartModule, TagModule, DividerModule, ButtonModule],
     template: `<div class="flex items-center justify-between">
-            <span class="label-medium text-surface-950 dark:text-surface-0">{{ currentUser.role === 'MERCHANT' ? 'Total GMV' : 'Total Revenue' }}</span>
-            <button pButton severity="secondary" outlined class="!text-surface-950 dark:!text-surface-0 !px-2 !py-1.5 !rounded-lg !label-xsmall"><span pButtonLabel>See All</span><i class="pi pi-chevron-right !text-xs"></i></button>
+            <span class="label-medium text-surface-950 dark:text-surface-0">{{ currentUser.role === 'MERCHANT' ? 'Monthly GMV' : 'Monthly Purchases' }}</span>
+            <!-- <button pButton severity="secondary" outlined class="!text-surface-950 dark:!text-surface-0 !px-2 !py-1.5 !rounded-lg !label-xsmall"><span pButtonLabel>See All</span><i class="pi pi-chevron-right !text-xs"></i></button> -->
         </div>
         <div class="flex items-center gap-3.5 mt-4">
             <span class="title-h6">{{ totalAmount | currency }}</span>
@@ -165,14 +165,20 @@ export class BuyerRevenueWidget implements OnInit {
                     } else if (order.frequency === 'BIWEEKLY' && order.startDate) {
                         // For biweekly orders, calculate every 2 weeks from start date
                         const startDate = new Date(order.startDate);
-                        const endDate = order.endDate ? new Date(order.endDate) : addMonths(today, 3);
-
+                        const deliveryDay = new Date(order.endDate).getDay();
+                        const endDate = order.endDate ? new Date(order.endDate) : addMonths(today, 6); // Default to 6 months ahead
+                
                         let currentDate = new Date(startDate);
-                        while (isAfter(endDate, currentDate)) {
-                            if (isAfter(currentDate, today)) {
-                                this.addToRevenueMap(revenueMap, currentDate, order.totalAmount);
-                            }
-                            currentDate = addWeeks(currentDate, 2);
+                
+                        // Find the first occurrence of the delivery day after start date
+                        while (currentDate.getDay() !== deliveryDay) {
+                            currentDate = addDays(currentDate, 1);
+                        }
+                
+                        while (currentDate <= endDate) {
+                            this.addToRevenueMap(revenueMap, currentDate, order.totalAmount);
+                            // Move forward 2 weeks
+                            currentDate = addDays(currentDate, 14);
                         }
                     } else if (order.frequency === 'MONTHLY' && order.startDate) {
                         // For monthly orders, calculate same day each month

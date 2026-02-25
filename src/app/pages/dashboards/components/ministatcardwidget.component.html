@@ -56,20 +56,20 @@
         </p-card>
     </div> -->
 
-    <!-- Top Savings Items -->
+    <!-- Top  Items -->
     <div class="col-span-12 md:col-span-5 h-full">
-        <p-card [header]="currentUser?.role === 'MERCHANT' ? 'Top Selling Items' : 'Top Savings Items'"
+        <p-card header="Top Items"
             class="h-full w-full flex flex-column">
-            <!-- <div class="flex justify-between mb-4">
-                <p-dropdown [options]="filterOptions" placeholder="Filter"></p-dropdown>
-                <p-dropdown [options]="merchantOptions" placeholder="Merchant"></p-dropdown>
-            </div> -->
+            <div class="flex justify-between mb-4">
+                <p-dropdown [options]="filterOptions" placeholder="Filter" [(ngModel)]="selectedFilter" (onChange)="onFilterChange($event)"></p-dropdown>
+            </div>
             @if (!loading.products) {
             <p-table [value]="savingsItems" [tableStyle]="{ 'min-width': '100%' }">
                 <ng-template pTemplate="header">
                     <tr>
                         <th>SKU</th>
                         <th>Name</th>
+                        <th>Cost</th>
                         <th>Savings</th>
                     </tr>
                 </ng-template>
@@ -77,6 +77,7 @@
                     <tr>
                         <td>{{ item.sku }}</td>
                         <td>{{ item.name }}</td>
+                        <td>{{ item.cost | currency }}</td>
                         <td>{{ item.savings | currency }}</td>
                     </tr>
                 </ng-template>
