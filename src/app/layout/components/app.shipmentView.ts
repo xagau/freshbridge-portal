@@ -263,7 +263,7 @@ export class AppShipmentView implements OnInit {
             status: statusMap[status]?.display || status,
             icon: statusMap[status]?.icon || 'pi pi-info-circle',
             color: isCancelled ? '#E0E0E0' : (index <= currentIndex ? (statusMap[status]?.color || '#4CAF50') : '#E0E0E0'),
-            date: shipment.estimatedDelivery ? new Date(shipment.estimatedDelivery).toLocaleDateString() : 'N/A'
+            date: shipment.estimatedDelivery ? new Date(shipment.estimatedDelivery).toLocaleString('en-US', { timeZone: 'GMT-0' }) : 'N/A'
         }));
 
         // Add error status if applicable (DELIVERY_FAILED, RETURNED, or CANCELLED)
@@ -273,7 +273,7 @@ export class AppShipmentView implements OnInit {
                 icon: statusMap[currentStatus].icon,
                 // If cancelled, use red color (#F44336), otherwise use the status color
                 color: isCancelled ? '#F44336' : statusMap[currentStatus].color,
-                date: shipment.updatedAt ? new Date(shipment.updatedAt).toLocaleDateString() : 'N/A',
+                date: shipment.updatedAt ? new Date(shipment.updatedAt).toLocaleString('en-US', { timeZone: 'GMT-0' }) : 'N/A',
                 note: statusMap[currentStatus].note
             });
         }
