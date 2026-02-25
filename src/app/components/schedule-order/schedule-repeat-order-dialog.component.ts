@@ -347,6 +347,70 @@ export class ScheduleRepeatOrderDialog {
     }
 
     saveOrder() {
+        // validate the form 
+        if(!this.deliveryAddress) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Delivery address is required',
+                life: 3000
+            });
+            return;
+        }
+        if (!this.startDate || !this.selectedFrequency || !this.deliveryAddress) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please fill all required fields',
+                life: 3000
+            });
+            return;
+        }
+        if (this.startDate < new Date()) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Start date cannot be in the past',
+                life: 3000
+            });
+            return;
+        }
+        if (this.selectedFrequency.value === 'weekly' && !this.weekDays.some(day => day.selected)) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please select at least one day',
+                life: 3000
+            });
+            return;
+        }
+        if (this.endCondition === 'date' && !this.endDate) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'End date is required when "End by date" is selected',
+                life: 3000
+            });
+            return;
+        }
+        if (this.endDate && this.endDate < this.startDate) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'End date must be after start date',
+                life: 3000
+            });
+            return;
+        }
+        if (this.userId === 0) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Unable to determine buyer or merchant ID',
+                life: 3000
+            });
+            return;
+        }
         const repeatOnDays = this.weekDays
             .filter(day => day.selected)
             .map(day => day.label.toUpperCase())
