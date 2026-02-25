@@ -30,7 +30,6 @@ import { DashboardDataService } from '@/service/dashboard-data.service';
         <div class="mt-6 flex flex-col">
         <!-- Show only limited items initially -->
         @for (item of displayedRevenueData; track trackByFn(); let idx = $index ) {
-            @if (item.amount > 0) {
                 <div class="flex items-center gap-3.5">
                     <span class="flex-1 body-small text-left text-surface-950 dark:text-surface-0">
                         {{ item.date | date:'MMM d, yyyy' }}
@@ -40,7 +39,6 @@ import { DashboardDataService } from '@/service/dashboard-data.service';
                     </span>
                 </div>
                 <p-divider *ngIf="displayedRevenueData.length - 1 > idx" class="my-3" />
-            }
         }
         
         <!-- Show "See More" button if there are more items to show -->
@@ -92,12 +90,13 @@ export class BuyerRevenueWidget implements OnInit {
 
     // Computed property for displayed data
     get displayedRevenueData() {
-        return this.showAll
-            ? this.projectedRevenueData
-            : this.projectedRevenueData.slice(0, this.initialDisplayCount);
+        if(this.showAll) {
+            return this.projectedRevenueData.filter(item => item.amount > 0);
+        }
+        return this.projectedRevenueData.filter(item => item.amount > 0).slice(0, this.initialDisplayCount);
     }
 
-    // Toggle between showing all and limited items
+    // Toggle between showing all and limited items 
     toggleShowAll() {
         this.showAll = !this.showAll;
     }
