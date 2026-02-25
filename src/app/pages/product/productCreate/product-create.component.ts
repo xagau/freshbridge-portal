@@ -104,7 +104,16 @@ export class ProductCreateComponent implements OnInit {
             return;
         }
 
-        // For admin users who might be creating products for any merchant
+        // check validation of the form
+        if (this.product.name === '' || this.product.description === '' || this.product.price === 0 || this.product.unit === '' || this.product.quantityAvailable === 0 || this.product.harvestDate === '') {
+            this.handleError('Please fill all required fields');
+            return;
+        }
+        if (this.selectedFiles.length === 0) {
+            this.handleError('Please upload at least one image');
+            return;
+        }
+
         // In a real app, you'd have a merchant selector in the UI
         const UID = this.userId ||
             (this.authService.currentUserValue?.role === 'ADMIN' ? 1 : null);
