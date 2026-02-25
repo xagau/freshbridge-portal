@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
     imports: [CommonModule, AppMenu, RouterModule, AppTopbar],
     template: `<div class="layout-sidebar" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
         <div class="sidebar-header">
-            <a class="logo" [routerLink]="['/']" [style.marginLeft]="layoutService.layoutState().sidebarActive ? '0' : '-100px'">
+            <a class="logo" [routerLink]="['/']" [style.marginLeft]="layoutService.layoutState().sidebarActive || layoutService.layoutState().staticMenuMobileActive ? '0' : '-100px'">
                 <img class="logo-image" [src]="menuTheme() === 'light' ? '/images/logo.png' : '/images/logo-white.png'" alt="fresh-bridge-layout" />
             </a>
             <button class="layout-sidebar-anchor z-2" type="button" (click)="anchor()"></button>
