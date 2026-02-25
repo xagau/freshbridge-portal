@@ -29,16 +29,16 @@ import { DashboardDataService } from '@/service/dashboard-data.service';
 
         <div class="mt-6 flex flex-col">
         <!-- Show only limited items initially -->
-        @for (item of displayedRevenueData; track trackByFn(); let idx = $index) {
-            <div class="flex items-center gap-3.5">
-            <span class="flex-1 body-small text-left text-surface-950 dark:text-surface-0">
-                {{ item.date | date:'MMM d, yyyy' }}
-            </span>
-            <span class="label-small text-surface-950 dark:text-surface-0">
-                {{ item.amount | currency }}
-            </span>
-            </div>
-            <p-divider *ngIf="displayedRevenueData.length - 1 > idx" class="my-3" />
+        @for (item of displayedRevenueData; track trackByFn(); let idx = $index ) {
+                <div class="flex items-center gap-3.5">
+                    <span class="flex-1 body-small text-left text-surface-950 dark:text-surface-0">
+                        {{ item.date | date:'MMM d, yyyy' }}
+                    </span>
+                    <span class="label-small text-surface-950 dark:text-surface-0">
+                        {{ item.amount | currency }}
+                    </span>
+                </div>
+                <p-divider *ngIf="displayedRevenueData.length - 1 > idx" class="my-3" />
         }
         
         <!-- Show "See More" button if there are more items to show -->
@@ -90,12 +90,13 @@ export class BuyerRevenueWidget implements OnInit {
 
     // Computed property for displayed data
     get displayedRevenueData() {
-        return this.showAll
-            ? this.projectedRevenueData
-            : this.projectedRevenueData.slice(0, this.initialDisplayCount);
+        if(this.showAll) {
+            return this.projectedRevenueData.filter(item => item.amount > 0);
+        }
+        return this.projectedRevenueData.filter(item => item.amount > 0).slice(0, this.initialDisplayCount);
     }
 
-    // Toggle between showing all and limited items
+    // Toggle between showing all and limited items 
     toggleShowAll() {
         this.showAll = !this.showAll;
     }
@@ -112,7 +113,7 @@ export class BuyerRevenueWidget implements OnInit {
         maintainAspectRatio: false,
         scales: { display: false },
         legend: { display: false },
-        elements: { line: { tension: 0.4 } }
+        elements: { line: { tension: 0 } }
     };
 
     currentUser: any = {
@@ -167,14 +168,14 @@ export class BuyerRevenueWidget implements OnInit {
                         const startDate = new Date(order.startDate);
                         const deliveryDay = new Date(order.endDate).getDay();
                         const endDate = order.endDate ? new Date(order.endDate) : addMonths(today, 6); // Default to 6 months ahead
-                
+
                         let currentDate = new Date(startDate);
-                
+
                         // Find the first occurrence of the delivery day after start date
                         while (currentDate.getDay() !== deliveryDay) {
                             currentDate = addDays(currentDate, 1);
                         }
-                
+
                         while (currentDate <= endDate) {
                             this.addToRevenueMap(revenueMap, currentDate, order.totalAmount);
                             // Move forward 2 weeks
@@ -195,14 +196,27 @@ export class BuyerRevenueWidget implements OnInit {
                     }
                 });
 
-                // Convert map to array and sort by date
+                // Convert map to array and sort by date, but add 0 amount for dates that are not in the map
+                // all dates from today to 1 month  every day
+                const allDates = [];
+                let startDate = new Date(today);
+                const endDate = addMonths(today, 1);
+                while (isAfter(endDate, startDate)) {
+                    allDates.push(startDate);
+                    startDate = addDays(startDate, 1);
+                }
+
+                allDates.forEach(date => {
+                    if (!revenueMap.has(date.toISOString())) {
+                        revenueMap.set(date.toISOString(), 0);
+                    }
+                });
                 this.projectedRevenueData = Array.from(revenueMap.entries())
                     .map(([date, amount]) => ({
                         date: new Date(date),
                         amount
                     }))
                     .sort((a, b) => a.date.getTime() - b.date.getTime());
-
                 // Calculate total projected revenue
                 this.totalAmount = this.projectedRevenueData.reduce((sum, day) => sum + day.amount, 0);
 
