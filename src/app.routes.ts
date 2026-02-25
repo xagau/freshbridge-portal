@@ -116,6 +116,7 @@ export const appRoutes: Routes = [
             {
                 path: 'accounts-management',
                 loadChildren: () => import('@/pages/account-access/usersmanagement.routes'),
+                canActivate: [AuthGuard],
                 data: { roles: ['ADMIN'] }
             }
         ]
