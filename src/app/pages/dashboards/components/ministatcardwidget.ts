@@ -171,13 +171,16 @@ export class MiniStatCardWidget implements OnInit {
     }
 
     processSavingsItems(products: any[], filter: string = 'all') {
+        console.log("products=====", products);
+        
         this.savingsItems = products
             .map((product: any) => ({
                 sku: `FP${product.id.toString().padStart(5, '0')}`,
                 name: product.name,
                 cost: product.price,
-                savings: Math.floor(Math.random() * product.price), // random number than 0 and less than cost
-                productId: product.id
+                savings: product.price * 0.15, // 15% of price
+                productId: product.id,
+                merchantName: product.merchantName
             }));
         if (filter === 'saving') {
             this.savingsItems = this.savingsItems.sort((a, b) => b.savings - a.savings)

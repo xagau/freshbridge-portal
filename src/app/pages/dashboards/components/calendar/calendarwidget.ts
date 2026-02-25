@@ -60,10 +60,9 @@ export class GoogleLikeCalendarComponent implements OnInit {
                     // For one-time orders, use expectedDeliveryDate if available, otherwise orderDate
                     // now is -1 day when change Date GMT -
                     const eventDate = order.expectedDeliveryDate ?
-                        new Date(order.expectedDeliveryDate) :
-                        new Date(order.startDate);
-                    eventDate.setDate(eventDate.getDate() + 1);
-                    this.addEventIfInMonth(order, eventDate);
+                        new Date(order.expectedDeliveryDate).toLocaleString('en-US', { timeZone: 'GMT-0' }) :
+                        new Date(order.startDate).toLocaleString('en-US', { timeZone: 'GMT-0' });
+                    this.addEventIfInMonth(order, new Date(eventDate));
                 }
                 else if (order.frequency === 'WEEKLY') {
                     this.handleWeeklyOrder(order);
