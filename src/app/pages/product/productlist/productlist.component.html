@@ -81,8 +81,84 @@
                         <p-button [label]="'Merchant: ' + product.merchantName" icon="pi pi-home" severity="secondary" size="small"
                             (onClick)="viewMerchantProducts($event, product.merchantId)"></p-button>
                     </div>
+
+                    <!-- Quick-Add to Repeating Order (buyer only) -->
+                    <div *ngIf="isBuyer()" class="mt-3" (click)="$event.stopPropagation()">
+
+                        <!-- Card loading spinner -->
+                        <div *ngIf="cardLoadingMap.get(product.id)" class="flex justify-center py-2">
+                            <p-progressSpinner styleClass="w-2rem h-2rem" strokeWidth="4" animationDuration=".5s"></p-progressSpinner>
+                        </div>
+
+                        <!-- Not in order: show Add button -->
+                        <div *ngIf="!cardLoadingMap.get(product.id) && !getOrderState(product.id)">
+                            <p-button
+                                label="+ Add to Order"
+                                severity="success"
+                                size="small"
+                                styleClass="w-full"
+                                (onClick)="onQuickAdd($event, product)"
+                            ></p-button>
+                        </div>
+
+                        <!-- In order: show quantity controls -->
+                        <div *ngIf="!cardLoadingMap.get(product.id) && getOrderState(product.id)" class="flex items-center justify-between gap-2">
+                            <p-button
+                                icon="pi pi-minus"
+                                severity="secondary"
+                                size="small"
+                                [rounded]="true"
+                                (onClick)="onQtyChange($event, product, -1)"
+                            ></p-button>
+                            <span class="font-semibold text-surface-900 dark:text-surface-0 text-lg">
+                                {{ getOrderState(product.id)!.quantity }}
+                            </span>
+                            <p-button
+                                icon="pi pi-plus"
+                                severity="success"
+                                size="small"
+                                [rounded]="true"
+                                (onClick)="onQtyChange($event, product, 1)"
+                            ></p-button>
+                        </div>
+
+                    </div>
+                    <!-- /Quick-Add -->
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Multi-order selection dialog -->
+<p-dialog
+    [(visible)]="showOrderSelectDialog"
+    header="Select Repeating Order"
+    [modal]="true"
+    [style]="{ width: '400px' }"
+    (onHide)="addingProduct = null; selectedOrderForAdd = null"
+>
+    <p class="mb-3 text-surface-700 dark:text-surface-200">
+        You have multiple repeating orders. Which one should <strong>{{ addingProduct?.name }}</strong> be added to?
+    </p>
+    <p-dropdown
+        [options]="activeOrders"
+        [(ngModel)]="selectedOrderForAdd"
+        optionLabel="id"
+        placeholder="Select an order..."
+        styleClass="w-full"
+    >
+        <ng-template pTemplate="selectedItem" let-order>
+            <span *ngIf="order">Order #{{ order.id }} — {{ order.frequency }} ({{ order.startDate | date:'mediumDate' }})</span>
+        </ng-template>
+        <ng-template pTemplate="item" let-order>
+            <span>Order #{{ order.id }} — {{ order.frequency }} ({{ order.startDate | date:'mediumDate' }})</span>
+        </ng-template>
+    </p-dropdown>
+
+    <ng-template pTemplate="footer">
+        <p-button label="Cancel" severity="secondary" (onClick)="showOrderSelectDialog = false"></p-button>
+        <p-button label="Add to Order" severity="success" [disabled]="!selectedOrderForAdd" (onClick)="onConfirmOrderSelect()"></p-button>
+    </ng-template>
+</p-dialog>
