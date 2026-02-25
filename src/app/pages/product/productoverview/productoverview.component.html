@@ -85,12 +85,12 @@
                 <h3 class="font-bold text-lg mb-2">{{product.name}} (Qty: {{quantity}})</h3>
             </div>
 
-            <div class="col-span-12" *ngIf="existingOrders.length === 0">
+            <div class="col-span-12" >
                 <p class="text-surface-600 dark:text-surface-300 mb-4">You have no active order. Create one to add items.</p>
                 <button pButton pRipple label="Create order" icon="pi pi-plus" (click)="createNewOrder()"></button>
             </div>
 
-            <div class="col-span-12 min-h-[120px]" *ngIf="existingOrders.length > 1">
+            <div class="col-span-12 min-h-[120px]" *ngIf="existingOrders.length > 10">
                 <label class="block font-medium mb-2">Which order?</label>
                 <p-dropdown [options]="existingOrders" appendTo="body" [(ngModel)]="selectedOrder" optionLabel="name"
                     placeholder="Select order" [showClear]="true" class="w-full"></p-dropdown>

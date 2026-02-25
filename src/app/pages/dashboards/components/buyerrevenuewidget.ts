@@ -17,7 +17,7 @@ import { DashboardDataService } from '@/service/dashboard-data.service';
     imports: [CommonModule, ChartModule, TagModule, DividerModule, ButtonModule],
     template: `<div class="flex items-center justify-between">
             <span class="label-medium text-surface-950 dark:text-surface-0">{{ currentUser.role === 'MERCHANT' ? 'Monthly GMV' : 'Monthly Purchases' }}</span>
-            <button pButton severity="secondary" outlined class="!text-surface-950 dark:!text-surface-0 !px-2 !py-1.5 !rounded-lg !label-xsmall"><span pButtonLabel>See All</span><i class="pi pi-chevron-right !text-xs"></i></button>
+            <!-- <button pButton severity="secondary" outlined class="!text-surface-950 dark:!text-surface-0 !px-2 !py-1.5 !rounded-lg !label-xsmall"><span pButtonLabel>See All</span><i class="pi pi-chevron-right !text-xs"></i></button> -->
         </div>
         <div class="flex items-center gap-3.5 mt-4">
             <span class="title-h6">{{ totalAmount | currency }}</span>

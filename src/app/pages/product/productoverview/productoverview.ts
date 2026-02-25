@@ -190,7 +190,9 @@ export class ProductOverview implements OnInit {
 
     createNewOrder(): void {
         this.showOrderDialog = false;
-        this.router.navigate(['/schedule-order']);
+
+        // set product id to the query params
+        this.router.navigate(['/schedule-order'], { queryParams: { productId: this.product.id } });
     }
     buyerId = 1;
     merchantId = 1;
