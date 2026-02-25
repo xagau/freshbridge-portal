@@ -47,11 +47,12 @@ export class DashboardDataService {
         }
 
         // Use userId parameter instead of role-specific parameters
-        const params = { userId };
+        const isAdmin = this.authService.currentUserValue?.role === 'ADMIN';
+        const params = { userId, isAdmin };
 
         this.ordersService.listByRole(params).subscribe({
             next: (orders: Order[]) => {
-                console.log('Dashboard data service loaded orders:', orders.length);
+                console.log('Dashboard data service loaded orders:', orders);
                 this.ordersSubject.next(orders);
                 this.isLoadingSubject.next(false);
                 this.hasLoadedSubject.next(true);

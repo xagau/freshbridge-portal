@@ -139,7 +139,6 @@ export class MiniStatCardWidget implements OnInit {
             // Merchants and Buyers get orders from the shared service
             this.dashboardDataService.orders$.subscribe({
                 next: (data: any) => {
-                    console.log("data", data);
                     
                     if (data && data.length > 0) {
                         this.shipments = data.map((order: any) => ({
