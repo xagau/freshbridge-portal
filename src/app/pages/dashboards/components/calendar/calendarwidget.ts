@@ -33,6 +33,7 @@ export class GoogleLikeCalendarComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadingOrder = true;
+        
         this.generateCalendar();
         this.loadEventsForMonth();
     }
@@ -46,15 +47,14 @@ export class GoogleLikeCalendarComponent implements OnInit {
             }
         });
 
+
         // Use the shared dashboard data service instead of making a separate API call
         this.dashboardDataService.orders$.subscribe((orders: Order[]) => {
             if (!orders || orders.length === 0) {
                 return;
             }
-
             this.events = [];
             
-            console.log("orders=====", orders);
             orders.forEach(order => {
                 if (order.frequency === 'ONCE') {
                     // For one-time orders, use expectedDeliveryDate if available, otherwise orderDate
@@ -76,6 +76,9 @@ export class GoogleLikeCalendarComponent implements OnInit {
             });
             this.loadingOrder = false;
         });
+
+        // this.loadingOrder = false;
+
     }
 
     private addEventIfInMonth(order: Order, date: Date) {
@@ -266,6 +269,7 @@ export class GoogleLikeCalendarComponent implements OnInit {
             }
             weeks.push(week);
         }
+        // this.loadingOrder = false;
 
         this.weeks = weeks;
     }
