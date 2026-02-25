@@ -22,12 +22,13 @@ export class OrdersService {
         buyerId?: number | null,
         merchantId?: number | null,
         isCourier?: boolean | null,
-        status?: string | null
+        status?: string | null,
+        isAdmin?: boolean | null
     }): Observable<Order[]> {
         // Remove null or undefined params
         const httpParams: any = {};
-
-        if(params.userId == 0) {
+        
+        if(params.userId == 0  || params.isAdmin == true) {
             return this.http.get<Order[]>(this.API + "/all", {
                 params: httpParams
             });

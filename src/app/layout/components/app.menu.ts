@@ -83,19 +83,19 @@ export class AppMenu implements OnInit, OnDestroy {
                     },
                     {
                         label: 'FreshSelect',
-                        icon: 'pi pi-fw pi-list',
+                        icon: 'pi pi-fw pi-comments',
                         routerLink: ['/freshselect'],
                         roles: ['MERCHANT', 'BUYER', 'ADMIN', 'COURIER']
                     },
                     {
                         label: 'Orders & Fulfillment',
-                        icon: 'pi pi-fw pi-file-check',
+                        icon: 'pi pi-fw pi-shopping-cart',
                         routerLink: ['/order-management'],
                         roles: ['MERCHANT', 'BUYER', 'COURIER']
                     },
                     {
                         label: 'Product Listings',
-                        icon: 'pi pi-fw pi-list',
+                        icon: 'pi pi-fw pi-box',
                         routerLink: ['/product-management'],
                         roles: ['MERCHANT', 'BUYER']
                     },
@@ -107,7 +107,7 @@ export class AppMenu implements OnInit, OnDestroy {
                     },
                     {
                         label: 'Schedule Order',
-                        icon: 'pi pi-fw pi-credit-card',
+                        icon: 'pi pi-fw pi-calendar',
                         routerLink: ['/schedule-order'],
                         roles: ['BUYER']
                     },
@@ -127,7 +127,7 @@ export class AppMenu implements OnInit, OnDestroy {
                     
                     {
                         label: 'Audit Logs',
-                        icon: 'pi pi-fw pi-file',
+                        icon: 'pi pi-fw pi-history',
                         routerLink: ['/audit-logs'],
                         roles: ['ADMIN']
                     }
@@ -140,13 +140,13 @@ export class AppMenu implements OnInit, OnDestroy {
                 items: [
                     {
                         label: 'Merchants Management',
-                        icon: 'pi pi-fw pi-users',
+                        icon: 'pi pi-fw pi-building',
                         routerLink: ['/merchants-management'],
                         roles: ['ADMIN']
                     },
                     {
                         label: 'Buyers Management',
-                        icon: 'pi pi-fw pi-users',
+                        icon: 'pi pi-fw pi-user',
                         routerLink: ['/buyers-management'],
                         roles: ['ADMIN']
                     },

@@ -11,6 +11,7 @@
                 <label for="name" class="block font-medium mb-2">Product Name</label>
                 <input pInputText id="name" [(ngModel)]="product.name" name="name" required class="w-full"
                     placeholder="Enter product name">
+                    <small class="text-red-500" *ngIf="product.name === ''">Product name is required</small>
             </div>
 
             <!-- Description -->
@@ -19,6 +20,7 @@
                 <textarea pTextarea [(ngModel)]="product.description" class="w-full" name="description"
                     autoResize="false" [style]="{ 'min-height': '200px' }"
                     placeholder="Enter product description"></textarea>
+                <small class="text-red-500" *ngIf="product.description === ''">Description is required</small>
             </div>
 
             <!-- Image Upload -->
@@ -49,6 +51,7 @@
                     <input pInputText id="price" type="number" [(ngModel)]="product.price" name="price" required min="0"
                         step="0.01" class="w-full" placeholder="0.00">
                 </div>
+                <small class="text-red-500" *ngIf="product.price === 0">Price is required</small>
             </div>
 
             <!-- Unit and Quantity -->
@@ -58,12 +61,14 @@
                     <p-select [options]="unitOptions" [(ngModel)]="product.unit" name="unit" placeholder="Select unit"
                         [style]="{ width: '100%' }">
                     </p-select>
+                    <small class="text-red-500" *ngIf="product.unit === ''">Unit is required</small>
                 </div>
 
                 <div class="field">
                     <label for="quantity" class="block font-medium mb-2">Quantity</label>
                     <input pInputText id="quantity" type="number" [(ngModel)]="product.quantityAvailable"
                         name="quantity" required min="0" class="w-full" placeholder="0">
+                    <small class="text-red-500" *ngIf="product.quantityAvailable === 0">Quantity is required</small>
                 </div>
             </div>
 
@@ -72,6 +77,7 @@
                 <label for="harvestDate" class="block font-medium mb-2">Harvest Date</label>
                 <input pInputText id="harvestDate" type="date" [(ngModel)]="product.harvestDate" name="harvestDate"
                     class="w-full">
+                <small class="text-red-500" *ngIf="product.harvestDate === ''">Harvest date is required</small>
             </div>
 
             <!-- In Stock Toggle -->
