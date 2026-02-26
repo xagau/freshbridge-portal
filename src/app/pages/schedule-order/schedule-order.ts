@@ -249,6 +249,8 @@ export class ScheduleRepeatOrder {
         this.minStartDate = new Date();
         this.route.queryParams.subscribe(params => {
             this.productId_create_order = params['productId'] || null;
+            this.quantity = params['quantity'] || 1;
+
         });
     }
 
@@ -256,6 +258,7 @@ export class ScheduleRepeatOrder {
     startDate: Date = new Date();
     minStartDate: Date = new Date();
     productId_create_order: string | null = null;
+    quantity: number = 1;
     // ⏱ Repeat Frequency
     frequencyOptions = [
         { label: 'One-time', value: 'once' },
@@ -560,7 +563,26 @@ export class ScheduleRepeatOrder {
                     this.isSubmitting = false;
                     this.reset();
                     if(this.productId_create_order) {
-                        this.router.navigate(['/product-management/overview/', this.productId_create_order]);
+                        // add order items to the new order with that product id
+                        this.ordersService.addItemToOrder(order.id, { productId: Number(this.productId_create_order), quantity: Number(this.quantity) }).subscribe({
+                            next: () => {
+                                this.messageService.add({
+                                    severity: 'success',
+                                    summary: 'Success',
+                                    detail: 'Order items added to order successfully',
+                                    life: 3000
+                                });
+                                this.router.navigate(['/product-management/']);
+                            },
+                            error: (err) => {
+                                this.messageService.add({
+                                    severity: 'error',
+                                    summary: 'Error',
+                                    detail: 'Failed to add order items to order',
+                                    life: 3000
+                                });
+                            }
+                        });
                     }
                 },
                 error: (err) => {

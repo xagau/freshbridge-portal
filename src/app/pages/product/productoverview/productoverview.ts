@@ -115,8 +115,10 @@ export class ProductOverview implements OnInit {
 
         this.merchantId = this.authService.getProfileId() || 1;
         if (this.authService.currentUserValue?.role === 'BUYER') {
+            console.log("merchantId", this.product.merchantId);
+            console.log("product", this.product);
+
             this.merchantId = this.product.merchantId;
-            console.log("merchantId", this.merchantId);
 
         }
 
@@ -192,7 +194,7 @@ export class ProductOverview implements OnInit {
         this.showOrderDialog = false;
 
         // set product id to the query params
-        this.router.navigate(['/schedule-order'], { queryParams: { productId: this.product.id } });
+        this.router.navigate(['/schedule-order'], { queryParams: { productId: this.product.id, quantity: this.quantity } });
     }
     buyerId = 1;
     merchantId = 1;

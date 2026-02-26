@@ -12,6 +12,10 @@ export interface Order {
         unitPrice: number;
         subtotal: number;
     }[];
+    merchant: {
+        id: number;
+        name: string;
+    };
     merchantId: number;
     buyerId: number;
     totalAmount: number;

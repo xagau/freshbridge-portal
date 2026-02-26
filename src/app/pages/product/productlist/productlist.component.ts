@@ -19,14 +19,8 @@ import { Order } from '@/model/order.model';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 
-type MerchantOption = Merchant & { name: string };
 
-interface OrderItemState {
-    orderId: number;
-    itemId: number;
-    quantity: number;
-    productId: number;
-}
+type MerchantOption = Merchant & { name: string };
 
 @Component({
     selector: 'app-product-list',
@@ -66,16 +60,20 @@ export class ProductList {
     currentUserId = signal<number | null>(null);
     public environment = environment;
 
-    // Quick-add state
+    // Add-to-order dialog state
+    allOrders: Order[] = [];
     activeOrders: Order[] = [];
-    orderItemMap = new Map<number, OrderItemState>();
-    cardLoadingMap = new Map<number, boolean>();
-    pendingUpdates = new Map<number, ReturnType<typeof setTimeout>>();
-
-    // Multi-order dialog state
     showOrderSelectDialog = false;
-    addingProduct: Product | null = null;
+    
+    addingProduct: Product | null = null; 
+    addingProductSignal = signal<Product | null>(null); 
+
     selectedOrderForAdd: Order | null = null;
+    addToOrderQuantity = 1;
+    loadingAddToOrder = false;
+    /** Orders for current product's merchant (set when opening dialog). */
+    activeOrdersForDialog: Order[] = [];
+    showQuantitybutton = false;
 
     constructor(
         private router: Router,
@@ -83,13 +81,12 @@ export class ProductList {
         private merchantService: MerchantService,
         private messageService: MessageService,
         private authService: AuthService,
-        private ordersService: OrdersService
+        private ordersService: OrdersService,
     ) { }
 
     ngOnInit() {
         // Set user role flags
         const userRole = this.authService.currentUserValue?.role;
-        console.log("userRole:", userRole);
 
         this.isAdmin.set(userRole === 'ADMIN');
         this.isMerchant.set(userRole === 'MERCHANT');
@@ -182,10 +179,10 @@ export class ProductList {
 
         this.ordersService.listByRole({ userId }).subscribe({
             next: (orders) => {
-                this.activeOrders = (orders || []).filter(o =>
+                this.allOrders = (orders || []).filter(o =>
                     o.status !== 'CANCELLED' && o.status !== 'cancelled'
                 );
-                this.buildOrderItemMap();
+                this.activeOrders = this.allOrders;
             },
             error: (err) => {
                 console.error('Failed to load active orders for quick-add:', err);
@@ -193,67 +190,52 @@ export class ProductList {
         });
     }
 
-    buildOrderItemMap() {
-        this.orderItemMap.clear();
-        for (const order of this.activeOrders) {
-            if (!order.items) continue;
-            for (const item of order.items) {
-                if (item.productId != null) {
-                    this.orderItemMap.set(item.productId, {
-                        orderId: order.id,
-                        itemId: item.id,
-                        quantity: item.quantity,
-                        productId: item.productId,
-                    });
-                }
-            }
-        }
+   
+    addToOrderClick(event: Event, product: Product) {
+        event.stopPropagation();
+        this.addingProductSignal.set(product);
+        this.showQuantitybutton = true;
+        
+        this.addToOrderQuantity = 1;
+        this.activeOrdersForDialog = this.activeOrders.filter(o => o.merchant?.id === product.merchantId);
+        this.selectedOrderForAdd = this.activeOrdersForDialog.length === 1 ? this.activeOrdersForDialog[0] : null;
     }
-
-    getOrderState(productId: number): OrderItemState | null {
-        return this.orderItemMap.get(productId) ?? null;
-    }
-
     onQuickAdd(event: Event, product: Product) {
         event.stopPropagation();
 
-        if (this.activeOrders.length === 0) {
+        if (product.quantityAvailable === 0) {
             this.messageService.add({
                 severity: 'info',
-                summary: 'No Repeating Orders',
-                detail: 'Create a repeating order first at Schedule Order, then add products.',
+                summary: 'Product Out of Stock',
+                detail: 'This product is out of stock.',
                 life: 4000
             });
             return;
         }
-
-        if (this.activeOrders.length === 1) {
-            this.doAdd(product, this.activeOrders[0].id);
-            return;
-        }
-
-        // Multiple orders — show dialog
-        this.addingProduct = product;
-        this.selectedOrderForAdd = this.activeOrders[0];
+        this.addingProductSignal.set(product);
+        console.log("activeOrders", this.activeOrders);
+        this.activeOrdersForDialog = this.activeOrders.filter(o => o.merchant?.id === product.merchantId);
+        this.selectedOrderForAdd = this.activeOrdersForDialog.length === 1 ? this.activeOrdersForDialog[0] : null;
         this.showOrderSelectDialog = true;
     }
 
-    doAdd(product: Product, orderId: number) {
-        this.setCardLoading(product.id, true);
-        this.ordersService.addItemToOrder(orderId, { productId: product.id, quantity: 1 }).subscribe({
+    doAdd(product: Product, orderId: number, quantity: number) {
+        this.loadingAddToOrder = true;
+        this.ordersService.addItemToOrder(orderId, { productId: product.id, quantity }).subscribe({
             next: () => {
-                this.setCardLoading(product.id, false);
-                this.loadActiveOrders();
+                this.loadingAddToOrder = false;
+                this.showOrderSelectDialog = false;
+                this.resetAddToOrderDialog();
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Added',
-                    detail: `${product.name} added to your order.`,
+                    detail: `${product.name} (×${quantity}) added to your order.`,
                     life: 2500
                 });
             },
             error: (err) => {
                 console.error('Failed to add item:', err);
-                this.setCardLoading(product.id, false);
+                this.loadingAddToOrder = false;
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
@@ -264,86 +246,29 @@ export class ProductList {
         });
     }
 
-    onQtyChange(event: Event, product: Product, delta: number) {
-        event.stopPropagation();
-
-        const state = this.getOrderState(product.id);
-        if (!state) return;
-
-        const newQty = state.quantity + delta;
-
-        // Optimistic update
-        const updated: OrderItemState = { ...state, quantity: newQty };
-        this.orderItemMap.set(product.id, updated);
-
-        // Cancel any pending debounce for this product
-        const existing = this.pendingUpdates.get(product.id);
-        if (existing) clearTimeout(existing);
-
-        // Schedule flush
-        const timer = setTimeout(() => {
-            this.flushQtyUpdate(product, state, newQty);
-            this.pendingUpdates.delete(product.id);
-        }, 400);
-
-        this.pendingUpdates.set(product.id, timer);
-    }
-
-    flushQtyUpdate(product: Product, originalState: OrderItemState, newQty: number) {
-        this.setCardLoading(product.id, true);
-
-        if (newQty <= 0) {
-            this.ordersService.removeOrderItem(originalState.orderId, originalState.itemId).subscribe({
-                next: () => {
-                    this.setCardLoading(product.id, false);
-                    this.loadActiveOrders();
-                },
-                error: (err) => {
-                    console.error('Failed to remove item:', err);
-                    // Revert optimistic update
-                    this.orderItemMap.set(product.id, originalState);
-                    this.setCardLoading(product.id, false);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to remove item from order.',
-                        life: 3000
-                    });
-                }
-            });
-        } else {
-            this.ordersService.updateOrderItem(originalState.orderId, originalState.itemId, product.id, newQty).subscribe({
-                next: () => {
-                    this.setCardLoading(product.id, false);
-                    this.loadActiveOrders();
-                },
-                error: (err) => {
-                    console.error('Failed to update item:', err);
-                    // Revert optimistic update
-                    this.orderItemMap.set(product.id, originalState);
-                    this.setCardLoading(product.id, false);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to update quantity.',
-                        life: 3000
-                    });
-                }
-            });
-        }
-    }
-
     onConfirmOrderSelect() {
-        if (this.addingProduct && this.selectedOrderForAdd) {
-            this.doAdd(this.addingProduct, this.selectedOrderForAdd.id);
+        if (!this.addingProductSignal()) return;
+        if (this.activeOrdersForDialog.length === 1) {
+            this.doAdd(this.addingProductSignal()!, this.activeOrdersForDialog[0].id, this.addToOrderQuantity);
+        } else if (this.activeOrdersForDialog.length > 1 && this.selectedOrderForAdd) {
+            this.doAdd(this.addingProductSignal()!, this.selectedOrderForAdd.id, this.addToOrderQuantity);
         }
-        this.showOrderSelectDialog = false;
-        this.addingProduct = null;
-        this.selectedOrderForAdd = null;
     }
 
-    setCardLoading(productId: number, loading: boolean) {
-        this.cardLoadingMap.set(productId, loading);
+    resetAddToOrderDialog() {
+        this.addingProductSignal.set(null);
+        this.selectedOrderForAdd = null;
+        this.addToOrderQuantity = 1;
+        this.activeOrdersForDialog = [];
+        this.showQuantitybutton = false;
+    }
+
+    createNewOrderFromDialog() {
+        this.showOrderSelectDialog = false;
+        const productId = this.addingProductSignal()?.id;
+        if (productId) {
+            this.router.navigate(['/schedule-order'], { queryParams: { productId, quantity: this.addToOrderQuantity } });
+        }
     }
 
     onMerchantSelectionChange(): void {
