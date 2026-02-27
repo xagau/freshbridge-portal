@@ -28,7 +28,7 @@
         "angularx-qrcode": "^19.0.0",
         "chart.js": "^4.3.0",
         "chartjs-adapter-date-fns": "^3.0.0",
-        "jspdf": "^4.0.0",
+        "jspdf": "^4.2.0",
         "jspdf-autotable": "^5.0.7",
         "leaflet": "^1.9.4",
         "leaflet-routing-machine": "^3.2.12",
